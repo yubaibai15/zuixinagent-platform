@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>巴西文化知识图谱 · Cultura Brasileira Knowledge Graph</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg-1: #14161d;
+  --bg-2: #0e1117;
+  --gold: #d4b878;
+  --gold-soft: rgba(212,184,120,0.35);
+  --panel: rgba(22,26,36,0.72);
+  --border: rgba(212,184,120,0.14);
+  --border-soft: rgba(255,255,255,0.07);
+  --text: #ece8df;
+  --text-2: #b8b2a6;
+  --text-3: #7d7870;
+  --shadow: 0 4px 24px rgba(0,0,0,0.45);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: radial-gradient(ellipse at 30% 15%, #1b1f2b 0%, #12151d 45%, #0b0d13 100%);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% -5%, rgba(212,184,120,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 55%, transparent 55%, rgba(4,5,9,0.6) 100%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background-image: radial-gradient(rgba(220,200,150,0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0.85) 0%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0.85) 0%, transparent 72%);
+}
+#graph { width: 100vw; height: 100vh; display: block; cursor: grab; }
+#graph:active { cursor: grabbing; }
+.header {
+  position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+  text-align: center; z-index: 10; pointer-events: none;
+}
+.header h1 {
+  font-size: 24px; font-weight: 700;
+  font-family: 'Georgia', 'Times New Roman', 'PingFang SC', 'Microsoft YaHei', serif;
+  background: linear-gradient(160deg, #f0ddad 0%, #d4b878 55%, #a8874a 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 10px rgba(212,184,120,0.22));
+  letter-spacing: 3px;
+}
+.header .divider {
+  width: 150px; height: 1px; margin: 6px auto 0;
+  background: linear-gradient(90deg, transparent, rgba(212,184,120,0.55), transparent);
+}
+.header p {
+  font-size: 10px; color: var(--text-3); margin-top: 5px; font-weight: 400;
+  letter-spacing: 2.5px; text-transform: uppercase;
+}
+.legend {
+  position: fixed; top: 14px; right: 14px;
+  background: var(--panel); backdrop-filter: blur(14px);
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 12px 14px; box-shadow: var(--shadow);
+  z-index: 10; min-width: 190px;
+}
+.legend-title {
+  font-size: 10px; font-weight: 700; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 3px 0; cursor: pointer; transition: all 0.2s;
+  border-radius: 6px; padding-left: 4px; padding-right: 4px;
+}
+.legend-item:hover { background: rgba(212,184,120,0.08); }
+.legend-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  flex-shrink: 0; box-shadow: 0 0 5px currentColor;
+}
+.legend-text { font-size: 12px; color: var(--text-2); font-weight: 500; }
+.legend-count { font-size: 10px; color: var(--text-3); margin-left: auto; }
+.legend-item.inactive { opacity: 0.35; }
+.legend-item.inactive .legend-dot { box-shadow: none; }
+.controls {
+  position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; z-index: 10;
+}
+.ctrl-btn {
+  background: var(--panel); backdrop-filter: blur(14px);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 7px 13px; font-size: 12px; color: var(--text-2);
+  cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow);
+  font-weight: 500;
+}
+.ctrl-btn:hover { background: rgba(255,255,255,0.06); color: var(--text); box-shadow: var(--shadow-lg); transform: translateY(-1px); border-color: var(--gold-soft); }
+.ctrl-btn.active { background: linear-gradient(135deg, #d4b878, #b89a55); color: #16181f; border-color: #d4b878; font-weight: 600; }
+.search-box { position: fixed; top: 14px; left: 14px; z-index: 10; }
+.search-box input {
+  background: var(--panel); backdrop-filter: blur(14px);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 7px 12px 7px 30px; font-size: 13px; color: var(--text);
+  width: 220px; outline: none; box-shadow: var(--shadow);
+  transition: all 0.2s;
+}
+.search-box input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,184,120,0.15); }
+.search-box input::placeholder { color: var(--text-3); }
+.search-icon {
+  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  color: var(--text-3); font-size: 13px;
+}
+.tooltip {
+  position: fixed; background: rgba(16,18,26,0.96); color: #fff;
+  border: 1px solid rgba(212,184,120,0.25);
+  border-radius: 12px; padding: 11px 15px; font-size: 12px;
+  pointer-events: none; z-index: 100; max-width: 300px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(212,184,120,0.08); opacity: 0;
+  transition: opacity 0.15s; line-height: 1.6;
+}
+.tooltip .tt-name { font-size: 13px; font-weight: 700; margin-bottom: 3px; color: var(--gold); }
+.tooltip .tt-pt { font-size: 11px; color: #8ecae6; margin-bottom: 3px; font-style: italic; }
+.tooltip .tt-desc { font-size: 11px; color: #c5c0b8; }
+.tooltip .tt-section { font-size: 10px; color: #6e6a63; margin-top: 3px; }
+.node-label {
+  font-size: 9px; fill: #d8d3c8; pointer-events: none;
+  text-anchor: middle; font-weight: 500;
+  paint-order: stroke; stroke: rgba(10,12,18,0.8); stroke-width: 3; stroke-linejoin: round;
+}
+.link { fill: none; transition: stroke-opacity 0.25s ease, stroke-width 0.25s ease; }
+.link.hl { stroke: #d4b878 !important; stroke-opacity: 0.85 !important; stroke-width: 2; }
+.node circle { cursor: pointer; transition: transform 0.22s ease; transform-box: fill-box; transform-origin: center; }
+.node:hover circle { transform: scale(1.22); }
+#graph { opacity: 0; transition: opacity 1.2s ease; }
+.dimmed { opacity: 0.1; }
+.legend, .controls, .search-box, .info-panel { animation: rise 0.8s ease both; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.controls, .controls .ctrl-btn { animation: none; }
+.controls { animation: riseC 0.8s 0.15s ease both; }
+@keyframes riseC { from { opacity: 0; transform: translate(-50%, 6px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.info-panel {
+  position: fixed; bottom: 14px; right: 14px;
+  background: var(--panel); backdrop-filter: blur(14px);
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 14px 18px; box-shadow: var(--shadow);
+  z-index: 10; max-width: 320px; display: none;
+}
+.info-panel.show { display: block; }
+.info-panel h3 {
+  font-size: 15px; color: var(--gold); margin-bottom: 4px;
+  font-family: 'Georgia', 'Times New Roman', 'PingFang SC', 'Microsoft YaHei', serif;
+  letter-spacing: 0.5px;
+}
+.info-panel .ip-pt { font-size: 11px; color: var(--text-3); font-style: italic; margin-bottom: 6px; }
+.info-panel .ip-desc { font-size: 12px; color: var(--text-2); line-height: 1.6; }
+.info-panel .ip-stats { display: flex; gap: 10px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.info-panel .ip-stat { font-size: 10px; color: var(--text-3); }
+.info-panel .ip-stat b { color: var(--text-2); }
+.info-panel .ip-close {
+  position: absolute; top: 8px; right: 12px; cursor: pointer;
+  color: var(--text-3); font-size: 16px; line-height: 1;
+}
+.info-panel .ip-close:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>巴西文化知识图谱</h1>
+  <div class="divider"></div>
+  <p>Cultura Brasileira · Knowledge Graph · 91 Nodes · 142 Edges</p>
+</div>
+<div class="search-box">
+  <span class="search-icon">&#128269;</span>
+  <input type="text" id="search" placeholder="搜索节点名称..." />
+</div>
+<div class="legend" id="legend"></div>
+<div class="controls">
+  <button class="ctrl-btn active" id="btn-labels">标签</button>
+  <button class="ctrl-btn active" id="btn-solid">实线</button>
+  <button class="ctrl-btn active" id="btn-dashed">虚线</button>
+  <button class="ctrl-btn" id="btn-zoom-in">放大</button>
+  <button class="ctrl-btn" id="btn-zoom-out">缩小</button>
+  <button class="ctrl-btn" id="btn-reset">重置</button>
+</div>
+<div class="info-panel" id="info-panel"></div>
+<div class="tooltip" id="tooltip"></div>
+<svg id="graph"></svg>
+<script id="graph-data" type="application/json">{"nodes":[{"id":"巴西文化 知识图谱 Cultura Brasileira","name":"巴西文化 知识图谱 Cultura Brasileira","section":"中心主题","portuguese":"Raízes do Brasil","description":"巴西本土文化全景 · 四大板块联动 · 文化商业一体化","weight":30,"section_id":0},{"id":"巴西本土文化 Cultura Brasileira","name":"巴西本土文化 Cultura Brasileira","section":"巴西本土文化 Cultura","portuguese":"Raízes do Brasil","description":"文化洞察驱动一切策略 · 四大板块之首","weight":21,"section_id":2},{"id":"狂欢节 Carnaval","name":"狂欢节 Carnaval","section":"巴西本土文化 Cultura","portuguese":"Maior festa do mundo","description":"全球最大派对 · 2-3月品牌联名窗口","weight":12,"section_id":2},{"id":"足球 Futebol","name":"足球 Futebol","section":"巴西本土文化 Cultura","portuguese":"País do Futebol","description":"国民第一运动 · 球星代言破圈","weight":10,"section_id":2},{"id":"里约 Rio de Janeiro","name":"里约 Rio de Janeiro","section":"巴西本土文化 Cultura","portuguese":"Cidade Maravilhosa","description":"文化之都 · 基督像 · 品牌Showcase","weight":9,"section_id":2},{"id":"圣保罗 São Paulo","name":"圣保罗 São Paulo","section":"巴西本土文化 Cultura","portuguese":"Motor econômico","description":"经济中心 · Av.Cidade Jardim旗舰","weight":9,"section_id":2},{"id":"亚马逊 Amazônia","name":"亚马逊 Amazônia","section":"巴西本土文化 Cultura","portuguese":"Pulmão do mundo","description":"地球之肺 · EV环保天然背书","weight":9,"section_id":2},{"id":"桑巴 Samba","name":"桑巴 Samba","section":"巴西本土文化 Cultura","portuguese":"Alma brasileira","description":"巴西灵魂音乐 · 狂欢节核心BGM","weight":8,"section_id":2},{"id":"内马尔 Neymar","name":"内马尔 Neymar","section":"巴西本土文化 Cultura","portuguese":"Ídolo nacional","description":"社媒粉丝过亿 · 潜在代言人","weight":8,"section_id":2},{"id":"黑豆炖肉 Feijoada","name":"黑豆炖肉 Feijoada","section":"巴西本土文化 Cultura","portuguese":"Prato nacional","description":"巴西国菜 · 车主社群聚会载体","weight":8,"section_id":2},{"id":"巴西烤肉 Churrasco","name":"巴西烤肉 Churrasco","section":"巴西本土文化 Cultura","portuguese":"Fogo de chão","description":"烤肉社交 · 户外试驾+BBQ","weight":8,"section_id":2},{"id":"基督像 Cristo Redentor","name":"基督像 Cristo Redentor","section":"巴西本土文化 Cultura","portuguese":"Símbolo do Brasil","description":"世界新七大奇迹 · 视觉借势","weight":8,"section_id":2},{"id":"波萨诺瓦 Bossa Nova","name":"波萨诺瓦 Bossa Nova","section":"巴西本土文化 Cultura","portuguese":"Garota de Ipanema","description":"优雅爵士 · 高端品牌调性","weight":7,"section_id":2},{"id":"卡波耶拉 Capoeira","name":"卡波耶拉 Capoeira","section":"巴西本土文化 Cultura","portuguese":"Arte-luta","description":"巴西战舞 · 品牌视频创意元素","weight":7,"section_id":2},{"id":"六月节 Festa Junina","name":"六月节 Festa Junina","section":"巴西本土文化 Cultura","portuguese":"São João","description":"6月丰收节 · 区域下沉活动","weight":7,"section_id":2},{"id":"凯匹林纳 Caipirinha","name":"凯匹林纳 Caipirinha","section":"巴西本土文化 Cultura","portuguese":"Coquetel nacional","description":"国民鸡尾酒 · 高端品鉴","weight":7,"section_id":2},{"id":"萨尔瓦多 Salvador","name":"萨尔瓦多 Salvador","section":"巴西本土文化 Cultura","portuguese":"Berço do Brasil","description":"非洲文化摇篮 · 文化营销腹地","weight":7,"section_id":2},{"id":"弗洛 Forró","name":"弗洛 Forró","section":"巴西本土文化 Cultura","portuguese":"Dança do Nordeste","description":"东北部民谣 · 地方下沉营销","weight":6,"section_id":2},{"id":"阿谢音乐 Axé Music","name":"阿谢音乐 Axé Music","section":"巴西本土文化 Cultura","portuguese":"Energia baiana","description":"巴伊亚特色 · 工厂所在地文化","weight":6,"section_id":2},{"id":"跨年夜 Réveillon","name":"跨年夜 Réveillon","section":"巴西本土文化 Cultura","portuguese":"Ano Novo Copacabana","description":"科帕卡巴纳200万人跨年","weight":6,"section_id":2},{"id":"芝士面包 Pão de Queijo","name":"芝士面包 Pão de Queijo","section":"巴西本土文化 Cultura","portuguese":"Delícia mineira","description":"人气小吃 · 展厅体验轻食","weight":6,"section_id":2},{"id":"巴西莓 Açaí","name":"巴西莓 Açaí","section":"巴西本土文化 Cultura","portuguese":"Energia amazônica","description":"健康能量碗 · 环保生活方式","weight":6,"section_id":2},{"id":"面包山 Pão de Açúcar","name":"面包山 Pão de Açúcar","section":"巴西本土文化 Cultura","portuguese":"Cartão postal","description":"里约地标 · 户外发布选址","weight":6,"section_id":2},{"id":"圣周 Semana Santa","name":"圣周 Semana Santa","section":"巴西本土文化 Cultura","portuguese":"Tradição religiosa","description":"复活节前宗教传统","weight":5,"section_id":2},{"id":"沙滩排球 Vôlei de Praia","name":"沙滩排球 Vôlei de Praia","section":"巴西本土文化 Cultura","portuguese":"Esporte carioca","description":"里约海滩 · 运动+环保场景","weight":5,"section_id":2},{"id":"冲浪 Surfe","name":"冲浪 Surfe","section":"巴西本土文化 Cultura","portuguese":"Ondas brasileiras","description":"海洋自由生活方式","weight":5,"section_id":2},{"id":"巧克力球 Brigadeiro","name":"巧克力球 Brigadeiro","section":"巴西本土文化 Cultura","portuguese":"Doce de festa","description":"国民甜品 · 展厅活动甜点","weight":5,"section_id":2},{"id":"私域运营 Marketing de Relacionamento","name":"私域运营 Marketing de Relacionamento","section":"私域运营 Relacionamento","portuguese":"Conexão direta","description":"巴西社交之王 · 品牌自有流量池","weight":21,"section_id":4},{"id":"WhatsApp","name":"WhatsApp","section":"私域运营 Relacionamento","portuguese":"99% dos celulares","description":"巴西99%覆盖率 · 私域核心阵地","weight":12,"section_id":4},{"id":"Instagram","name":"Instagram","section":"私域运营 Relacionamento","portuguese":"140M usuários","description":"巴西第三大IG市场 · 视觉营销主阵地","weight":11,"section_id":4},{"id":"YouTube","name":"YouTube","section":"私域运营 Relacionamento","portuguese":"144M usuários","description":"深度内容 · 测评+纪录片+直播","weight":10,"section_id":4},{"id":"达人合作 Influenciadores","name":"达人合作 Influenciadores","section":"私域运营 Relacionamento","portuguese":"Embaixadores","description":"汽车/生活KOL矩阵 · 种草","weight":9,"section_id":4},{"id":"Facebook","name":"Facebook","section":"私域运营 Relacionamento","portuguese":"112M usuários","description":"社群+广告 · 中年高净值人群","weight":9,"section_id":4},{"id":"TikTok Shop","name":"TikTok Shop","section":"私域运营 Relacionamento","portuguese":"Conteúdo viral","description":"2025进入巴西 · 内容电商黑马","weight":9,"section_id":4},{"id":"PIX即时支付","name":"PIX即时支付","section":"私域运营 Relacionamento","portuguese":"Pagamento instantâneo","description":"央行PIX · 即时转账零手续费","weight":9,"section_id":4},{"id":"WA Business API","name":"WA Business API","section":"私域运营 Relacionamento","portuguese":"Automação inteligente","description":"自动回复+标签+广播 · 批量管理","weight":8,"section_id":4},{"id":"群组运营 Grupos WA","name":"群组运营 Grupos WA","section":"私域运营 Relacionamento","portuguese":"Comunidade VIP","description":"车主群/潜客群 · 每日激活","weight":8,"section_id":4},{"id":"Reels短视频 Reels Curtos","name":"Reels短视频 Reels Curtos","section":"私域运营 Relacionamento","portuguese":"Vídeos virais","description":"前5秒强视觉 · 生活方式内容","weight":8,"section_id":4},{"id":"深度测评 Reviews","name":"深度测评 Reviews","section":"私域运营 Relacionamento","portuguese":"Avaliações completas","description":"专业车评 · 建立产品信任","weight":8,"section_id":4},{"id":"精准广告 FB Ads","name":"精准广告 FB Ads","section":"私域运营 Relacionamento","portuguese":"Segmentação precisa","description":"兴趣/收入/地域定向投放","weight":8,"section_id":4},{"id":"CRM系统 Sistema CRM","name":"CRM系统 Sistema CRM","section":"私域运营 Relacionamento","portuguese":"Gestão de leads","description":"客户数据管理 · 自动化跟进","weight":8,"section_id":4},{"id":"客服机器人 Chatbot WA","name":"客服机器人 Chatbot WA","section":"私域运营 Relacionamento","portuguese":"Atendimento 24h","description":"葡语AI客服 · 预约试驾自动化","weight":7,"section_id":4},{"id":"商品目录 Catálogo WA","name":"商品目录 Catálogo WA","section":"私域运营 Relacionamento","portuguese":"Vitrine digital","description":"车型展示 · 一键咨询","weight":7,"section_id":4},{"id":"购物标签 Shopping Tags","name":"购物标签 Shopping Tags","section":"私域运营 Relacionamento","portuguese":"Comprar direto","description":"App内下单 · 社交电商闭环","weight":7,"section_id":4},{"id":"AR滤镜 Filtros AR","name":"AR滤镜 Filtros AR","section":"私域运营 Relacionamento","portuguese":"Experiência imersiva","description":"虚拟试驾滤镜 · 互动传播","weight":7,"section_id":4},{"id":"直播 Lives","name":"直播 Lives","section":"私域运营 Relacionamento","portuguese":"Lançamentos ao vivo","description":"新车发布+试驾直播","weight":7,"section_id":4},{"id":"社群运营 Grupos FB","name":"社群运营 Grupos FB","section":"私域运营 Relacionamento","portuguese":"Comunidade Oficial","description":"官方社群 · 口碑传播","weight":7,"section_id":4},{"id":"直播带货 Live Commerce","name":"直播带货 Live Commerce","section":"私域运营 Relacionamento","portuguese":"Vendas ao vivo","description":"短视频+直播+小店闭环","weight":7,"section_id":4},{"id":"邮件营销 E-mail Marketing","name":"邮件营销 E-mail Marketing","section":"私域运营 Relacionamento","portuguese":"Nutrição de leads","description":"EDM培育 · 生命周期管理","weight":7,"section_id":4},{"id":"联盟营销 Afiliados","name":"联盟营销 Afiliados","section":"私域运营 Relacionamento","portuguese":"Parceiros TikTok","description":"达人分佣 · 扩大内容覆盖","weight":6,"section_id":4},{"id":"产品适配 Adaptação do Produto","name":"产品适配 Adaptação do Produto","section":"产品适配 Produto","portuguese":"Tecnologia Premium","description":"旗舰产品力 · 巴西市场深度适配","weight":21,"section_id":1},{"id":"动力性能 517cv","name":"动力性能 517cv","section":"产品适配 Produto","portuguese":"0-100 em 3.9s","description":"双电机四驱 · 700Nm · 超跑级加速","weight":11,"section_id":1},{"id":"卡马萨里工厂 Fábrica Camaçari","name":"卡马萨里工厂 Fábrica Camaçari","section":"产品适配 Produto","portuguese":"R$5.5bi investimento","description":"巴伊亚州 · 2万+就业 · 本地化生产","weight":11,"section_id":1},{"id":"刀片电池 Bateria Blade","name":"刀片电池 Bateria Blade","section":"产品适配 Produto","portuguese":"Segurança LFP","description":"针刺不起火 · 5000次循环","weight":10,"section_id":1},{"id":"充电网络 Rede de Recarga","name":"充电网络 Rede de Recarga","section":"产品适配 Produto","portuguese":"450+ pontos","description":"巴西最大公共充电网 · 450+充电点","weight":10,"section_id":1},{"id":"定价R$539.990","name":"定价R$539.990","section":"产品适配 Produto","portuguese":"Premium competitivo","description":"高端定位 · 对标BMW","weight":10,"section_id":1},{"id":"240家经销商 Concessionárias","name":"240家经销商 Concessionárias","section":"产品适配 Produto","portuguese":"Todos os estados","description":"2025年底240家 · 每州首府覆盖","weight":10,"section_id":1},{"id":"续航349km Autonomia","name":"续航349km Autonomia","section":"产品适配 Produto","portuguese":"349km PBEV","description":"巴西工况续航 · 城际出行","weight":9,"section_id":1},{"id":"豪华配置 Luxo Interno","name":"豪华配置 Luxo Interno","section":"产品适配 Produto","portuguese":"Couro Nappa Premium","description":"Nappa真皮 · 通风加热 · 座椅记忆","weight":9,"section_id":1},{"id":"智能驾驶 Sistema ADAS","name":"智能驾驶 Sistema ADAS","section":"产品适配 Produto","portuguese":"Condução inteligente","description":"ACC+LKA+AEB","weight":9,"section_id":1},{"id":"竞品格局 Concorrentes","name":"竞品格局 Concorrentes","section":"产品适配 Produto","portuguese":"BMW i4 · Tesla M3","description":"BMW i4 · Tesla M3 · Volvo EX30","weight":9,"section_id":1},{"id":"售后体系 Pós-venda","name":"售后体系 Pós-venda","section":"产品适配 Produto","portuguese":"Garantia estendida","description":"长质保 · 本地备件 · 专属服务","weight":9,"section_id":1},{"id":"360°全景影像 Câmera 360° 3D","name":"360°全景影像 Câmera 360° 3D","section":"产品适配 Produto","portuguese":"Visão panorâmica","description":"3D全景 · 透明底盘 · 泊车神器","weight":8,"section_id":1},{"id":"V2L外放电 Vehicle-to-Load","name":"V2L外放电 Vehicle-to-Load","section":"产品适配 Produto","portuguese":"Energia externa","description":"户外供电 · 巴西生活方式","weight":8,"section_id":1},{"id":"巴西配色 Cores Brasil","name":"巴西配色 Cores Brasil","section":"产品适配 Produto","portuguese":"Vermelho Paixão","description":"苍烟灰→Cinza Névoa · 红色→Paixão","weight":8,"section_id":1},{"id":"全景天窗 Teto Panorâmico","name":"全景天窗 Teto Panorâmico","section":"产品适配 Produto","portuguese":"Anti-esmagamento","description":"防夹 · 巴西阳光体验","weight":7,"section_id":1},{"id":"转化链路 Jornada de Conversão","name":"转化链路 Jornada de Conversão","section":"转化链路 Conversão","portuguese":"Do interesse à venda","description":"从认知到忠诚 · 完整客户旅程","weight":21,"section_id":5},{"id":"品牌认知 Conscientização","name":"品牌认知 Conscientização","section":"转化链路 Conversão","portuguese":"Reconhecimento","description":"车展+媒体+户外+PR","weight":11,"section_id":5},{"id":"兴趣激发 Interesse","name":"兴趣激发 Interesse","section":"转化链路 Conversão","portuguese":"Consideração","description":"社媒种草→官网→KOL→留资","weight":11,"section_id":5},{"id":"购买决策 Decisão de Compra","name":"购买决策 Decisão de Compra","section":"转化链路 Conversão","portuguese":"Fechamento","description":"金融+以旧换新+企业采购","weight":11,"section_id":5},{"id":"试驾体验 Test Drive","name":"试驾体验 Test Drive","section":"转化链路 Conversão","portuguese":"Agendamento","description":"线上预约 · 核心转化节点","weight":10,"section_id":5},{"id":"忠诚运营 Fidelização","name":"忠诚运营 Fidelização","section":"转化链路 Conversão","portuguese":"Clube VIP","description":"车主俱乐部 · 转介绍 · 社群","weight":10,"section_id":5},{"id":"数据追踪 Análise de Dados","name":"数据追踪 Análise de Dados","section":"转化链路 Conversão","portuguese":"ROI mensurável","description":"UTM · 漏斗 · ROI归因","weight":9,"section_id":5},{"id":"车展亮相 Salão do Automóvel","name":"车展亮相 Salão do Automóvel","section":"转化链路 Conversão","portuguese":"Lançamento oficial","description":"圣保罗车展 · 媒体+公众日","weight":8,"section_id":5},{"id":"展厅体验 Showroom Premium","name":"展厅体验 Showroom Premium","section":"转化链路 Conversão","portuguese":"Av. Cidade Jardim","description":"圣保罗旗舰 · 沉浸式体验","weight":8,"section_id":5},{"id":"金融方案 Financiamento","name":"金融方案 Financiamento","section":"转化链路 Conversão","portuguese":"Parcelas acessíveis","description":"分期付款 · 低利率","weight":8,"section_id":5},{"id":"车主俱乐部 Clube VIP","name":"车主俱乐部 Clube VIP","section":"转化链路 Conversão","portuguese":"Experiências exclusivas","description":"VIP活动 · 专属权益","weight":8,"section_id":5},{"id":"转介绍激励 Indicação Premiada","name":"转介绍激励 Indicação Premiada","section":"转化链路 Conversão","portuguese":"Ganhe indicando","description":"老带新 · 社群裂变引擎","weight":8,"section_id":5},{"id":"街头快闪 Pop-up Store","name":"街头快闪 Pop-up Store","section":"转化链路 Conversão","portuguese":"Shopping centers","description":"Shopping快闪 · 人流密集区","weight":7,"section_id":5},{"id":"户外广告 Mídia Outdoor","name":"户外广告 Mídia Outdoor","section":"转化链路 Conversão","portuguese":"Paulista · Copacabana","description":"保利斯塔 · 科帕卡巴纳大牌","weight":7,"section_id":5},{"id":"上门试驾 Test Drive em Casa","name":"上门试驾 Test Drive em Casa","section":"转化链路 Conversão","portuguese":"Conveniência total","description":"高端客户偏好 · 门到门","weight":7,"section_id":5},{"id":"以旧换新 Troca","name":"以旧换新 Troca","section":"转化链路 Conversão","portuguese":"Seu usado na troca","description":"旧车置换 · 降低门槛","weight":7,"section_id":5},{"id":"企业采购 Vendas Corporativas","name":"企业采购 Vendas Corporativas","section":"转化链路 Conversão","portuguese":"Frotas empresariais","description":"ESG需求 · 绿色车队","weight":7,"section_id":5},{"id":"车主活动 Eventos Exclusivos","name":"车主活动 Eventos Exclusivos","section":"转化链路 Conversão","portuguese":"Churrasco · Feijoada","description":"巴西美食文化车主聚会","weight":7,"section_id":5},{"id":"总统卢拉背书 Presidente Lula","name":"总统卢拉背书 Presidente Lula","section":"桥接层 Pontes","portuguese":"Parceiro Estratégico","description":"国家战略合作伙伴 · 国家名片背书","weight":10,"section_id":3},{"id":"74.4%市占率 Market Share","name":"74.4%市占率 Market Share","section":"桥接层 Pontes","portuguese":"Líder EV Brasil","description":"纯电市场绝对领导者","weight":10,"section_id":3},{"id":"深度本地化 Localização","name":"深度本地化 Localização","section":"桥接层 Pontes","portuguese":"Raízes no Brasil","description":"7年调研 · 14款车型 · 扎根巴西","weight":10,"section_id":3},{"id":"ESG绿色环保 Sustentabilidade","name":"ESG绿色环保 Sustentabilidade","section":"桥接层 Pontes","portuguese":"Emissão Zero","description":"EV零排放+亚马逊=品牌价值观共振","weight":9,"section_id":3},{"id":"满意度第1 RA1000","name":"满意度第1 RA1000","section":"桥接层 Pontes","portuguese":"Satisfação máxima","description":"超越本田大众福特 · Reclame Aqui认证","weight":9,"section_id":3},{"id":"葡语全链路 Português Total","name":"葡语全链路 Português Total","section":"桥接层 Pontes","portuguese":"Falar a língua","description":"官网到售后全葡语 · 消除隔阂","weight":8,"section_id":3},{"id":"15.6寸旋转大屏 screen","name":"15.6寸旋转大屏 screen","section":"产品适配 Produto","portuguese":"","description":"补充节点","weight":8,"section_id":1}],"links":[{"source":"巴西文化 知识图谱 Cultura Brasileira","target":"巴西本土文化 Cultura Brasileira","section":"中心主题 → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西文化 知识图谱 Cultura Brasileira","target":"私域运营 Marketing de Relacionamento","section":"中心主题 → 私域运营 Relacionamento","type":"solid"},{"source":"巴西文化 知识图谱 Cultura Brasileira","target":"产品适配 Adaptação do Produto","section":"中心主题 → 产品适配 Produto","type":"solid"},{"source":"巴西文化 知识图谱 Cultura Brasileira","target":"转化链路 Jornada de Conversão","section":"中心主题 → 转化链路 Conversão","type":"solid"},{"source":"巴西文化 知识图谱 Cultura Brasileira","target":"ESG绿色环保 Sustentabilidade","section":"中心主题 → 桥接层 Pontes","type":"solid"},{"source":"巴西文化 知识图谱 Cultura Brasileira","target":"总统卢拉背书 Presidente Lula","section":"中心主题 → 桥接层 Pontes","type":"solid"},{"source":"巴西文化 知识图谱 Cultura Brasileira","target":"74.4%市占率 Market Share","section":"中心主题 → 桥接层 Pontes","type":"solid"},{"source":"巴西文化 知识图谱 Cultura Brasileira","target":"满意度第1 RA1000","section":"中心主题 → 桥接层 Pontes","type":"solid"},{"source":"巴西文化 知识图谱 Cultura Brasileira","target":"深度本地化 Localização","section":"中心主题 → 桥接层 Pontes","type":"solid"},{"source":"巴西文化 知识图谱 Cultura Brasileira","target":"葡语全链路 Português Total","section":"中心主题 → 桥接层 Pontes","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"桑巴 Samba","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"波萨诺瓦 Bossa Nova","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"弗洛 Forró","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"卡波耶拉 Capoeira","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"阿谢音乐 Axé Music","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"狂欢节 Carnaval","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"六月节 Festa Junina","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"跨年夜 Réveillon","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"圣周 Semana Santa","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"足球 Futebol","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"内马尔 Neymar","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"沙滩排球 Vôlei de Praia","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"冲浪 Surfe","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"黑豆炖肉 Feijoada","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"巴西烤肉 Churrasco","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"芝士面包 Pão de Queijo","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"凯匹林纳 Caipirinha","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"巴西莓 Açaí","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"巧克力球 Brigadeiro","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"里约 Rio de Janeiro","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"圣保罗 São Paulo","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"萨尔瓦多 Salvador","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"亚马逊 Amazônia","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"基督像 Cristo Redentor","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西本土文化 Cultura Brasileira","target":"面包山 Pão de Açúcar","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"狂欢节 Carnaval","target":"桑巴 Samba","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"狂欢节 Carnaval","target":"里约 Rio de Janeiro","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"足球 Futebol","target":"内马尔 Neymar","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"里约 Rio de Janeiro","target":"基督像 Cristo Redentor","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"里约 Rio de Janeiro","target":"面包山 Pão de Açúcar","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"里约 Rio de Janeiro","target":"沙滩排球 Vôlei de Praia","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"巴西烤肉 Churrasco","target":"凯匹林纳 Caipirinha","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"黑豆炖肉 Feijoada","target":"凯匹林纳 Caipirinha","section":"巴西本土文化 Cultura → 巴西本土文化 Cultura","type":"solid"},{"source":"私域运营 Marketing de Relacionamento","target":"WhatsApp","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"私域运营 Marketing de Relacionamento","target":"Instagram","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"私域运营 Marketing de Relacionamento","target":"YouTube","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"私域运营 Marketing de Relacionamento","target":"Facebook","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"私域运营 Marketing de Relacionamento","target":"TikTok Shop","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"私域运营 Marketing de Relacionamento","target":"PIX即时支付","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"私域运营 Marketing de Relacionamento","target":"CRM系统 Sistema CRM","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"私域运营 Marketing de Relacionamento","target":"邮件营销 E-mail Marketing","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"WhatsApp","target":"WA Business API","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"WhatsApp","target":"群组运营 Grupos WA","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"WhatsApp","target":"客服机器人 Chatbot WA","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"WhatsApp","target":"商品目录 Catálogo WA","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"Instagram","target":"Reels短视频 Reels Curtos","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"Instagram","target":"购物标签 Shopping Tags","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"Instagram","target":"AR滤镜 Filtros AR","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"Instagram","target":"达人合作 Influenciadores","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"YouTube","target":"深度测评 Reviews","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"YouTube","target":"直播 Lives","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"Facebook","target":"精准广告 FB Ads","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"Facebook","target":"社群运营 Grupos FB","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"TikTok Shop","target":"直播带货 Live Commerce","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"TikTok Shop","target":"联盟营销 Afiliados","section":"私域运营 Relacionamento → 私域运营 Relacionamento","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"动力性能 517cv","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"刀片电池 Bateria Blade","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"续航349km Autonomia","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"充电网络 Rede de Recarga","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"定价R$539.990","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"豪华配置 Luxo Interno","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"15.6寸旋转大屏 screen","section":"产品适配 Produto →","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"360°全景影像 Câmera 360° 3D","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"智能驾驶 Sistema ADAS","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"全景天窗 Teto Panorâmico","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"V2L外放电 Vehicle-to-Load","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"竞品格局 Concorrentes","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"巴西配色 Cores Brasil","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"卡马萨里工厂 Fábrica Camaçari","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"240家经销商 Concessionárias","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"产品适配 Adaptação do Produto","target":"售后体系 Pós-venda","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"动力性能 517cv","target":"定价R$539.990","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"刀片电池 Bateria Blade","target":"充电网络 Rede de Recarga","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"卡马萨里工厂 Fábrica Camaçari","target":"240家经销商 Concessionárias","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"240家经销商 Concessionárias","target":"售后体系 Pós-venda","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"豪华配置 Luxo Interno","target":"15.6寸旋转大屏 screen","section":"产品适配 Produto →","type":"solid"},{"source":"智能驾驶 Sistema ADAS","target":"360°全景影像 Câmera 360° 3D","section":"产品适配 Produto → 产品适配 Produto","type":"solid"},{"source":"转化链路 Jornada de Conversão","target":"品牌认知 Conscientização","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"转化链路 Jornada de Conversão","target":"兴趣激发 Interesse","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"转化链路 Jornada de Conversão","target":"试驾体验 Test Drive","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"转化链路 Jornada de Conversão","target":"购买决策 Decisão de Compra","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"转化链路 Jornada de Conversão","target":"忠诚运营 Fidelização","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"品牌认知 Conscientização","target":"车展亮相 Salão do Automóvel","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"品牌认知 Conscientização","target":"街头快闪 Pop-up Store","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"品牌认知 Conscientização","target":"户外广告 Mídia Outdoor","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"兴趣激发 Interesse","target":"试驾体验 Test Drive","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"试驾体验 Test Drive","target":"上门试驾 Test Drive em Casa","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"试驾体验 Test Drive","target":"展厅体验 Showroom Premium","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"试驾体验 Test Drive","target":"购买决策 Decisão de Compra","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"购买决策 Decisão de Compra","target":"金融方案 Financiamento","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"购买决策 Decisão de Compra","target":"以旧换新 Troca","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"购买决策 Decisão de Compra","target":"企业采购 Vendas Corporativas","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"忠诚运营 Fidelização","target":"车主俱乐部 Clube VIP","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"忠诚运营 Fidelização","target":"转介绍激励 Indicação Premiada","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"忠诚运营 Fidelização","target":"车主活动 Eventos Exclusivos","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"忠诚运营 Fidelização","target":"数据追踪 Análise de Dados","section":"转化链路 Conversão → 转化链路 Conversão","type":"solid"},{"source":"狂欢节 Carnaval","target":"Reels短视频 Reels Curtos","section":"巴西本土文化 Cultura → 私域运营 Relacionamento","type":"dashed"},{"source":"足球 Futebol","target":"Facebook","section":"巴西本土文化 Cultura → 私域运营 Relacionamento","type":"dashed"},{"source":"亚马逊 Amazônia","target":"刀片电池 Bateria Blade","section":"巴西本土文化 Cultura → 产品适配 Produto","type":"dashed"},{"source":"狂欢节 Carnaval","target":"街头快闪 Pop-up Store","section":"巴西本土文化 Cultura → 转化链路 Conversão","type":"dashed"},{"source":"足球 Futebol","target":"动力性能 517cv","section":"巴西本土文化 Cultura → 产品适配 Produto","type":"dashed"},{"source":"WhatsApp","target":"试驾体验 Test Drive","section":"私域运营 Relacionamento → 转化链路 Conversão","type":"dashed"},{"source":"Instagram","target":"定价R$539.990","section":"私域运营 Relacionamento → 产品适配 Produto","type":"dashed"},{"source":"YouTube","target":"动力性能 517cv","section":"私域运营 Relacionamento → 产品适配 Produto","type":"dashed"},{"source":"CRM系统 Sistema CRM","target":"试驾体验 Test Drive","section":"私域运营 Relacionamento → 转化链路 Conversão","type":"dashed"},{"source":"精准广告 FB Ads","target":"定价R$539.990","section":"私域运营 Relacionamento → 产品适配 Produto","type":"dashed"},{"source":"WhatsApp","target":"兴趣激发 Interesse","section":"私域运营 Relacionamento → 转化链路 Conversão","type":"dashed"},{"source":"购物标签 Shopping Tags","target":"购买决策 Decisão de Compra","section":"私域运营 Relacionamento → 转化链路 Conversão","type":"dashed"},{"source":"达人合作 Influenciadores","target":"品牌认知 Conscientização","section":"私域运营 Relacionamento → 转化链路 Conversão","type":"dashed"},{"source":"深度测评 Reviews","target":"兴趣激发 Interesse","section":"私域运营 Relacionamento → 转化链路 Conversão","type":"dashed"},{"source":"邮件营销 E-mail Marketing","target":"忠诚运营 Fidelização","section":"私域运营 Relacionamento → 转化链路 Conversão","type":"dashed"},{"source":"充电网络 Rede de Recarga","target":"忠诚运营 Fidelização","section":"产品适配 Produto → 转化链路 Conversão","type":"dashed"},{"source":"定价R$539.990","target":"金融方案 Financiamento","section":"产品适配 Produto → 转化链路 Conversão","type":"dashed"},{"source":"240家经销商 Concessionárias","target":"展厅体验 Showroom Premium","section":"产品适配 Produto → 转化链路 Conversão","type":"dashed"},{"source":"售后体系 Pós-venda","target":"忠诚运营 Fidelização","section":"产品适配 Produto → 转化链路 Conversão","type":"dashed"},{"source":"卡马萨里工厂 Fábrica Camaçari","target":"深度本地化 Localização","section":"产品适配 Produto → 桥接层 Pontes","type":"dashed"},{"source":"竞品格局 Concorrentes","target":"定价R$539.990","section":"产品适配 Produto → 产品适配 Produto","type":"dashed"},{"source":"ESG绿色环保 Sustentabilidade","target":"巴西本土文化 Cultura Brasileira","section":"桥接层 Pontes → 巴西本土文化 Cultura","type":"solid"},{"source":"ESG绿色环保 Sustentabilidade","target":"亚马逊 Amazônia","section":"桥接层 Pontes → 巴西本土文化 Cultura","type":"solid"},{"source":"ESG绿色环保 Sustentabilidade","target":"V2L外放电 Vehicle-to-Load","section":"桥接层 Pontes → 产品适配 Produto","type":"solid"},{"source":"总统卢拉背书 Presidente Lula","target":"品牌认知 Conscientização","section":"桥接层 Pontes → 转化链路 Conversão","type":"solid"},{"source":"总统卢拉背书 Presidente Lula","target":"卡马萨里工厂 Fábrica Camaçari","section":"桥接层 Pontes → 产品适配 Produto","type":"solid"},{"source":"74.4%市占率 Market Share","target":"产品适配 Adaptação do Produto","section":"桥接层 Pontes → 产品适配 Produto","type":"solid"},{"source":"74.4%市占率 Market Share","target":"240家经销商 Concessionárias","section":"桥接层 Pontes → 产品适配 Produto","type":"solid"},{"source":"满意度第1 RA1000","target":"忠诚运营 Fidelização","section":"桥接层 Pontes → 转化链路 Conversão","type":"solid"},{"source":"满意度第1 RA1000","target":"售后体系 Pós-venda","section":"桥接层 Pontes → 产品适配 Produto","type":"solid"},{"source":"深度本地化 Localização","target":"巴西本土文化 Cultura Brasileira","section":"桥接层 Pontes → 巴西本土文化 Cultura","type":"solid"},{"source":"深度本地化 Localização","target":"卡马萨里工厂 Fábrica Camaçari","section":"桥接层 Pontes → 产品适配 Produto","type":"solid"},{"source":"深度本地化 Localização","target":"240家经销商 Concessionárias","section":"桥接层 Pontes → 产品适配 Produto","type":"solid"},{"source":"葡语全链路 Português Total","target":"私域运营 Marketing de Relacionamento","section":"桥接层 Pontes → 私域运营 Relacionamento","type":"solid"},{"source":"葡语全链路 Português Total","target":"客服机器人 Chatbot WA","section":"桥接层 Pontes → 私域运营 Relacionamento","type":"solid"},{"source":"葡语全链路 Português Total","target":"Instagram","section":"桥接层 Pontes → 私域运营 Relacionamento","type":"solid"}]}</script>
+<script>
+// Data will be loaded from the script tag above
+const dataEl = document.getElementById('graph-data');
+const rawData = JSON.parse(dataEl.textContent);
+
+const sections = [...new Set(rawData.nodes.map(n => n.section))];
+const sectionColors = {
+  '中心主题': '#e0c184',
+  '巴西本土文化 Cultura': '#2ec27e',
+  '私域运营 Relacionamento': '#5aa2e8',
+  '产品适配 Produto': '#ef5a64',
+  '转化链路 Conversão': '#a86ee0',
+  '桥接层 Pontes': '#2db5ab'
+};
+const sectionShort = {
+  '中心主题': '中心主题',
+  '巴西本土文化 Cultura': '文化',
+  '私域运营 Relacionamento': '私域运营',
+  '产品适配 Produto': '产品适配',
+  '转化链路 Conversão': '转化链路',
+  '桥接层 Pontes': '桥接层'
+};
+const sectionCounts = {};
+sections.forEach(s => { sectionCounts[s] = rawData.nodes.filter(n => n.section === s).length; });
+
+// ===== SVG Setup =====
+const svg = d3.select('#graph');
+const width = window.innerWidth, height = window.innerHeight;
+svg.attr('viewBox', `0 0 ${width} ${height}`);
+
+// Defs: gradients and filters
+const defs = svg.append('defs');
+
+// Glow filter
+const glowFilter = defs.append('filter').attr('id', 'glow')
+  .attr('x', '-50%').attr('y', '-50%').attr('width', '200%').attr('height', '200%');
+glowFilter.append('feGaussianBlur').attr('stdDeviation', '3').attr('result', 'coloredBlur');
+const glowMerge = glowFilter.append('feMerge');
+glowMerge.append('feMergeNode').attr('in', 'coloredBlur');
+glowMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+// Radial gradients for each section
+sections.forEach(s => {
+  const color = sectionColors[s] || '#888';
+  const grad = defs.append('radialGradient')
+    .attr('id', 'grad-' + s.replace(/[^a-zA-Z0-9]/g, ''))
+    .attr('cx', '35%').attr('cy', '35%');
+  grad.append('stop').attr('offset', '0%').attr('stop-color', d3.color(color).brighter(0.5));
+  grad.append('stop').attr('offset', '100%').attr('stop-color', color);
+});
+
+// Arrow markers
+['solid', 'dashed'].forEach(type => {
+  defs.append('marker')
+    .attr('id', 'arrow-' + type)
+    .attr('viewBox', '0 -5 10 10')
+    .attr('refX', 12).attr('refY', 0)
+    .attr('markerWidth', 6).attr('markerHeight', 6)
+    .attr('orient', 'auto')
+    .append('path')
+    .attr('d', 'M0,-4L6,0L0,4')
+    .attr('fill', type === 'solid' ? '#8a93a3' : '#a986c2');
+});
+
+// ===== Build graph =====
+const nodes = rawData.nodes.map(d => ({ ...d }));
+const links = rawData.links.map(d => ({ ...d }));
+
+// Map for quick lookup
+const nodeMap = {};
+nodes.forEach(n => { nodeMap[n.id] = n; });
+
+// Compute degree (number of connections) for each node
+const degree = {};
+links.forEach(l => {
+  degree[l.source] = (degree[l.source] || 0) + 1;
+  degree[l.target] = (degree[l.target] || 0) + 1;
+});
+nodes.forEach(n => { n.degree = degree[n.id] || 0; });
+
+// Color scale
+function getNodeColor(n) {
+  return sectionColors[n.section] || '#888';
+}
+function getNodeRadius(n) {
+  const baseSize = Math.max(6, n.weight * 1.2);
+  return Math.min(baseSize + n.degree * 0.3, 38);
+}
+
+// Container for zoom
+const g = svg.append('g');
+
+// Zoom behavior
+const zoom = d3.zoom()
+  .scaleExtent([0.15, 5])
+  .on('zoom', (event) => { g.attr('transform', event.transform); });
+svg.call(zoom);
+
+// ===== Force Simulation =====
+// Section centers for radial positioning
+const sectionAngles = {};
+sections.forEach((s, i) => {
+  const angle = (i / sections.length) * 2 * Math.PI - Math.PI / 2;
+  sectionAngles[s] = angle;
+});
+
+const sim = d3.forceSimulation(nodes)
+  .force('link', d3.forceLink(links).id(d => d.id)
+    .distance(d => d.type === 'dashed' ? 140 : 80)
+    .strength(d => d.type === 'dashed' ? 0.15 : 0.5))
+  .force('charge', d3.forceManyBody().strength(d => -200 - d.weight * 4))
+  .force('center', d3.forceCenter(width / 2, height / 2))
+  .force('collision', d3.forceCollide().radius(d => getNodeRadius(d) + 4))
+  .force('radial', d3.forceRadial(d => {
+    if (d.section === '中心主题') return 0;
+    return 240 + (90 - d.weight) * 3;
+  }, width / 2, height / 2).strength(0.3));
+
+// ===== Links =====
+const linkGroup = g.append('g').attr('class', 'links');
+const link = linkGroup.selectAll('path')
+  .data(links)
+  .join('path')
+  .attr('class', 'link')
+  .attr('stroke', d => {
+    if (d.type === 'dashed') return '#a986c2';
+    return sectionColors[d.source.section] || '#7a8494';
+  })
+  .attr('stroke-width', d => d.type === 'dashed' ? 0.9 : 1.4)
+  .attr('stroke-opacity', d => d.type === 'dashed' ? 0.16 : 0.32)
+  .attr('stroke-dasharray', d => d.type === 'dashed' ? '2,7' : null);
+
+// ===== Nodes =====
+const nodeGroup = g.append('g').attr('class', 'nodes');
+const node = nodeGroup.selectAll('g.node')
+  .data(nodes)
+  .join('g')
+  .attr('class', 'node')
+  .call(d3.drag()
+    .on('start', dragStart)
+    .on('drag', dragging)
+    .on('end', dragEnd));
+
+// Node circles with gradient
+node.append('circle')
+  .attr('r', d => getNodeRadius(d))
+  .attr('fill', d => {
+    const color = getNodeColor(d);
+    const gradId = 'grad-' + d.section.replace(/[^a-zA-Z0-9]/g, '');
+    return `url(#${gradId})`;
+  })
+  .attr('stroke', d => d3.color(getNodeColor(d)).brighter(0.6))
+  .attr('stroke-width', 1.5)
+  .attr('filter', d => d.weight >= 15 ? 'url(#glow)' : null);
+
+// Node labels
+const showLabels = { val: true };
+node.append('text')
+  .attr('class', 'node-label')
+  .attr('dy', d => getNodeRadius(d) + 11)
+  .text(d => {
+    // Shorten long names
+    const name = d.name;
+    if (name.length > 14) {
+      // Try to split at space
+      const parts = name.split(' ');
+      if (parts.length > 1) {
+        return parts[0].slice(0, 8) + '..' + parts[parts.length - 1].slice(-4);
+      }
+      return name.slice(0, 12) + '..';
+    }
+    return name;
+  })
+  .style('display', 'block');
+
+// ===== Legend =====
+const legendEl = document.getElementById('legend');
+let legendHTML = '<div class="legend-title">板块 / SECTIONS</div>';
+const activeSections = new Set(sections);
+sections.forEach(s => {
+  const color = sectionColors[s] || '#888';
+  const short = sectionShort[s] || s;
+  legendHTML += `<div class="legend-item" data-section="${s}">
+    <span class="legend-dot" style="background:${color};color:${color}"></span>
+    <span class="legend-text">${short}</span>
+    <span class="legend-count">${sectionCounts[s]}</span>
+  </div>`;
+});
+legendHTML += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:10px;color:var(--text-3)">实线 = 板块内关联 · 虚线 = 跨板块核心联动</div>';
+legendEl.innerHTML = legendHTML;
+
+// Legend click toggle
+d3.selectAll('.legend-item').on('click', function() {
+  const section = this.dataset.section;
+  if (activeSections.has(section)) {
+    activeSections.delete(section);
+    this.classList.add('inactive');
+  } else {
+    activeSections.add(section);
+    this.classList.remove('inactive');
+  }
+  updateVisibility();
+});
+
+// ===== Visibility Control =====
+let showSolid = true, showDashed = true, showLabels2 = true;
+
+function updateVisibility() {
+  node.style('display', d => activeSections.has(d.section) ? null : 'none');
+  link.style('display', d => {
+    if (!activeSections.has(d.source.section) && !activeSections.has(d.target.section)) return 'none';
+    if (d.type === 'solid' && !showSolid) return 'none';
+    if (d.type === 'dashed' && !showDashed) return 'none';
+    return null;
+  });
+}
+
+// ===== Interaction =====
+// Hover
+node.on('mouseenter', (event, d) => {
+  const tooltip = document.getElementById('tooltip');
+  const pt = d.portuguese ? `<div class="tt-pt">${d.portuguese}</div>` : '';
+  const desc = d.description ? `<div class="tt-desc">${d.description}</div>` : '';
+  tooltip.innerHTML = `<div class="tt-name">${d.name}</div>${pt}${desc}<div class="tt-section">${d.section}</div>`;
+  tooltip.style.opacity = 1;
+  // Highlight connected links in gold
+  if (!selectedNode) {
+    link.classed('hl', l => {
+      const sid = typeof l.source === 'object' ? l.source.id : l.source;
+      const tid = typeof l.target === 'object' ? l.target.id : l.target;
+      return sid === d.id || tid === d.id;
+    });
+  }
+})
+.on('mousemove', (event) => {
+  const tooltip = document.getElementById('tooltip');
+  let x = event.clientX + 14;
+  let y = event.clientY + 14;
+  const tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+  if (x + tw > window.innerWidth) x = event.clientX - tw - 14;
+  if (y + th > window.innerHeight) y = event.clientY - th - 14;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top = y + 'px';
+})
+.on('mouseleave', () => {
+  document.getElementById('tooltip').style.opacity = 0;
+  if (!selectedNode) link.classed('hl', false);
+});
+
+// Click - highlight connected
+let selectedNode = null;
+node.on('click', (event, d) => {
+  event.stopPropagation();
+  if (selectedNode === d) {
+    // Deselect
+    selectedNode = null;
+    node.classed('dimmed', false);
+    link.classed('dimmed', false);
+    link.classed('hl', false);
+    node.select('circle').attr('stroke-width', 1.5);
+    document.getElementById('info-panel').classList.remove('show');
+    return;
+  }
+  selectedNode = d;
+
+  // Find connected nodes and links
+  const connected = new Set([d.id]);
+  const connectedLinks = new Set();
+  links.forEach(l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    if (sid === d.id) { connected.add(tid); connectedLinks.add(l); }
+    if (tid === d.id) { connected.add(sid); connectedLinks.add(l); }
+  });
+
+  node.classed('dimmed', n => !connected.has(n.id));
+  link.classed('dimmed', l => !connectedLinks.has(l));
+  node.select('circle').attr('stroke-width', n => connected.has(n.id) ? 3 : 1.5);
+
+  // Info panel
+  const panel = document.getElementById('info-panel');
+  const connCount = connected.size - 1;
+  panel.innerHTML = `<span class="ip-close" onclick="document.getElementById('info-panel').classList.remove('show')">&times;</span>
+    <h3>${d.name}</h3>
+    ${d.portuguese ? `<div class="ip-pt">${d.portuguese}</div>` : ''}
+    <div class="ip-desc">${d.description || ''}</div>
+    <div class="ip-stats">
+      <div class="ip-stat">板块: <b>${sectionShort[d.section] || d.section}</b></div>
+      <div class="ip-stat">权重: <b>${d.weight}</b></div>
+      <div class="ip-stat">关联: <b>${connCount}</b></div>
+    </div>`;
+  panel.classList.add('show');
+});
+
+// Click empty - deselect
+svg.on('click', () => {
+  if (selectedNode) {
+    selectedNode = null;
+    node.classed('dimmed', false);
+    link.classed('dimmed', false);
+    link.classed('hl', false);
+    node.select('circle').attr('stroke-width', 1.5);
+    document.getElementById('info-panel').classList.remove('show');
+  }
+});
+
+// ===== Search =====
+const searchInput = document.getElementById('search');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if (!q) {
+    node.classed('dimmed', false);
+    link.classed('dimmed', false);
+    node.select('circle').attr('stroke-width', 1.5);
+    return;
+  }
+  const matched = new Set();
+  nodes.forEach(n => {
+    if (n.name.toLowerCase().includes(q) || (n.portuguese && n.portuguese.toLowerCase().includes(q))) {
+      matched.add(n.id);
+    }
+  });
+  node.classed('dimmed', n => !matched.has(n.id));
+  link.classed('dimmed', l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    return !matched.has(sid) && !matched.has(tid);
+  });
+});
+
+// ===== Control Buttons =====
+document.getElementById('btn-labels').addEventListener('click', function() {
+  showLabels2 = !showLabels2;
+  this.classList.toggle('active', showLabels2);
+  d3.selectAll('.node-label').style('display', showLabels2 ? 'block' : 'none');
+});
+document.getElementById('btn-solid').addEventListener('click', function() {
+  showSolid = !showSolid;
+  this.classList.toggle('active', showSolid);
+  updateVisibility();
+});
+document.getElementById('btn-dashed').addEventListener('click', function() {
+  showDashed = !showDashed;
+  this.classList.toggle('active', showDashed);
+  updateVisibility();
+});
+document.getElementById('btn-zoom-in').addEventListener('click', () => {
+  svg.transition().call(zoom.scaleBy, 1.4);
+});
+document.getElementById('btn-zoom-out').addEventListener('click', () => {
+  svg.transition().call(zoom.scaleBy, 0.7);
+});
+document.getElementById('btn-reset').addEventListener('click', () => {
+  svg.transition().call(zoom.transform, d3.zoomIdentity);
+  // Reheat simulation
+  sim.alpha(0.8).restart();
+});
+
+// ===== Tick =====
+sim.on('tick', () => {
+  link.attr('d', d => {
+    const sx = d.source.x, sy = d.source.y;
+    const tx = d.target.x, ty = d.target.y;
+    // Slight curve
+    const dx = tx - sx, dy = ty - sy;
+    const dr = Math.sqrt(dx*dx + dy*dy);
+    if (dr < 1) return `M${sx},${sy}L${tx},${ty}`;
+    const curveR = dr * 1.5;
+    return `M${sx},${sy}A${curveR},${curveR} 0 0,1 ${tx},${ty}`;
+  });
+  node.attr('transform', d => `translate(${d.x},${d.y})`);
+});
+
+// ===== Drag =====
+function dragStart(event, d) {
+  if (!event.active) sim.alphaTarget(0.3).restart();
+  d.fx = d.x; d.fy = d.y;
+}
+function dragging(event, d) {
+  d.fx = event.x; d.fy = event.y;
+}
+function dragEnd(event, d) {
+  if (!event.active) sim.alphaTarget(0);
+  d.fx = null; d.fy = null;
+}
+
+// Show labels after initial layout settles
+setTimeout(() => {
+  sim.alphaTarget(0);
+}, 3000);
+
+// Fade in the graph
+requestAnimationFrame(() => { svg.style('opacity', 1); });
+
+// Handle window resize
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, h = window.innerHeight;
+  svg.attr('viewBox', `0 0 ${w} ${h}`);
+  sim.force('center', d3.forceCenter(w / 2, h / 2));
+  sim.force('radial', d3.forceRadial(d => {
+    if (d.section === '中心主题') return 0;
+    return 240 + (90 - d.weight) * 3;
+  }, w / 2, h / 2).strength(0.3));
+  sim.alpha(0.3).restart();
+});
+</script>
+<a href="javascript:history.back()" aria-label="返回智能体" style="position:fixed;left:20px;top:20px;z-index:9999;padding:10px 14px;border-radius:10px;background:#ffffff;color:#07543e;text-decoration:none;font:700 14px Microsoft YaHei,sans-serif;box-shadow:0 6px 22px #0005">← 返回电商运营助手</a>
+</body>
+</html>

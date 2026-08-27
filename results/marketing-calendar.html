@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>全年营销日历 · Calendario Anual de Marketing 2026 - BRASIL</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:        #f5f6fa;
+    --card:      #ffffff;
+    --line:      #e5e7eb;
+    --line-2:    #d1d5db;
+    --text:      #1f2937;
+    --text-soft: #4b5563;
+    --text-dim:  #9ca3af;
+    --text-faint:#d1d5db;
+    --weekend:   #ef4444;
+    --red:       #ef4444;
+    --pink:      #ec4899;
+    --green:     #10b981;
+    --blue:      #3b82f6;
+    --orange:    #f59e0b;
+    --yellow:    #eab308;
+    --purple:    #8b5cf6;
+    --title-grad-1: #6d28d9;
+    --title-grad-2: #2563eb;
+  }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: 26px 18px 50px;
+  }
+  .poster {
+    max-width: 1240px;
+    margin: 0 auto;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px 26px 30px;
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+  }
+
+  /* ===== Header ===== */
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 18px;
+    align-items: start;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .title-cn {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--title-grad-1) 0%, var(--title-grad-2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .title-en {
+    color: var(--text-soft);
+    font-size: 13px;
+    letter-spacing: 0.6px;
+    margin-top: 4px;
+  }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+  .badge {
+    font-size: 12px; padding: 6px 10px; border-radius: 6px;
+    border: 1px solid currentColor; font-weight: 600; letter-spacing: 0.5px;
+    background: rgba(255,255,255,0.6);
+  }
+  .badge.plan  { color: #3b82f6; }
+  .badge.todo  { color: #f59e0b; }
+  .badge.doing { color: #10b981; }
+  .badge.done  { color: #ec4899; }
+
+  /* ===== Tabs ===== */
+  .tabs {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin: 16px 0 18px;
+  }
+  .tab {
+    font-size: 12px; padding: 7px 12px; border-radius: 6px;
+    border: 1px solid var(--line-2); color: var(--text-soft);
+    background: #fff; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); border-color: #6d28d9; }
+  .tab.active {
+    color: #fff; border-color: #6d28d9; background: #6d28d9;
+    box-shadow: 0 4px 10px rgba(109,40,217,0.25);
+  }
+
+  /* ===== Calendar Grid ===== */
+  .cal-wrap {
+    background: transparent;
+    position: relative;
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .cal-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 12px 10px;
+    overflow: visible;
+  }
+  .cal-head {
+    padding: 0 2px 6px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 6px;
+  }
+  .cal-name {
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: 1.2px;
+  }
+  .cal-sub {
+    font-size: 10.5px;
+    color: var(--text-soft);
+    margin-top: 1px;
+  }
+  .cal-sub .num { color: var(--text-dim); }
+
+  .dow-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-soft);
+    margin-bottom: 4px;
+  }
+  .dow-row span.we { color: var(--weekend); }
+
+  .cal-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px 0;
+  }
+  .cell {
+    position: relative;
+    text-align: center;
+    font-size: 11px;
+    line-height: 22px;
+    color: var(--text);
+    font-weight: 600;
+    cursor: default;
+    border-radius: 4px;
+    transition: background 0.12s ease;
+  }
+  .cell.other { color: var(--text-faint); font-weight: 500; }
+  .cell.weekend { color: var(--weekend); }
+  .cell.holiday { cursor: pointer; font-weight: 800; }
+  .cell.holiday:hover { background: rgba(0,0,0,0.04); }
+  .cell.holiday.c-red    { color: var(--red); }
+  .cell.holiday.c-pink   { color: var(--pink); }
+  .cell.holiday.c-green  { color: var(--green); }
+  .cell.holiday.c-blue   { color: var(--blue); }
+  .cell.holiday.c-orange { color: var(--orange); }
+  .cell.holiday.c-yellow { color: var(--yellow); }
+  .cell.holiday.c-purple { color: var(--purple); }
+  .cell.star {
+    border: 1.5px solid var(--purple);
+    box-shadow: 0 0 0 2px rgba(139,92,246,0.12);
+  }
+  .cell.star::after {
+    content: "★";
+    position: absolute;
+    top: -7px; right: -3px;
+    color: var(--purple);
+    font-size: 11px;
+    background: #fff;
+    padding: 0 1px;
+    line-height: 1;
+  }
+
+  /* Holiday list under each month */
+  .cal-list {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .cal-list:empty { display: none; }
+  .cal-list .empty {
+    color: var(--text-dim);
+    font-size: 10.5px;
+    text-align: center;
+    padding: 4px 0 2px;
+  }
+  .cal-list .row {
+    font-size: 10.5px;
+    line-height: 1.35;
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+  .cal-list .row .d {
+    flex-shrink: 0;
+    width: 18px;
+    text-align: right;
+    font-weight: 800;
+  }
+  .cal-list .row .pt {
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .cal-list .row .cn {
+    color: var(--text-soft);
+  }
+  .cal-list .row.c-red    .d, .cal-list .row.c-red    .pt { color: var(--red); }
+  .cal-list .row.c-pink   .d, .cal-list .row.c-pink   .pt { color: var(--pink); }
+  .cal-list .row.c-green  .d, .cal-list .row.c-green  .pt { color: var(--green); }
+  .cal-list .row.c-blue   .d, .cal-list .row.c-blue   .pt { color: var(--blue); }
+  .cal-list .row.c-orange .d, .cal-list .row.c-orange .pt { color: var(--orange); }
+  .cal-list .row.c-yellow .d, .cal-list .row.c-yellow .pt { color: var(--yellow); }
+  .cal-list .row.c-purple .d, .cal-list .row.c-purple .pt { color: var(--purple); }
+  .cal-list .row.star .d, .cal-list .row.star .pt {
+    color: var(--purple);
+    background: rgba(139,92,246,0.08);
+    padding: 0 4px;
+    border-radius: 3px;
+  }
+
+  /* ===== Tooltip (置顶) ===== */
+  /* attach to body, so no ancestor overflow can clip it */
+  .cal-tip {
+    position: fixed;
+    z-index: 99999;
+    transform: translate(-50%, calc(-100% - 12px));
+    background: linear-gradient(180deg, #1f2937, #111827);
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.55;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(139,92,246,0.45);
+    box-shadow: 0 18px 44px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04), 0 0 22px rgba(139,92,246,0.28);
+    width: max-content;
+    max-width: min(360px, calc(100vw - 28px));
+    text-align: left;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+  .cal-tip.show { opacity: 1; }
+  .cal-tip::after {
+    content: ""; position: absolute; left: 50%; bottom: -6px;
+    transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: #111827;
+  }
+  .cal-tip.below::after {
+    bottom: auto; top: -6px;
+    border-top-color: transparent; border-bottom-color: #1f2937;
+  }
+  .cal-tip .tip-title {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 800; font-size: 13.5px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 8px; margin-bottom: 8px;
+  }
+  .cal-tip .tip-title .pt {
+    font-size: 11.5px; color: #c4b5fd; font-weight: 600;
+  }
+  .cal-tip .date {
+    color: #9ca3af; font-size: 10.5px; margin-bottom: 10px;
+  }
+  .cal-tip .star-tag {
+    display: inline-block;
+    background: var(--purple);
+    color: #fff;
+    font-size: 9.5px;
+    padding: 1px 6px;
+    border-radius: 99px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    vertical-align: middle;
+  }
+  .cal-tip .plan {
+    display: flex; flex-direction: column; gap: 7px;
+  }
+  .cal-tip .tip-click-hint {
+    margin-top: 10px;
+    padding: 6px 10px;
+    background: rgba(139,92,246,0.2);
+    border: 1px solid rgba(139,92,246,0.4);
+    border-radius: 6px;
+    font-size: 11px;
+    color: #c4b5fd;
+    text-align: center;
+    font-weight: 600;
+  }
+  .cal-tip .plan-row {
+    display: flex; gap: 8px; align-items: flex-start;
+    font-size: 11.5px;
+  }
+  .cal-tip .plan-label {
+    flex-shrink: 0;
+    width: 72px;
+    color: #a5b4fc;
+    font-weight: 700;
+  }
+  .cal-tip .plan-value {
+    flex: 1;
+    color: #f3f4f6;
+    word-break: break-word;
+  }
+
+  /* ===== Star Holiday Detail Overlay ===== */
+  .star-overlay {
+    position: fixed; inset: 0; z-index: 100000;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(3px);
+  }
+  .star-overlay.show { display: flex; }
+  .star-modal {
+    width: min(720px, calc(100vw - 40px));
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    border: 2px solid var(--purple);
+  }
+  .star-modal-head {
+    padding: 20px 24px 16px;
+    background: linear-gradient(135deg, #1f2937, #111827);
+    border-radius: 14px 14px 0 0;
+    position: relative;
+  }
+  .star-modal-head .sm-title {
+    font-size: 20px; font-weight: 800; color: #fff;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .star-modal-head .sm-title .star-badge {
+    background: var(--purple); color: #fff; font-size: 10px;
+    padding: 2px 8px; border-radius: 99px; font-weight: 800;
+  }
+  .star-modal-head .sm-sub {
+    color: #c4b5fd; font-size: 13px; margin-top: 4px;
+  }
+  .star-modal-head .sm-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 32px; height: 32px; border: none; border-radius: 8px;
+    background: rgba(255,255,255,0.12); color: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; transition: background 0.15s;
+  }
+  .star-modal-head .sm-close:hover { background: rgba(255,255,255,0.25); }
+  .star-modal-body { padding: 20px 24px; }
+  .star-plan-summary {
+    background: #f9fafb; border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
+  }
+  .star-plan-summary .sp-row {
+    display: flex; gap: 10px; font-size: 13px; padding: 4px 0;
+  }
+  .star-plan-summary .sp-label {
+    flex-shrink: 0; width: 80px; color: var(--purple);
+    font-weight: 700;
+  }
+  .star-plan-summary .sp-value { color: var(--text); flex: 1; word-break: break-word; }
+  .star-section-title {
+    font-size: 15px; font-weight: 700; color: var(--text);
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--purple);
+  }
+  .star-gen-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .star-gen-card {
+    border: 1.5px solid var(--line); border-radius: 12px;
+    padding: 16px; cursor: pointer; transition: all 0.2s;
+    display: flex; flex-direction: column; gap: 8px;
+    background: #fff;
+  }
+  .star-gen-card:hover {
+    border-color: var(--purple);
+    box-shadow: 0 8px 24px rgba(139,92,246,0.18);
+    transform: translateY(-2px);
+  }
+  .star-gen-card .sgc-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .star-gen-card .sgc-name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .star-gen-card .sgc-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+  .star-gen-card .sgc-go {
+    font-size: 12px; color: var(--purple); font-weight: 600;
+    display: flex; align-items: center; gap: 4px;
+  }
+  @media (max-width: 520px) {
+    .star-gen-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ===== Marketing Tools Section ===== */
+  .tools-section {
+    margin-top: 20px;
+    padding: 20px 24px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+  .tools-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .tool-card {
+    background: #fafbfc;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .tool-card:hover {
+    border-color: var(--purple);
+    box-shadow: 0 4px 16px rgba(109,40,217,0.1);
+    transform: translateY(-2px);
+  }
+  .tool-card .tc-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .tool-card .tc-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .tool-card .tc-desc {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    flex: 1;
+  }
+  .tool-card .tc-go {
+    font-size: 11.5px;
+    color: var(--purple);
+    font-weight: 600;
+  }
+  @media (max-width: 820px) {
+    .tools-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 520px) {
+    .tools-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ===== Hover Hint ===== */
+  .hover-hint {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--text-soft);
+    margin: 18px 0 14px; padding: 10px 14px;
+    background: rgba(109,40,217,0.04);
+    border: 1px solid rgba(109,40,217,0.15);
+    border-radius: 8px;
+  }
+  .hover-hint .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--purple); box-shadow: 0 0 8px var(--purple);
+    flex-shrink: 0;
+  }
+
+  .footer {
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+  .footer .brand {
+    background: linear-gradient(90deg, var(--title-grad-1), var(--title-grad-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 800;
+  }
+
+  /* ===== Export Live Script Button ===== */
+  .export-btn {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.4px;
+    background: linear-gradient(90deg, #7c3aed 0%, #9333ea 100%);
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35), 0 2px 6px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(124, 58, 237, 0.45), 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .export-btn .icon {
+    font-size: 15px;
+  }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 720px;
+    max-height: 88vh;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(18px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    background: linear-gradient(90deg, #7c3aed 0%, #9333ea 100%);
+    color: #fff;
+  }
+  .modal-header h3 {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .modal-header .close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .modal-header .close:hover { background: rgba(255,255,255,0.3); }
+  .modal-body {
+    padding: 22px 24px 26px;
+    overflow-y: auto;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .modal-body h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #6d28d9;
+    margin: 18px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .modal-body h4:first-child { margin-top: 0; }
+  .modal-body .meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 16px;
+    background: #f9fafb;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 4px;
+  }
+  .modal-body .meta .item { display: flex; gap: 6px; }
+  .modal-body .meta .label { color: var(--text-soft); font-weight: 600; white-space: nowrap; }
+  .modal-body .meta .value { color: var(--text); font-weight: 700; }
+  .modal-body .goal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .modal-body .goal-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #fff;
+  }
+  .modal-body .goal-item .tag {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .modal-body .goal-item.attract .tag { background: #ef4444; }
+  .modal-body .goal-item.retain .tag { background: #f59e0b; }
+  .modal-body .goal-item.convert .tag { background: #10b981; }
+  .modal-body .goal-item .txt { font-weight: 600; color: var(--text-soft); }
+  .modal-body .goal-item .txt strong { color: var(--text); }
+  .modal-body .car-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .modal-body .car-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+    background: #f9fafb;
+  }
+  .modal-body .car-card .name {
+    font-weight: 800;
+    color: #6d28d9;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .modal-body .car-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .modal-body .car-card li {
+    font-size: 11.5px;
+    color: var(--text-soft);
+    line-height: 1.45;
+    display: flex;
+    gap: 5px;
+  }
+  .modal-body .car-card li::before {
+    content: "›";
+    color: #9333ea;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .modal-body .highlight {
+    background: rgba(124, 58, 237, 0.06);
+    border: 1px solid rgba(124, 58, 237, 0.18);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 6px;
+    color: var(--text-soft);
+  }
+  .modal-body .highlight strong { color: #6d28d9; }
+  .modal-body .flow-list {
+    list-style: none;
+    counter-reset: flow;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .modal-body .flow-list li {
+    counter-increment: flow;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .modal-body .flow-list li::before {
+    content: counter(flow);
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #7c3aed;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 22px;
+    border-top: 1px solid var(--line);
+    background: #fafafa;
+  }
+  .modal-footer button {
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .modal-footer .btn-secondary {
+    border: 1px solid var(--line-2);
+    background: #fff;
+    color: var(--text-soft);
+  }
+  .modal-footer .btn-secondary:hover { border-color: #6d28d9; color: #6d28d9; }
+  .modal-footer .btn-primary {
+    border: none;
+    background: linear-gradient(90deg, #7c3aed 0%, #9333ea 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+  }
+  .modal-footer .btn-primary:hover { box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35); }
+
+  @media (max-width: 1100px) {
+    .cal-grid { grid-template-columns: repeat(3, 1fr); }
+    .strategy-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 820px) {
+    .cal-grid { grid-template-columns: repeat(2, 1fr); }
+    .header { grid-template-columns: 1fr; }
+    .badges { justify-content: flex-start; }
+    .modal-body .meta { grid-template-columns: 1fr; }
+    .modal-body .car-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .cal-grid { grid-template-columns: 1fr; }
+    .strategy-grid { grid-template-columns: 1fr; }
+    .title-cn { font-size: 28px; }
+    .export-btn { right: 14px; bottom: 14px; padding: 10px 14px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- Header -->
+  <header class="header">
+    <div>
+      <div class="title-cn">全年营销日历</div>
+      <div class="title-en">Calendario Anual de Marketing 2026 - BRASIL</div>
+    </div>
+    <div class="badges">
+      <span class="badge plan">📋 计划中</span>
+      <span class="badge todo">⏳ 待办</span>
+      <span class="badge doing">🚀 进行中</span>
+      <span class="badge done">✅ 已完成</span>
+    </div>
+  </header>
+
+  <!-- Mode Tabs -->
+  <div class="tabs">
+    <div class="tab active">🖼 Mural · 年度</div>
+    <div class="tab">📅 Trimestral · 季度</div>
+    <div class="tab">📆 Mensal · 月度</div>
+    <div class="tab">📈 Painel de Métrica · 指标</div>
+  </div>
+
+  <!-- Calendar -->
+  <section class="cal-wrap" id="calWrap">
+    <div class="cal-grid" id="calGrid"></div>
+  </section>
+
+  <!-- Hover Hint -->
+  <div class="hover-hint">
+    <span class="dot"></span>
+    <span>Dica: passe o mouse sobre as datas coloridas para ver o feriado e o plano de marketing especial · 悬停彩色日期查看节日及专属营销方案</span>
+  </div>
+
+  <!-- Marketing Tools Section -->
+  <section class="tools-section">
+    <div class="tools-title">📦 AI 营销工具箱</div>
+    <div class="tools-grid">
+      <div class="tool-card" onclick="genLocalCreative()">
+        <div class="tc-icon" style="background:rgba(168,85,247,0.1);color:#a855f7;">🌎</div>
+        <div class="tc-name">本土化内容创意生成</div>
+        <div class="tc-desc">融合巴西节日文化与本地热点，输出可落地执行的创意方案</div>
+        <div class="tc-go">点击生成 →</div>
+      </div>
+      <div class="tool-card" onclick="genPtCopy()">
+        <div class="tc-icon" style="background:rgba(236,72,153,0.1);color:#ec4899;">📝</div>
+        <div class="tc-name">葡语文案专业精修</div>
+        <div class="tc-desc">PT-BR 本地化表达、话术打磨与多场景文案变体输出</div>
+        <div class="tc-go">点击生成 →</div>
+      </div>
+      <div class="tool-card" onclick="genTrafficOps()">
+        <div class="tc-icon" style="background:rgba(14,165,233,0.1);color:#0ea5e9;">🚀</div>
+        <div class="tc-name">流量运营策略制定</div>
+        <div class="tc-desc">从公域引流到私域沉淀，设计可复用的流量运营 SOP</div>
+        <div class="tc-go">点击生成 →</div>
+      </div>
+      <div class="tool-card" onclick="genCompliance()">
+        <div class="tc-icon" style="background:rgba(100,116,139,0.1);color:#64748b;">🛡️</div>
+        <div class="tc-name">合规风险校验预警</div>
+        <div class="tc-desc">广告法、消费者保护、数据隐私等合规点自查与风险提示</div>
+        <div class="tc-go">点击生成 →</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <span class="brand">全年营销日历</span> · Calendario Anual de Marketing 2026 · Brasil · Generated <span id="gen-date"></span>
+  </div>
+</div>
+
+<!-- Tooltip (moved to body so no ancestor overflow can clip it) -->
+<div class="cal-tip" id="calTip"></div>
+
+<!-- Export Live Script Button -->
+<button class="export-btn" id="exportBtn" title="Exportar Roteiro de Live · 导出直播脚本策划案">
+  <span class="icon">🗒</span>
+  <span>Exportar Roteiro de Live · 导出直播脚本策划案</span>
+</button>
+
+<!-- Star Holiday Detail Overlay -->
+<div class="star-overlay" id="starOverlay">
+  <div class="star-modal" id="starModal">
+    <div class="star-modal-head">
+      <div class="sm-title" id="smTitle"></div>
+      <div class="sm-sub" id="smSub"></div>
+      <button class="sm-close" onclick="closeStarOverlay()">×</button>
+    </div>
+    <div class="star-modal-body" id="starModalBody"></div>
+  </div>
+</div>
+
+<!-- Live Script Modal -->
+<div class="modal-overlay" id="liveModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><span>🗒</span>Exportar Roteiro de Live · 导出直播脚本策划案</h3>
+      <button class="close" id="closeModal" aria-label="Fechar">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="meta">
+        <div class="item"><span class="label">Plataforma / 平台：</span><span class="value">TikTok</span></div>
+        <div class="item"><span class="label">Horário / 时间：</span><span class="value">X月X日 20:00–24:00</span></div>
+        <div class="item"><span class="label">Tema / 主题：</span><span class="value">三年同行、绿动巴西</span></div>
+        <div class="item"><span class="label">Idioma / 语言：</span><span class="value">Português · 葡萄牙语</span></div>
+      </div>
+
+      <h4>🎯 Sistema de Metas em 3 Camadas · 三层目标体系</h4>
+      <div class="goal-list">
+        <div class="goal-item attract">
+          <span class="tag">Atrair · 吸引</span>
+          <span class="txt">Total de espectadores ultrapassa <strong>20.000 pessoas</strong> · 总观看人数突破 <strong>2万人</strong></span>
+        </div>
+        <div class="goal-item retain">
+          <span class="tag">Retter · 留住</span>
+          <span class="txt">Taxa média de interação superior a <strong>8%</strong> · 平均互动率超过 <strong>8%</strong></span>
+        </div>
+        <div class="goal-item convert">
+          <span class="tag">Converter · 转化</span>
+          <span class="txt">Coletar <strong>500 leads válidos</strong> · 成功收集 <strong>500条有效线索</strong></span>
+        </div>
+      </div>
+
+      <h4>🚗 Modelos e Destaques · 主推车型与卖点</h4>
+      <div class="car-grid">
+        <div class="car-card">
+          <div class="name">城市小精灵</div>
+          <ul>
+            <li>Compacto e ágil, ideal para o trânsito urbano</li>
+            <li>Zero emissões, sustentável para a cidade</li>
+            <li>Design jovem e personalizável</li>
+          </ul>
+        </div>
+        <div class="car-card">
+          <div class="name">都市探险家</div>
+          <ul>
+            <li>SUV versátil para cidade e aventura</li>
+            <li>Alta autonomia e espaço interno</li>
+            <li>Tecnologia inteligente de condução</li>
+          </ul>
+        </div>
+        <div class="car-card">
+          <div class="name">旗舰星耀客</div>
+          <ul>
+            <li>Sedã premium de alto desempenho</li>
+            <li>Luxo, conforto e conectividade total</li>
+            <li>Assistente inteligente e segurança avançada</li>
+          </ul>
+        </div>
+      </div>
+
+      <h4>✨ Formato Inovador · 创新直播形式</h4>
+      <div class="highlight">
+        <strong>Live XR Holográfica · XR 全息直播：</strong>Utilizar tecnologia de realidade estendida para apresentar os veículos em ambiente imersivo, criando experiência visual de impacto e reforçando a imagem verde e futurista da marca.
+      </div>
+
+      <h4>👥 Público-Alvo · 目标人群</h4>
+      <div class="highlight">
+        Foco em usuários de <strong>25 a 45 anos</strong>, residentes em grandes centros urbanos do Brasil, com interesse por mobilidade sustentável, tecnologia automotiva e estilo de vida moderno.
+      </div>
+
+      <h4>🎬 Roteiro da Live · 直播流程</h4>
+      <ol class="flow-list">
+        <li><strong>Abertura · 开场：</strong>Apresentação animada do tema “三年同行、绿动巴西”, sorteio rápido de vouchers para aquecer o chat e fixar os espectadores.</li>
+        <li><strong>Apresentação dos Modelos · 车型讲解：</strong>Destaque dos três modelos com cenas XR, demonstração de diferenciais e depoimentos de usuários.</li>
+        <li><strong>Interação · 互动：</strong>Quiz ao vivo, comentários premiados, desafios de compartilhamento e Q&A com o apresentador para manter a taxa de interação acima de 8%.</li>
+        <li><strong>Fechamento · 逼单：</strong>Oferta exclusiva de live, link de lead na bio, agendamento de test drive e contagem regressiva para criar urgência.</li>
+      </ol>
+
+      <h4>🎙 Atmosfera · 直播氛围</h4>
+      <div class="highlight">
+        <strong>Calorosa, leve e envolvente · 热情、轻松：</strong>Apresentadores falando português com energia brasileira, música animada, efeitos visuais dinâmicos e linguagem próxima do público, conduzindo naturalmente ao preenchimento de formulário e ao test drive.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="closeModal2">Fechar · 关闭</button>
+      <button class="btn-primary" id="copyScript">Copiar Roteiro · 复制脚本</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   2026 calendar — Brasil holidays
+   ========================================================= */
+const MONTHS_PT = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+const MONTHS_CN = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+const MONTHS_CN_FULL = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+const DOW_PT = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+const MARKS = {
+  0: [
+    { d: 1,  name: 'Confraternização Universal',  cn: '元旦节',          color: 'red',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Ano Novo, Novo Começo Verde / 新年新启程，绿动未来', goals: '吸引1.5万观看 / 留住7%互动 / 转化300线索', format: 'XR 全息倒计时 + 新车光影秀', audience: '25–40岁城市家庭', cars: '城市小精灵、旗舰星耀客' } },
+    { d: 6,  name: 'Dia de Reis',                 cn: '主显节（三王节）',  color: 'purple',
+      plan: { platform: 'TikTok + Kwai', time: 'X年X月', theme: 'Três Reis, Três Caminhos / 三王节·三车献礼', goals: '吸引1.2万观看 / 留住6%互动 / 转化250线索', format: 'XR 全息礼物盒开箱，三车360°环绕', audience: '30–45岁家庭用户', cars: '城市小精灵、都市探险家、旗舰星耀客' } },
+    { d: 15, name: 'Volta às Aulas',              cn: '开学季促销',       color: 'green',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'De Volta às Aulas com Estilo / 开学季，智趣同行', goals: '吸引1.8万观看 / 留住8%互动 / 转化350线索', format: 'XR 全息校园场景 + 车载智能空间', audience: '25–35岁年轻父母及大学生', cars: '城市小精灵、都市探险家' } },
+    { d: 20, name: 'Dia de São Sebastião',        cn: '圣塞巴斯蒂昂日',   color: 'blue',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Proteção e Mobilidade para São Paulo / 守护圣保罗，智行每一天', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息圣保罗城市地标巡游', audience: '25–45岁圣保罗都会区居民', cars: '城市小精灵、都市探险家' } },
+    { d: 25, name: 'Aniversário de São Paulo',    cn: '圣保罗建城日',     color: 'orange',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'São Paulo 471 Anos: Verde e Inovadora / 圣保罗471周年·绿色创新之城', goals: '吸引2万观看 / 留住8%互动 / 转化400线索', format: 'XR 全息圣保罗天际线 + 烟花秀', audience: '25–45岁圣保罗城市精英', cars: '旗舰星耀客、都市探险家' } }
+  ],
+  1: [
+    { d: 2,  name: 'Festa de Iemanjá',            cn: '伊曼雅女神节',     color: 'blue',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Iemanjá: Fluxo Verde pelo Mar / 伊曼雅女神节·海洋绿动之流', goals: '吸引1.3万观看 / 留住7%互动 / 转化280线索', format: 'XR 全息海洋波浪与车辆融合', audience: '25–40岁沿海城市文化与环保人群', cars: '城市小精灵（海洋蓝限定）、都市探险家' } },
+    { d: 17, name: 'Carnaval',                    cn: '狂欢节',          color: 'pink',
+      plan: { platform: 'TikTok + Instagram Reels', time: 'X年X月', theme: 'Carnaval Elétrico: Verde é a Nova Cor / 绿色狂欢节·电动新色彩', goals: '吸引3万观看 / 留住10%互动 / 转化500线索', format: 'XR 全息桑巴巡游 + 车色炫变', audience: '20–40岁狂欢与潮流人群', cars: '城市小精灵、都市探险家、旗舰星耀客' } },
+    { d: 18, name: 'Quarta-feira de Cinzas',      cn: '圣灰星期三',       color: 'purple',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Renovação Sustentável / 圣灰星期三·可持续新生', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息自然森林冥想场景', audience: '28–45岁注重内心与环保人群', cars: '城市小精灵、旗舰星耀客' } },
+    { d: 22, name: 'Pós-Carnaval · Retomada',     cn: '狂欢后回暖期',     color: 'green',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Retomada Inteligente após o Carnaval / 狂欢后·智能复工', goals: '吸引1.5万观看 / 留住7%互动 / 转化300线索', format: 'XR 全息城市通勤效率展示', audience: '25–45岁职场通勤人群', cars: '城市小精灵、都市探险家' } }
+  ],
+  2: [
+    { d: 8,  name: 'Dia Internacional da Mulher', cn: '国际妇女节',       color: 'pink',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Mulheres no Volante do Futuro / 她力量·驾驭未来', goals: '吸引2.5万观看 / 留住9%互动 / 转化450线索', format: 'XR 全息女性车主故事剧场', audience: '25–45岁都市女性', cars: '城市小精灵、旗舰星耀客' } },
+    { d: 15, name: 'Dia do Consumidor',           cn: '世界消费者日',     color: 'orange',
+      plan: { platform: 'TikTok + Kwai', time: 'X年X月', theme: 'Direitos do Consumidor, Benefícios Reais / 消费者权益日·真实惠', goals: '吸引2万观看 / 留住8%互动 / 转化500线索', format: 'XR 全息透明车间与权益清单', audience: '25–45岁理性购车人群', cars: '三款车型全线' } },
+    { d: 20, name: 'Início do Outono',            cn: '南半球秋分',       color: 'blue',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Outono Verde: A Mudança começa Agora / 绿色秋分·改变从现在开始', goals: '吸引1.2万观看 / 留住7%互动 / 转化280线索', format: 'XR 全息四季变换与低碳出行', audience: '28–50岁自然与环保爱好者', cars: '城市小精灵、都市探险家' } },
+    { d: 25, name: 'Dia do Circo',                cn: '马戏日',          color: 'yellow',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Circo Sustentável: Diversão sem Fumaça / 绿色马戏·无烟欢乐', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息马戏团场景 + 车辆特技', audience: '25–40岁亲子家庭', cars: '城市小精灵、都市探险家' } }
+  ],
+  3: [
+    { d: 1,  name: 'Dia da Mentira',              cn: '愚人节',          color: 'green',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: '1º de Abril: Verdades sobre Mobilidade Verde / 愚人节·绿色出行真相关', goals: '吸引1.5万观看 / 留住7%互动 / 转化250线索', format: 'XR 全息“谣言粉碎机”互动剧场', audience: '22–40岁年轻好奇用户', cars: '城市小精灵、旗舰星耀客' } },
+    { d: 3,  name: 'Sexta-feira Santa',           cn: '耶稣受难日',       color: 'red',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Sexta-feira Santa: Paz e Segurança / 圣周五·平安守护', goals: '吸引8千观看 / 留住5%互动 / 转化150线索', format: 'XR 全息光之道路与安全演示', audience: '30–50岁家庭信徒', cars: '都市探险家、旗舰星耀客' } },
+    { d: 5,  name: 'Páscoa',                      cn: '复活节',          color: 'purple',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Páscoa: Renovação e Recomeço / 复活节·焕新出发', goals: '吸引1.8万观看 / 留住7%互动 / 转化350线索', format: 'XR 全息彩蛋寻宝 + 车型彩蛋', audience: '25–45岁家庭用户', cars: '城市小精灵、都市探险家、旗舰星耀客' } },
+    { d: 21, name: 'Tiradentes',                  cn: '蒂拉登特斯日',     color: 'green',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Tiradentes: Liberdade sobre Rodas / 蒂拉登特斯日·自由启程', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息巴西历史之路巡游', audience: '25–45岁爱国人群', cars: '都市探险家、旗舰星耀客' } },
+    { d: 23, name: 'Dia de São Jorge',            cn: '圣乔治日',        color: 'yellow',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'São Jorge: Coragem para Novos Caminhos / 圣乔治·勇敢新程', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息龙与骑士守护场景', audience: '25–45岁城市男性用户', cars: '都市探险家、旗舰星耀客' } }
+  ],
+  4: [
+    { d: 1,  name: 'Dia do Trabalho',             cn: '劳动节',          color: 'red',
+      plan: { platform: 'TikTok + Kwai', time: 'X年X月', theme: 'Dia do Trabalho: Mérito e Mobilidade / 劳动节·致敬奋斗者', goals: '吸引2万观看 / 留住8%互动 / 转化400线索', format: 'XR 全息城市劳动者群像', audience: '25–50岁职场劳动者', cars: '城市小精灵、都市探险家' } },
+    { d: 10, name: 'Dia das Mães',                cn: '母亲节',          color: 'pink',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia das Mães: Conforto e Cuidado / 母亲节·舒适守护', goals: '吸引2.2万观看 / 留住8%互动 / 转化420线索', format: 'XR 全息家庭温情场景 + 母亲专属礼包', audience: '28–50岁母亲及家庭成员', cars: '都市探险家、旗舰星耀客' } },
+    { d: 13, name: 'N. Sra. de Fátima',           cn: '法蒂玛圣母日',     color: 'blue',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Fátima: Luz e Proteção na Estrada / 法蒂玛圣母·路途之光', goals: '吸引8千观看 / 留住5%互动 / 转化150线索', format: 'XR 全息光之隧道与祝福', audience: '30–55岁信仰家庭', cars: '都市探险家、旗舰星耀客' } },
+    { d: 24, name: 'Pentecostes',                 cn: '圣灵节',          color: 'purple', star: true,
+      plan: { platform: 'TikTok', time: 'X年X月', theme: '三年同行、绿动巴西', goals: '吸引人·留住人·转化人三层目标：吸引层·总观看突破2万人；留住层·平均互动率超8%；转化层·收集500条有效线索', format: '创新XR全息直播形式', audience: '25–45岁用户', cars: '城市小精灵', lang: 'Português · 葡萄牙语' } },
+    { d: 25, name: 'Dia da Indústria',            cn: '工业日',          color: 'orange',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia da Indústria: Inovação Made in Brasil / 工业日·巴西智造', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息智能工厂与产线', audience: '28–50岁产业与科技人群', cars: '旗舰星耀客、都市探险家' } }
+  ],
+  5: [
+    { d: 5,  name: 'Dia do Meio Ambiente',        cn: '世界环境日',       color: 'green',
+      plan: { platform: 'TikTok + Instagram', time: 'X年X月', theme: 'Meio Ambiente: Verde é Agora / 世界环境日·绿色即现在', goals: '吸引3万观看 / 留住10%互动 / 转化600线索', format: 'XR 全息亚马逊雨林与零碳出行', audience: '20–45岁环保主义者', cars: '城市小精灵、都市探险家、旗舰星耀客' } },
+    { d: 12, name: 'Dia dos Namorados',           cn: '巴西情人节',       color: 'pink',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia dos Namorados: Roteiro a Dois / 巴西情人节·双人绿色旅程', goals: '吸引2万观看 / 留住9%互动 / 转化400线索', format: 'XR 全息浪漫星空驾车场景', audience: '22–40岁情侣与夫妻', cars: '城市小精灵、旗舰星耀客' } },
+    { d: 24, name: 'São João',                    cn: '圣若昂节',        color: 'orange',
+      plan: { platform: 'TikTok + Kwai', time: 'X年X月', theme: 'São João: Festa Junina Elétrica / 圣若昂节·电动篝火节', goals: '吸引2万观看 / 留住8%互动 / 转化400线索', format: 'XR 全息篝火广场与车型巡游', audience: '20–45岁东北部及乡村文化爱好者', cars: '都市探险家、城市小精灵' } },
+    { d: 29, name: 'Dia de São Pedro',            cn: '圣彼得日',        color: 'yellow',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'São Pedro: Abençoe a Jornada / 圣彼得·祝福每一段旅程', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息水上光影与车辆涉水能力', audience: '25–45岁沿海与渔业文化人群', cars: '都市探险家、旗舰星耀客' } }
+  ],
+  6: [
+    { d: 9,  name: 'Revolução Constitucionalista',cn: '立宪革命日',       color: 'blue',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: '9 de Julho: Força e Independência / 立宪革命日·力量与独立', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息圣保罗历史游行', audience: '25–50岁圣保罗市民', cars: '都市探险家、旗舰星耀客' } },
+    { d: 14, name: 'Dia do Cartaz',               cn: '海报日',          color: 'purple',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia do Cartaz: Design que se Move / 海报日·移动的设计', goals: '吸引1.2万观看 / 留住7%互动 / 转化250线索', format: 'XR 全息动态海报画廊', audience: '22–40岁设计与潮流人群', cars: '城市小精灵、旗舰星耀客' } },
+    { d: 20, name: 'Dia Internacional da Amizade',cn: '国际友谊日',       color: 'green',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia da Amizade: Carona do Bem / 国际友谊日·绿色同行', goals: '吸引1.5万观看 / 留住7%互动 / 转化300线索', format: 'XR 全息好友公路旅行', audience: '20–35岁年轻朋友群体', cars: '城市小精灵、都市探险家' } },
+    { d: 26, name: 'Dia dos Avós',                cn: '祖父母日',        color: 'yellow',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia dos Avós: Conforto para Quem Cuida / 祖父母日·给守护者的舒适', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息祖孙同乘温馨场景', audience: '30–55岁家庭用户', cars: '都市探险家、旗舰星耀客' } }
+  ],
+  7: [
+    { d: 9,  name: 'Dia dos Pais',                cn: '父亲节',          color: 'pink',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia dos Pais: Pai, o Herói da Estrada / 父亲节·路上的英雄', goals: '吸引2万观看 / 留住8%互动 / 转化400线索', format: 'XR 全息父子驾车冒险', audience: '25–50岁父亲及家庭成员', cars: '都市探险家、旗舰星耀客' } },
+    { d: 11, name: 'Dia do Estudante',            cn: '学生日',          color: 'blue',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia do Estudante: Inteligência sobre Rodas / 学生日·轮上智慧', goals: '吸引1.5万观看 / 留住7%互动 / 转化300线索', format: 'XR 全息校园科技场景', audience: '18–30岁学生与年轻职场新人', cars: '城市小精灵' } },
+    { d: 15, name: 'Assunção de Maria',           cn: '圣母升天',        color: 'purple',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Assunção: Elevação e Esperança / 圣母升天·升华与希望', goals: '吸引8千观看 / 留住5%互动 / 转化150线索', format: 'XR 全息天梯光柱与车辆升华', audience: '30–55岁信仰家庭', cars: '都市探险家、旗舰星耀客' } },
+    { d: 25, name: 'Dia do Feirante',             cn: '集市商贩日',       color: 'orange',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia do Feirante: Força do Comércio Local / 集市商贩日·本土商业力量', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息集市车辆载货展示', audience: '25–50岁小商户与创业者', cars: '都市探险家、城市小精灵' } }
+  ],
+  8: [
+    { d: 7,  name: 'Independência do Brasil',     cn: '巴西独立日',       color: 'green',
+      plan: { platform: 'TikTok + Instagram + Kwai', time: 'X年X月', theme: '7 de Setembro: Independência Verde / 巴西独立日·绿色独立宣言', goals: '吸引4万观看 / 留住12%互动 / 转化800线索', format: 'XR 全息巴西国旗与三车阅兵', audience: '全年龄段巴西国民', cars: '城市小精灵、都市探险家、旗舰星耀客' } },
+    { d: 12, name: 'Dia do Amor',                 cn: '恋爱日',          color: 'pink',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia do Amor: Roteiro Romântico / 恋爱日·浪漫路线', goals: '吸引1.5万观看 / 留住8%互动 / 转化300线索', format: 'XR 全息情侣自驾浪漫路线', audience: '22–40岁情侣', cars: '城市小精灵、旗舰星耀客' } },
+    { d: 22, name: 'Início da Primavera',         cn: '南半球春分',       color: 'blue',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Primavera Verde: Novo Ciclo / 绿色春分·新周期', goals: '吸引1.2万观看 / 留住7%互动 / 转化280线索', format: 'XR 全息春暖花开与车辆焕新', audience: '25–45岁都市自然爱好者', cars: '城市小精灵、都市探险家' } },
+    { d: 27, name: 'Dia do Turista',              cn: '旅游日',          color: 'yellow',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia do Turista: Brasil a Descobrir / 旅游日·探索巴西', goals: '吸引1.8万观看 / 留住8%互动 / 转化350线索', format: 'XR 全息巴西风景名胜自驾', audience: '25–50岁旅游爱好者', cars: '都市探险家、旗舰星耀客' } }
+  ],
+  9: [
+    { d: 12, name: 'N. Sra. Aparecida · Crianças',cn: '圣母显灵·儿童节',  color: 'purple',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Crianças e Aparecida: Proteção em Família / 儿童节·家庭守护', goals: '吸引2万观看 / 留住8%互动 / 转化400线索', format: 'XR 全息圣母祝福与儿童安全座舱', audience: '25–45岁父母家庭', cars: '都市探险家、旗舰星耀客' } },
+    { d: 15, name: 'Dia do Professor',            cn: '教师日',          color: 'blue',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia do Professor: Sabedoria que nos Move / 教师日·智慧驱动', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息课堂与知识之旅', audience: '25–55岁教育工作者', cars: '城市小精灵、旗舰星耀客' } },
+    { d: 28, name: 'Dia do Servidor Público',     cn: '公务员日',        color: 'green',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Servidor Público: Eficiência e Sustentabilidade / 公务员日·高效可持续', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息城市治理与智慧出行', audience: '25–50岁公务员及事业单位人员', cars: '城市小精灵、旗舰星耀客' } },
+    { d: 31, name: 'Dia das Bruxas',              cn: '万圣节',          color: 'orange',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Halloween: Sustos Elétricos / 万圣节·电动惊魂夜', goals: '吸引2万观看 / 留住9%互动 / 转化350线索', format: 'XR 全息鬼屋与车辆幽灵巡游', audience: '18–35岁年轻潮流人群', cars: '城市小精灵、都市探险家' } }
+  ],
+  10: [
+    { d: 2,  name: 'Finados',                     cn: '万灵节',          color: 'purple',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Finados: Memória e Respeito / 万灵节·缅怀与尊重', goals: '吸引8千观看 / 留住5%互动 / 转化150线索', format: 'XR 全息烛光小径与静谧出行', audience: '30–55岁家庭用户', cars: '都市探险家、旗舰星耀客' } },
+    { d: 11, name: 'Dia do Sistema Único',        cn: '健康系统日',       color: 'blue',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Saúde para Todos: Proteção em Cada Km / 健康系统日·每一公里都安心', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息医疗舱与车内健康监测', audience: '28–50岁健康关注人群', cars: '都市探险家、旗舰星耀客' } },
+    { d: 15, name: 'Proclamação da República',    cn: '共和国宣告日',     color: 'red',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Proclamação: República Verde / 共和国宣告日·绿色共和国', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息共和国广场与车辆巡游', audience: '25–50岁爱国公民', cars: '都市探险家、旗舰星耀客' } },
+    { d: 20, name: 'Consciência Negra',           cn: '黑人意识日',       color: 'green',
+      plan: { platform: 'TikTok + Instagram', time: 'X年X月', theme: 'Consciência Negra: Diversidade em Movimento / 黑人意识日·多元前行', goals: '吸引1.5万观看 / 留住7%互动 / 转化300线索', format: 'XR 全息非洲文化与巴西多元融合', audience: '18–45岁关注多元文化人群', cars: '城市小精灵、都市探险家、旗舰星耀客' } },
+    { d: 27, name: 'Black Friday',                cn: '黑色星期五',       color: 'yellow',
+      plan: { platform: 'TikTok + Instagram + Kwai', time: 'X年X月', theme: 'Black Friday: Verde é o Novo Preto / 黑色星期五·绿色就是新黑色', goals: '吸引5万观看 / 留住12%互动 / 转化1000线索', format: 'XR 全息限时折扣风暴与抢购倒计时', audience: '22–50岁全年龄段购车意向人群', cars: '三款车型全线' } }
+  ],
+  11: [
+    { d: 8,  name: 'Imaculada Conceição',         cn: '圣母无染原罪',     color: 'purple',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Imaculada: Pureza e Inovação / 圣母无染原罪·纯净创新', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息纯净光之花园', audience: '30–55岁信仰家庭', cars: '都市探险家、旗舰星耀客' } },
+    { d: 24, name: 'Véspera de Natal',            cn: '平安夜',          color: 'green',
+      plan: { platform: 'TikTok', time: 'X年X月', theme: 'Véspera de Natal: Presente em Casa / 平安夜·礼物到家', goals: '吸引2万观看 / 留住8%互动 / 转化400线索', format: 'XR 全息圣诞老人驾车送礼', audience: '25–50岁家庭用户', cars: '都市探险家、旗舰星耀客' } },
+    { d: 25, name: 'Natal',                       cn: '圣诞节',          color: 'red',
+      plan: { platform: 'TikTok + Instagram', time: 'X年X月', theme: 'Natal Verde: O Melhor Presente é o Planeta / 圣诞节·最好的礼物是地球', goals: '吸引2.5万观看 / 留住9%互动 / 转化500线索', format: 'XR 全息圣诞树与车辆礼物盒', audience: '25–50岁家庭用户', cars: '城市小精灵、都市探险家、旗舰星耀客' } },
+    { d: 31, name: 'Réveillon',                   cn: '跨年夜',          color: 'yellow',
+      plan: { platform: 'TikTok + Instagram + Kwai', time: 'X年X月', theme: 'Réveillon 2027: Ano Novo, Novo Carro / 跨年夜·新年新车', goals: '吸引4万观看 / 留住12%互动 / 转化800线索', format: 'XR 全息跨年倒计时与烟花车展', audience: '20–45岁庆祝人群', cars: '三款车型全线' } }
+  ]
+};
+
+const YEAR = 2026;
+const tipEl = document.getElementById('calTip');
+const gridEl = document.getElementById('calGrid');
+
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html != null) e.innerHTML = html;
+  return e;
+}
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function buildMonthCard(m) {
+  const card = el('div', 'cal-card');
+
+  // head
+  const head = el('div', 'cal-head');
+  head.appendChild(el('div', 'cal-name', MONTHS_PT[m]));
+  head.appendChild(el('div', 'cal-sub', `${MONTHS_CN_FULL[m]} <span class="num">- ${MONTHS_CN[m]} ${pad2(m+1)}/${String(YEAR).slice(2)}</span>`));
+  card.appendChild(head);
+
+  // dow row
+  const dow = el('div', 'dow-row');
+  DOW_PT.forEach((d, i) => {
+    const s = el('span', (i === 0 || i === 6) ? 'we' : '', d);
+    dow.appendChild(s);
+  });
+  card.appendChild(dow);
+
+  // body grid (always 6 rows x 7 cols = 42 cells)
+  const body = el('div', 'cal-body');
+  const firstDay = new Date(YEAR, m, 1).getDay(); // 0=Sun
+  const total    = new Date(YEAR, m + 1, 0).getDate();
+  const prevTotal = new Date(YEAR, m, 0).getDate();
+  const nextTotal = new Date(YEAR, m + 1, 1); // not used directly
+
+  // holiday map for this month
+  const map = {};
+  (MARKS[m] || []).forEach(mk => { map[mk.d] = mk; });
+
+  const cells = [];
+  // leading (prev month)
+  for (let i = firstDay - 1; i >= 0; i--) {
+    cells.push({ d: prevTotal - i, kind: 'prev' });
+  }
+  // current month
+  for (let d = 1; d <= total; d++) {
+    cells.push({ d, kind: 'cur' });
+  }
+  // trailing (next month)
+  let nxt = 1;
+  while (cells.length < 42) {
+    cells.push({ d: nxt++, kind: 'next' });
+  }
+
+  cells.forEach((c, idx) => {
+    const dowIdx = idx % 7; // 0=Sun,6=Sat
+    const isWeekend = (dowIdx === 0 || dowIdx === 6);
+    const cell = el('div', 'cell');
+    if (c.kind !== 'cur') cell.classList.add('other');
+    if (c.kind === 'cur' && isWeekend) cell.classList.add('weekend');
+    if (c.kind === 'cur' && map[c.d]) {
+      const mk = map[c.d];
+      cell.classList.add('holiday', 'c-' + mk.color);
+      if (mk.star) cell.classList.add('star');
+      cell.textContent = c.d;
+      cell.dataset.mk = JSON.stringify({ ...mk, m, d: c.d });
+      cell.addEventListener('mouseenter', onCellEnter);
+      cell.addEventListener('mouseleave', onCellLeave);
+      cell.addEventListener('mousemove',  onCellMove);
+      if (mk.plan) {
+        cell.style.cursor = 'pointer';
+        cell.addEventListener('click', () => openStarDetail(mk, m, c.d));
+      }
+    } else {
+      cell.textContent = c.d;
+    }
+    body.appendChild(cell);
+  });
+  card.appendChild(body);
+
+  // holiday list under the month
+  const list = el('div', 'cal-list');
+  const marks = MARKS[m] || [];
+  if (marks.length === 0) {
+    list.appendChild(el('div', 'empty', '— sem feriados cadastrados —'));
+  } else {
+    marks.forEach(mk => {
+      const row = el('div', 'row c-' + mk.color + (mk.star ? ' star' : ''));
+      row.appendChild(el('span', 'd', pad2(mk.d)));
+      row.appendChild(el('span', 'pt', mk.name));
+      row.appendChild(el('span', 'cn', ' ' + mk.cn));
+      if (mk.plan) {
+        row.style.cursor = 'pointer';
+        row.title = '点击查看深度策划';
+        row.addEventListener('click', () => openStarDetail(mk, m, mk.d));
+      }
+      list.appendChild(row);
+    });
+  }
+  card.appendChild(list);
+
+  return card;
+}
+
+/* ----- Tooltip handlers ----- */
+function onCellEnter(e) {
+  const mk = JSON.parse(e.currentTarget.dataset.mk);
+  showTip(e.currentTarget, mk);
+}
+function onCellMove(e) {
+  // re-position so the tip follows the cursor smoothly
+  positionTip(e.clientX, e.clientY);
+}
+function onCellLeave() {
+  tipEl.classList.remove('show');
+}
+function showTip(anchor, mk) {
+  const date = `${pad2(mk.d)}/${pad2(mk.m+1)}/${YEAR}`;
+  const p = mk.plan || {};
+  tipEl.innerHTML = `
+    <div class="tip-title">
+      <span>${mk.cn}${mk.star ? '<span class="star-tag">★ 特殊重点</span>' : ''}</span>
+      <span class="pt">${mk.name}</span>
+    </div>
+    <div class="date">${date}</div>
+    <div class="plan">
+      <div class="plan-row"><span class="plan-label">直播平台</span><span class="plan-value">${p.platform || '—'}</span></div>
+      <div class="plan-row"><span class="plan-label">直播时间</span><span class="plan-value">${p.time || '—'}</span></div>
+      <div class="plan-row"><span class="plan-label">直播主题</span><span class="plan-value">${p.theme || '—'}</span></div>
+      <div class="plan-row"><span class="plan-label">目标体系</span><span class="plan-value">${p.goals || '—'}</span></div>
+      <div class="plan-row"><span class="plan-label">创新全息</span><span class="plan-value">${p.format || '—'}</span></div>
+      <div class="plan-row"><span class="plan-label">目标用户</span><span class="plan-value">${p.audience || '—'}</span></div>
+      <div class="plan-row"><span class="plan-label">主推车型</span><span class="plan-value">${p.cars || '—'}</span></div>
+      ${p.lang ? `<div class="plan-row"><span class="plan-label">直播语言</span><span class="plan-value">${p.lang}</span></div>` : ''}
+    </div>
+    ${mk.plan ? '<div class="tip-click-hint">👆 点击日期查看深度策划</div>' : ''}
+  `;
+  const r = anchor.getBoundingClientRect();
+  positionTip(r.left + r.width / 2, r.top);
+  tipEl.classList.add('show');
+}
+function positionTip(clientX, clientY) {
+  const x = clientX;
+  const y = clientY;
+  tipEl.style.left = x + 'px';
+  tipEl.style.top  = y + 'px';
+  // clamp to viewport both horizontally and vertically
+  requestAnimationFrame(() => {
+    const w = tipEl.offsetWidth;
+    const h = tipEl.offsetHeight;
+    let left = x;
+    if (left - w / 2 < 4) left = w / 2 + 4;
+    if (left + w / 2 > window.innerWidth - 4) left = window.innerWidth - w / 2 - 4;
+    tipEl.style.left = left + 'px';
+    // if too close to top, flip to below cursor
+    if (y - h - 12 < 4) {
+      tipEl.classList.add('below');
+      tipEl.style.top = (y + 18) + 'px';
+      tipEl.style.transform = 'translate(-50%, 0)';
+    } else {
+      tipEl.classList.remove('below');
+      tipEl.style.top = y + 'px';
+      tipEl.style.transform = 'translate(-50%, calc(-100% - 12px))';
+    }
+  });
+}
+
+/* ----- Build all months ----- */
+MONTHS_PT.forEach((_, m) => gridEl.appendChild(buildMonthCard(m)));
+
+/* ----- Footer date ----- */
+document.getElementById('gen-date').textContent = new Date().toISOString().slice(0, 10);
+
+/* ----- Tabs (visual only) ----- */
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+
+/* ===== Star Holiday Detail + Content Generation ===== */
+function openStarDetail(mk, m, d) {
+  tipEl.classList.remove('show');
+  const p = mk.plan || {};
+  const date = `${pad2(d)}/${pad2(m+1)}/${YEAR}`;
+  document.getElementById('smTitle').innerHTML =
+    `<span>${mk.cn}</span>${mk.star ? '<span class="star-badge">★ 特殊重点</span>' : ''}`;
+  document.getElementById('smSub').textContent = `${mk.name} · ${date}`;
+
+  const body = document.getElementById('starModalBody');
+  body.innerHTML = `
+    <div class="star-plan-summary">
+      <div class="sp-row"><span class="sp-label">直播平台</span><span class="sp-value">${p.platform || '—'}</span></div>
+      <div class="sp-row"><span class="sp-label">直播时间</span><span class="sp-value">${p.time || '—'}</span></div>
+      <div class="sp-row"><span class="sp-label">直播主题</span><span class="sp-value">${p.theme || '—'}</span></div>
+      <div class="sp-row"><span class="sp-label">目标体系</span><span class="sp-value">${p.goals || '—'}</span></div>
+      <div class="sp-row"><span class="sp-label">创新全息</span><span class="sp-value">${p.format || '—'}</span></div>
+      <div class="sp-row"><span class="sp-label">目标用户</span><span class="sp-value">${p.audience || '—'}</span></div>
+      <div class="sp-row"><span class="sp-label">主推车型</span><span class="sp-value">${p.cars || '—'}</span></div>
+      ${p.lang ? `<div class="sp-row"><span class="sp-label">直播语言</span><span class="sp-value">${p.lang}</span></div>` : ''}
+    </div>
+    <div class="star-section-title">深度策划</div>
+    <div class="star-gen-grid">
+      <div class="star-gen-card" onclick="genMarketingPlan()">
+        <div class="sgc-icon" style="background:rgba(109,40,217,0.1);color:#6d28d9;">📋</div>
+        <div class="sgc-name">营销策划案</div>
+        <div class="sgc-desc">从目标设定到执行落地，输出完整的节日营销全案策划</div>
+        <div class="sgc-go">点击生成 →</div>
+      </div>
+      <div class="star-gen-card" onclick="genShortVideo()">
+        <div class="sgc-icon" style="background:rgba(239,68,68,0.1);color:#ef4444;">🎬</div>
+        <div class="sgc-name">短视频脚本</div>
+        <div class="sgc-desc">预热+高潮双版本，含分镜、葡语字幕及投放运营要点</div>
+        <div class="sgc-go">点击生成 →</div>
+      </div>
+      <div class="star-gen-card" onclick="genInteractive()">
+        <div class="sgc-icon" style="background:rgba(16,185,129,0.1);color:#10b981;">🎮</div>
+        <div class="sgc-name">互动玩法</div>
+        <div class="sgc-desc">直播间抽奖、投票、弹幕互动等全流程互动机制设计</div>
+        <div class="sgc-go">点击生成 →</div>
+      </div>
+      <div class="star-gen-card" onclick="genTrafficStrategy()">
+        <div class="sgc-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6;">📈</div>
+        <div class="sgc-name">流量投放策略</div>
+        <div class="sgc-desc">TikTok信息流+达人种草+搜索卡位，全链路流量布局</div>
+        <div class="sgc-go">点击生成 →</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('starOverlay').classList.add('show');
+}
+
+function closeStarOverlay() {
+  document.getElementById('starOverlay').classList.remove('show');
+}
+document.getElementById('starOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('starOverlay')) closeStarOverlay();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeStarOverlay();
+});
+
+/* 打开新窗口并写入完整 HTML 页面 */
+function openGenPage(title, htmlBody) {
+  const w = window.open('', '_blank');
+  if (!w) { alert('请允许弹出窗口以查看生成内容'); return; }
+  w.document.write(`<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${title}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f6fa; color: #1f2937; min-height: 100vh; padding: 32px 20px;
+  }
+  .gen-wrap { max-width: 860px; margin: 0 auto; background: #fff;
+    border-radius: 16px; box-shadow: 0 8px 30px rgba(15,23,42,0.08);
+    overflow: hidden; border: 1px solid #e5e7eb; }
+  .gen-head {
+    padding: 24px 28px; background: linear-gradient(135deg, #6d28d9, #2563eb);
+    color: #fff;
+  }
+  .gen-head h1 { font-size: 22px; font-weight: 800; }
+  .gen-head .sub { font-size: 13px; opacity: 0.85; margin-top: 6px; }
+  .gen-body { padding: 28px; }
+  .gen-sec {
+    margin-bottom: 24px; padding: 18px 20px;
+    border: 1px solid #e5e7eb; border-radius: 12px; background: #fafbfc;
+  }
+  .gen-sec h2 {
+    font-size: 15px; font-weight: 700; color: #6d28d9;
+    margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #ede9fe;
+  }
+  .gen-sec p, .gen-sec li {
+    font-size: 13.5px; line-height: 1.8; color: #374151;
+  }
+  .gen-sec ul { padding-left: 18px; margin-top: 6px; }
+  .gen-sec li { margin-bottom: 4px; }
+  .gen-sec .pt-block {
+    background: #1f2937; color: #e5e7eb; border-radius: 8px;
+    padding: 14px 16px; margin-top: 10px; font-size: 13px; line-height: 1.7;
+    white-space: pre-wrap; font-family: "Consolas", "Monaco", monospace;
+  }
+  .gen-sec .highlight { color: #8b5cf6; font-weight: 600; }
+  .gen-sec table {
+    width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px;
+  }
+  .gen-sec th, .gen-sec td {
+    border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left;
+  }
+  .gen-sec th { background: #f3f4f6; font-weight: 600; color: #4b5563; }
+  .gen-footer {
+    padding: 14px 28px; text-align: center; font-size: 12px; color: #9ca3af;
+    border-top: 1px solid #e5e7eb;
+  }
+</style>
+</head>
+<body>
+<div class="gen-wrap">
+  ${htmlBody}
+  <div class="gen-footer">圣灵节 · 三年同行、绿动巴西 · BYD Brazil Marketing 2026</div>
+</div>
+</body>
+</html>`);
+  w.document.close();
+}
+
+/* ===== 1. 营销策划案 ===== */
+function genMarketingPlan() {
+  openGenPage('营销策划案 — 节日营销', `
+  <div class="gen-head">
+    <h1>📋 营销策划案</h1>
+    <div class="sub">从目标设定到执行落地 · 完整节日营销全案策划框架</div>
+  </div>
+  <div class="gen-body">
+    <div class="gen-sec">
+      <h2>🎯 营销目标体系</h2>
+      <table>
+        <tr><th>维度</th><th>核心目标</th><th>量化指标</th><th>衡量方式</th></tr>
+        <tr><td>品牌层</td><td>提升品牌认知与节日关联度</td><td>品牌搜索量环比+200%</td><td>Google Trends + TikTok搜索指数</td></tr>
+        <tr><td>用户层</td><td>扩大触达与互动规模</td><td>直播观看≥20,000人 / 互动率≥8%</td><td>TikTok直播后台</td></tr>
+        <tr><td>转化层</td><td>高效收集有效销售线索</td><td>有效线索≥500条</td><td>CRM系统追踪</td></tr>
+        <tr><td>私域层</td><td>沉淀私域社群用户池</td><td>社群新增≥1,000人</td><td>WhatsApp/Telegram群统计</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>📅 执行时间线（14天全周期）</h2>
+      <table>
+        <tr><th>阶段</th><th>天数</th><th>核心任务</th><th>关键交付物</th></tr>
+        <tr><td>策略筹备期</td><td>Day 1-3</td><td>目标确认、主题创意、资源盘点</td><td>策划案定稿、创意Brief</td></tr>
+        <tr><td>内容生产期</td><td>Day 4-7</td><td>短视频拍摄、直播脚本、物料设计</td><td>3条预热视频、直播全脚本</td></tr>
+        <tr><td>预热蓄水期</td><td>Day 8-10</td><td>达人种草、DOU+投放、社群预热</td><td>预热数据日报</td></tr>
+        <tr><td>爆发直播日</td><td>Day 11</td><td>XR全息直播4小时</td><td>直播实时数据看板</td></tr>
+        <tr><td>长尾收割期</td><td>Day 12-14</td><td>精华剪辑、二次传播、线索跟进</td><td>项目复盘报告</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>💰 预算分配建议（参考）</h2>
+      <table>
+        <tr><th>项目</th><th>占比</th><th>说明</th></tr>
+        <tr><td>TikTok DOU+投流</td><td>40%</td><td>预热视频+直播间+长尾投放</td></tr>
+        <tr><td>达人合作</td><td>25%</td><td>1头部+3腰部+10素人矩阵</td></tr>
+        <tr><td>奖品/福利</td><td>15%</td><td>抽奖奖品+福袋+优惠券</td></tr>
+        <tr><td>XR全息制作</td><td>10%</td><td>3D建模+全息场景+特效</td></tr>
+        <tr><td>机动预算</td><td>10%</td><td>应急追加投放+突发需求</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>👥 团队分工</h2>
+      <table>
+        <tr><th>角色</th><th>人数</th><th>核心职责</th></tr>
+        <tr><td>项目总控</td><td>1人</td><td>统筹全流程、资源协调、决策审批</td></tr>
+        <tr><td>内容策划</td><td>2人</td><td>脚本撰写、创意提案、话题设计</td></tr>
+        <tr><td>直播运营</td><td>3人</td><td>主播+副播+场控、节奏把控</td></tr>
+        <tr><td>投放优化</td><td>1人</td><td>DOU+投放、数据监控、实时调整</td></tr>
+        <tr><td>社群运营</td><td>1人</td><td>私域社群预热、直播同步、用户跟进</td></tr>
+        <tr><td>设计/视频</td><td>2人</td><td>物料设计、视频剪辑、直播视觉</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>⚠️ 风险预案</h2>
+      <ul>
+        <li><span class="highlight">技术故障：</span>准备备用推流设备+4G网络备份，应急联系人名单</li>
+        <li><span class="highlight">舆情风险：</span>提前准备Q&A话术，指定专人实时监控评论区</li>
+        <li><span class="highlight">数据不达预期：</span>触发追加投放方案的阈值标准（如在线<5000人追加20%预算）</li>
+        <li><span class="highlight">竞品突袭：</span>监控竞品动作，准备差异化应对话术</li>
+      </ul>
+    </div>
+  </div>
+  `);
+}
+
+/* ===== 2. 短视频脚本（合并预热+高潮） ===== */
+function genShortVideo() {
+  openGenPage('短视频脚本 — 节日营销', `
+  <div class="gen-head">
+    <h1>🎬 短视频脚本</h1>
+    <div class="sub">预热篇+高潮篇双版本 · TikTok竖版 · 30秒 · PT-BR字幕</div>
+  </div>
+  <div class="gen-body">
+    <div class="gen-sec">
+      <h2>📋 Part A · 预热篇（直播前3天发布）</h2>
+      <p><span class="highlight">核心钩子：</span>制造悬念，引导预约直播，预计播放量5万+</p>
+      <table>
+        <tr><th>时间</th><th>画面</th><th>字幕（PT-BR）</th><th>音效</th></tr>
+        <tr><td>0-3s</td><td>黑屏渐亮，XR全息粒子汇聚成BYD LOGO</td><td>3 anos...</td><td>低沉电子音效渐入</td></tr>
+        <tr><td>3-8s</td><td>快剪：圣保罗街景→里约海滩→亚马逊雨林</td><td>3 anos de jornada verde no Brasil</td><td>节奏鼓点加速</td></tr>
+        <tr><td>8-15s</td><td>XR全息展开：三款车型悬浮旋转</td><td>Desta vez, trazemos o futuro até você</td><td>科技感音效+巴西鼓点</td></tr>
+        <tr><td>15-22s</td><td>直播预告卡：日期+时间+主题</td><td>AO VIVO no TikTok · não perca!</td><td>倒计时滴答声</td></tr>
+        <tr><td>22-30s</td><td>福袋预告+BYD LOGO+CTA按钮</td><td>Sorteio exclusivo! Siga e ative o lembrete!</td><td>金币音效→品牌收尾</td></tr>
+      </table>
+      <br>
+      <p><span class="highlight">预热旁白文案（PT-BR）：</span></p>
+      <div class="pt-block">Brasil, já se passaram 3 anos!
+3 anos de jornada verde, 3 anos de inovação.
+E desta vez... vamos levar o futuro até você!
+XR holográfico, 3 modelos BYD, sorteios exclusivos —
+tudo ao vivo no TikTok!
+Não perca! Siga e ative o lembrete agora!</div>
+    </div>
+    <div class="gen-sec">
+      <h2>🔥 Part B · 高潮篇（直播后2小时内发布）</h2>
+      <p><span class="highlight">核心钩子：</span>直播精华二次传播，预计播放量10万+，带动品牌搜索</p>
+      <table>
+        <tr><th>时间</th><th>画面</th><th>字幕（PT-BR）</th><th>音效</th></tr>
+        <tr><td>0-3s</td><td>开场高光：XR全息车辆悬浮展开+光粒子爆炸</td><td>VOCÊ VIU ISSO?!</td><td>爆炸音效+电子drop</td></tr>
+        <tr><td>3-8s</td><td>快剪直播弹幕高潮：满屏弹幕滚动</td><td>+20.000 pessoas vendo ao vivo!</td><td>人群欢呼声</td></tr>
+        <tr><td>8-14s</td><td>三款车型XR 360°精华展示</td><td>3 carros. 3 futuristas. 1 noite.</td><td>科技转场音效</td></tr>
+        <tr><td>14-20s</td><td>互动高潮：主播抽奖+用户表情包混剪</td><td>SORTEIO AO VIVO! 🔥</td><td>金币+欢呼音效</td></tr>
+        <tr><td>20-30s</td><td>金句卡+CTA：试驾预约链接</td><td>Obrigado, Brasil! Agende seu test drive!</td><td>情感弦乐→品牌收尾</td></tr>
+      </table>
+      <br>
+      <p><span class="highlight">高潮旁白文案（PT-BR）：</span></p>
+      <div class="pt-block">DID YOU SEE THIS?!
+Mais de 20 mil pessoas assistindo ao vivo!
+3 carros futuristas, 1 noite inesquecível!
+Todos em holograma XR como nunca antes!
+E os sorteios? INSANOS!
+Obrigado, Brasil! Agende seu test drive agora — link na bio!</div>
+    </div>
+    <div class="gen-sec">
+      <h2>🎯 运营要点</h2>
+      <ul>
+        <li><span class="highlight">话题标签：</span>#BYDBrasil #XRLive #Pentecostes #ViralBrasil #CarroEletrico</li>
+        <li><span class="highlight">BGM推荐：</span>Funk carioca轻remix + 电子未来感音效（版权免费库）</li>
+        <li><span class="highlight">封面设计：</span>预热篇用BYD LOGO+倒计时/CG车辆剪影；高潮篇用XR全息震撼截图+大字</li>
+        <li><span class="highlight">DOU+投放：</span>定向25-45岁巴西用户，兴趣标签：汽车/电动车/家庭出行</li>
+        <li><span class="highlight">评论区运营：</span>置顶直播预约/试驾链接，前50名评论送充电卡</li>
+        <li><span class="highlight">跨平台分发：</span>同步发布Instagram Reels + YouTube Shorts</li>
+      </ul>
+    </div>
+  </div>
+  `);
+}
+
+/* ===== 3. 互动玩法 ===== */
+function genInteractive() {
+  openGenPage('互动玩法 — 圣灵节直播', `
+  <div class="gen-head">
+    <h1>🎮 互动玩法全案</h1>
+    <div class="sub">圣灵节「三年同行、绿动巴西」直播互动机制 · 全流程设计</div>
+  </div>
+  <div class="gen-body">
+    <div class="gen-sec">
+      <h2>🎯 互动目标</h2>
+      <ul>
+        <li>平均互动率 > 8%（行业平均3-5%）</li>
+        <li>直播间停留时长 > 8分钟</li>
+        <li>新增关注 > 3000人</li>
+        <li>有效留资 > 500条</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>⏰ 分时段互动节奏</h2>
+      <table>
+        <tr><th>时段</th><th>环节</th><th>互动形式</th><th>奖品/激励</th></tr>
+        <tr><td>20:00-20:15</td><td>暖场开场</td><td>弹幕刷「VERDE」参与开场抽奖</td><td>前50名送BYD环保袋</td></tr>
+        <tr><td>20:05</td><td>福袋1</td><td>关注+分享领福袋</td><td>充电卡R$100 × 5名</td></tr>
+        <tr><td>20:50</td><td>海鸥专属</td><td>评论「SEAGULL」预约试驾</td><td>前30名送R$500充电卡</td></tr>
+        <tr><td>21:30</td><td>投票选车</td><td>弹幕投票：最想试驾哪款？</td><td>参与投票抽3名免费试驾</td></tr>
+        <tr><td>21:45</td><td>福袋2</td><td>分享直播间领福袋</td><td>车型模型 × 3名</td></tr>
+        <tr><td>22:00</td><td>趣味问答</td><td>巴西文化+BYD知识问答</td><td>答对抽BYD定制周边</td></tr>
+        <tr><td>22:30</td><td>互动高潮</td><td>XR全息车型竞猜：猜0-100加速</td><td>最接近者送试驾+购车券</td></tr>
+        <tr><td>23:00</td><td>福袋3</td><td>关注+评论领超级福袋</td><td>免费深度试驾周末 × 1名</td></tr>
+        <tr><td>23:15</td><td>逼单转化</td><td>弹幕刷「BYD」抢限时优惠</td><td>当晚预约额外R$1000优惠</td></tr>
+        <tr><td>23:45</td><td>收官抽奖</td><td>全程参与用户终极大奖</td><td>BYD年度VIP车主权益 × 1名</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>🎲 核心互动玩法详解</h2>
+      <p><span class="highlight">1. XR全息竞猜：</span>主播展示车型XR全息图，观众弹幕猜0-100km/h加速时间、续航里程等参数。最接近的用户获得试驾权益。每款车1轮，共3轮。</p>
+      <br>
+      <p><span class="highlight">2. 弹幕投票「选你的Dream Car」：</span>三款车型同时XR展示，观众在弹幕打出车型名称投票。票数最高的车型获得额外5分钟深度讲解。制造参与感和期待感。</p>
+      <br>
+      <p><span class="highlight">3. 巴西文化问答：</span>结合圣灵节文化与BYD知识，设计10道选择题。例如：「Pentecostes是纪念什么？」「BYD刀片电池的最大优势是什么？」答对即可参与抽奖。</p>
+      <br>
+      <p><span class="highlight">4. 限时闪购「绿色闪电」：</span>每款车型讲解结束后，开放60秒限时闪购窗口。弹幕刷「BYD+手机尾号」参与，前N名获得专属优惠码。</p>
+      <br>
+      <p><span class="highlight">5. XR合影互动：</span>直播最后，开启XR全息合影模式。观众截图直播间画面发到评论区，主播随机抽取截图上墙展示，被选中的用户获得周边礼包。</p>
+    </div>
+    <div class="gen-sec">
+      <h2>🏆 奖品体系</h2>
+      <table>
+        <tr><th>层级</th><th>奖品</th><th>数量</th><th>触发条件</th></tr>
+        <tr><td>阳光普照</td><td>BYD定制环保袋</td><td>50份</td><td>开场弹幕参与</td></tr>
+        <tr><td>互动奖</td><td>充电卡R$100</td><td>15份</td><td>福袋/问答</td></tr>
+        <tr><td>体验奖</td><td>免费试驾+充电卡R$500</td><td>30份</td><td>车型专属互动</td></tr>
+        <tr><td>惊喜奖</td><td>BYD车型模型</td><td>3份</td><td>福袋抽奖</td></tr>
+        <tr><td>终极大奖</td><td>周末深度试驾+购车R$1000优惠</td><td>1份</td><td>收官抽奖</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>📊 数据埋点 & 复盘指标</h2>
+      <ul>
+        <li>每5分钟记录一次在线人数、互动率、新增关注</li>
+        <li>追踪各环节参与人数，优化下一场互动节奏</li>
+        <li>留资转化漏斗：观看→互动→留资→试驾→成交</li>
+        <li>直播后48小时内回放观看量 + 短视频二次传播量</li>
+      </ul>
+    </div>
+  </div>
+  `);
+}
+
+/* ===== 4. 流量投放策略 ===== */
+function genTrafficStrategy() {
+  openGenPage('流量投放策略 — 圣灵节营销', `
+  <div class="gen-head">
+    <h1>📈 流量投放策略</h1>
+    <div class="sub">圣灵节「三年同行、绿动巴西」全链路流量布局 · TikTok生态为主</div>
+  </div>
+  <div class="gen-body">
+    <div class="gen-sec">
+      <h2>🎯 流量目标</h2>
+      <ul>
+        <li>直播总观看 > 20,000人</li>
+        <li>直播间峰值在线 > 3,000人</li>
+        <li>短视频预告总播放 > 50,000次</li>
+        <li>品牌搜索量环比增长 > 200%</li>
+        <li>有效线索 > 500条</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>📅 投放节奏（三阶段）</h2>
+      <table>
+        <tr><th>阶段</th><th>时间</th><th>预算占比</th><th>核心动作</th></tr>
+        <tr><td>蓄水期</td><td>直播前7天</td><td>25%</td><td>预热短视频DOU+投放 + 达人种草 + 话题造势</td></tr>
+        <tr><td>爆发期</td><td>直播当天</td><td>50%</td><td>直播间投流 + 信息流广告卡位 + 实时加热</td></tr>
+        <tr><td>长尾期</td><td>直播后3天</td><td>25%</td><td>精华剪辑投放 + 搜索卡位 + 私域转化</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>💡 渠道策略详解</h2>
+      <p><span class="highlight">1. TikTok DOU+ 投流（核心渠道，占预算60%）</span></p>
+      <ul>
+        <li><span class="highlight">蓄水期：</span>3条预热短视频各投R$2000，定向25-45岁、兴趣标签[汽车/电动车/家庭出行/巴西节日]，优化目标「播放+关注」</li>
+        <li><span class="highlight">爆发期：</span>直播间实时投流R$8000，定向「关注BYD账号用户+相似受众」，优化目标「进入直播间」</li>
+        <li><span class="highlight">长尾期：</span>高潮剪辑视频投R$3000，定向「直播观看用户重定向+汽车兴趣」，优化目标「点击主页+留资」</li>
+      </ul>
+      <br>
+      <p><span class="highlight">2. 达人种草矩阵（占预算20%）</span></p>
+      <ul>
+        <li>头部达人（1人）：巴西汽车KOL，粉丝50万+，直播前3天发布深度评测预热视频</li>
+        <li>腰部达人（3人）：生活方式/家庭出行类，粉丝10-30万，同步发布体验短视频</li>
+        <li>素人矩阵（10人）：BYD车主UGC，粉丝1-5万，发布「我的绿色出行故事」系列</li>
+      </ul>
+      <br>
+      <p><span class="highlight">3. TikTok 信息流广告（占预算15%）</span></p>
+      <ul>
+        <li>直播当天信息流TopView广告，首屏曝光5秒，引导进入直播间</li>
+        <li>直播中Feed广告卡位，每30分钟刷新一轮，定向竞品车主人群</li>
+        <li>直播后Brand Takeover广告，7天品牌搜索词置顶</li>
+      </ul>
+      <br>
+      <p><span class="highlight">4. 搜索卡位 & 私域转化（占预算5%）</span></p>
+      <ul>
+        <li>TikTok搜索词购买：「BYD」「carro eletrico」「Pentecostes」</li>
+        <li>Google Ads巴西区：品牌词+车型词搜索广告</li>
+        <li>私域社群：BYD Brazil WhatsApp群 + Telegram群直播链接推送</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>👥 人群定向策略</h2>
+      <table>
+        <tr><th>人群包</th><th>特征</th><th>预算分配</th><th>预期转化</th></tr>
+        <tr><td>核心人群</td><td>25-45岁，关注电动车/汽车，一二线城市</td><td>40%</td><td>高意向留资</td></tr>
+        <tr><td>兴趣人群</td><td>关注家庭出行/环保/科技，未关注电动车</td><td>30%</td><td>品牌认知提升</td></tr>
+        <tr><td>相似受众</td><td>BYD现有粉丝的lookalike扩展</td><td>20%</td><td>拉新关注</td></tr>
+        <tr><td>竞品人群</td><td>关注Tesla/大众ID/现代Ioniq的用户</td><td>10%</td><td>竞品拦截转化</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>📊 数据监控 & 优化</h2>
+      <ul>
+        <li><span class="highlight">实时监控：</span>每30分钟查看投流ROI，CPM/CPC/进入率，及时调整定向</li>
+        <li><span class="highlight">A/B测试：</span>预热视频测试3种封面+3种文案组合，保留最优组合加投</li>
+        <li><span class="highlight">预算调节：</span>爆发期如在线人数低于预期，追加20%预算实时加热</li>
+        <li><span class="highlight">复盘指标：</span>总曝光/总观看/互动率/CPL(单线索成本)/ROI/品牌搜索增量</li>
+        <li><span class="highlight">目标CPL：</span>≤ R$15/条有效线索（行业平均R$25-35）</li>
+      </ul>
+    </div>
+  </div>
+  `);
+}
+
+/* ===== 5. 本土化内容创意生成 ===== */
+function genLocalCreative() {
+  openGenPage('本土化内容创意生成 — 圣灵节营销', `
+  <div class="gen-head">
+    <h1>🌎 本土化内容创意生成</h1>
+    <div class="sub">圣灵节「三年同行、绿动巴西」巴西文化融合创意方案</div>
+  </div>
+  <div class="gen-body">
+    <div class="gen-sec">
+      <h2>🎨 创意核心概念</h2>
+      <p><span class="highlight">「Três Anos, Três Chamas · 三年三火」</span>—— 结合圣灵节（Pentecostes）「圣灵如火舌降临」的宗教意象，将 BYD 三年巴西旅程比喻为三根象征希望、创新与绿色未来的火焰，分别对应三款车型。既尊重巴西宗教文化传统，又自然植入品牌主张。</p>
+    </div>
+    <div class="gen-sec">
+      <h2>🎯 三大创意方向</h2>
+      <table>
+        <tr><th>方向</th><th>主题</th><th>文化连接</th><th>车型对应</th></tr>
+        <tr><td>希望之火</td><td>「BYD点亮巴西绿色希望」</td><td>圣灵节象征圣灵的降临与希望</td><td>城市小精灵（亲民入门）</td></tr>
+        <tr><td>创新之火</td><td>「科技之火，驱动未来」</td><td>巴西人民对创新与科技的热情</td><td>都市探险家（智能SUV）</td></tr>
+        <tr><td>传承之火</td><td>「三年同行，绿动巴西」</td><td>家庭团聚、社区分享的节日氛围</td><td>旗舰星耀客（家庭旗舰）</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>📱 内容形式矩阵</h2>
+      <p><span class="highlight">1. XR 全息直播场景创意</span></p>
+      <ul>
+        <li>开场：虚拟圣火从屏幕中央升起，逐渐凝聚成 BYD Logo</li>
+        <li>车型亮相：三款车型从三团火焰中「诞生」，配合巴西鼓点节奏</li>
+        <li>互动环节：观众发送弹幕「Fogo Verde」，屏幕触发绿色火焰特效</li>
+      </ul>
+      <br>
+      <p><span class="highlight">2. 预热短视频系列（3集）</span></p>
+      <ul>
+        <li>Day-3：「O fogo chegou」城市夜景中绿色火焰点燃圣保罗地标</li>
+        <li>Day-2：「Três chamas, três caminhos」三款车型剪影神秘感</li>
+        <li>Day-1：「Amanhã, o Brasil vira verde」倒计时 + 直播预约 CTA</li>
+      </ul>
+      <br>
+      <p><span class="highlight">3. 社交媒体话题</span></p>
+      <ul>
+        <li>主话题：#FogoVerdeBYD #TrêsAnosBrasilVerde</li>
+        <li>互动话题：#MeuPrimeiroBYD #BrasilMaisVerde</li>
+        <li>挑战活动：拍摄绿色出行短视频，@BYDBrasil 官方账号参与抽奖</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>🎭 本地化情感触点</h2>
+      <ul>
+        <li><span class="highlight">家庭团聚：</span>圣灵节是巴西重要家庭节日，直播中设计「全家一起看BYD」场景</li>
+        <li><span class="highlight">社区文化：</span>邀请巴西本地BYD车主分享三年用车故事，增强真实感</li>
+        <li><span class="highlight">热情奔放：</span>直播BGM采用巴西Funk与Bossa Nova融合，主持人语调热情</li>
+        <li><span class="highlight">环保情怀：</span>强调巴西雨林保护与绿色出行的情感关联</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>📝 执行检查清单</h2>
+      <ul>
+        <li>□ 所有宗教相关表述需保持尊重，避免过度商业化解读</li>
+        <li>□ 视觉元素避免直接使用教堂、十字架等敏感宗教符号</li>
+        <li>□ 邀请巴西本地文化顾问审阅创意脚本</li>
+        <li>□ 确保葡语文案符合巴西 PT-BR 表达习惯</li>
+        <li>□ 提前与巴西本地KOL沟通，确保创意方向可接受</li>
+      </ul>
+    </div>
+  </div>
+  `);
+}
+
+/* ===== 6. 葡语文案专业精修 ===== */
+function genPtCopy() {
+  openGenPage('葡语文案专业精修 — 圣灵节营销', `
+  <div class="gen-head">
+    <h1>📝 葡语文案专业精修</h1>
+    <div class="sub">PT-BR 本地化表达 · 圣灵节直播全场景话术库</div>
+  </div>
+  <div class="gen-body">
+    <div class="gen-sec">
+      <h2>🎯 精修原则</h2>
+      <ul>
+        <li><span class="highlight">本地化：</span>使用巴西 PT-BR 常用表达，避免欧洲葡萄牙语词汇</li>
+        <li><span class="highlight">口语化：</span>直播话术自然、热情，符合巴西人沟通风格</li>
+        <li><span class="highlight">行动导向：</span>每段话术结尾都有明确的 CTA（Call to Action）</li>
+        <li><span class="highlight">文化适配：</span>融入巴西节日问候语和本土俚语（适度）</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>🎬 直播开场话术</h2>
+      <div class="pt-block">"Fala, galera! Boa noite, Brasil! 🎉
+Hoje é dia de Pentecostes, dia de celebrar esperança, união e novos começos.
+E a BYD Brasil está completando 3 anos de jornada verde com vocês!
+Sejam bem-vindos à nossa Live XR Holográfica:
+'Três Anos Juntos, Brasil Verde!'
+Já deixa o follow, ativa o lembrete e prepara o coração que tem muita novidade, prêmio e carro futurista vindo aí!"</div>
+      <p><span class="highlight">精修说明：</span>「Fala, galera」是巴西非常口语化的开场；「prepara o coração」是巴西人常用表达，意为「准备好心情」。</p>
+    </div>
+    <div class="gen-sec">
+      <h2>🚗 车型介绍话术</h2>
+      <p><span class="highlight">城市小精灵（Compacto）</span></p>
+      <div class="pt-block">"Esse aqui é o pequeno notável da BYD: compacto, ágil, zero emissão e com um design que chama atenção nas ruas de São Paulo, Rio, Salvador... onde você passar, vira cabeça! Perfeito para quem quer começar a vida verde sem abrir mão do estilo."</div>
+      <br>
+      <p><span class="highlight">都市探险家（SUV）</span></p>
+      <div class="pt-block">"Para quem não quer limites, apresento o SUV que é pura tecnologia: alta autonomia, inteligência artificial a bordo e espaço para levar a família toda. Seja na cidade ou na estrada, ele é o companheiro ideal para as suas aventuras."</div>
+      <br>
+      <p><span class="highlight">旗舰星耀客（Sedã Premium）</span></p>
+      <div class="pt-block">"E agora, o topo da nossa linha: o sedã premium que une luxo, conectividade e segurança de alto nível. Assentos em couro, tela gigante, direção semi-autônoma — uma experiência digna de quem busca o melhor da mobilidade elétrica."</div>
+    </div>
+    <div class="gen-sec">
+      <h2>🎁 互动逼单话术</h2>
+      <div class="pt-block">"Galera, o sorteio está ON! 🎁
+Quem ainda não seguiu a gente, segue agora e comenta 'BYD VERDE' que você já entra no sorteio!
+E olha só, essa oferta é SÓ HOJE, SÓ NA LIVE: R$1.000 de desconto + carregamento grátis por 6 meses!
+Mas tem poucas vagas, hein? Quem demora, perde!
+Clica no link da bio e garante o seu test drive agora mesmo!"</div>
+    </div>
+    <div class="gen-sec">
+      <h2>📝 多场景文案变体</h2>
+      <table>
+        <tr><th>场景</th><th>中文</th><th>PT-BR 精修版</th></tr>
+        <tr><td>直播预约</td><td>立即预约直播</td><td>Reserve agora e ative o lembrete!</td></tr>
+        <tr><td>福袋引导</td><td>关注+评论抢福袋</td><td>Siga + comente 'VERDE' para participar do sorteio!</td></tr>
+        <tr><td>试驾引导</td><td>点击链接预约试驾</td><td>Clique no link da bio e agende seu test drive!</td></tr>
+        <tr><td>限时优惠</td><td>仅限今晚</td><td>Só hoje, só na live! Não vai perder, né?</td></tr>
+        <tr><td>情感收尾</td><td>感谢巴西，三年同行</td><td>Obrigado, Brasil! Três anos juntos e muitos mais pela frente!</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>⚠️ 常见错误避雷</h2>
+      <ul>
+        <li>❌ 避免「Vocês são bem-vindos」过于正式 → ✅ 「Sejam bem-vindos」更热情</li>
+        <li>❌ 避免「Automóvel elétrico」过于书面 → ✅ 「Carro elétrico」更口语</li>
+        <li>❌ 避免欧洲葡语词汇如「Autocarro」→ ✅ 巴西用「Ônibus」</li>
+        <li>❌ 避免机器翻译腔 → ✅ 用巴西本土表达增强亲和力</li>
+      </ul>
+    </div>
+  </div>
+  `);
+}
+
+/* ===== 7. 流量运营策略制定 ===== */
+function genTrafficOps() {
+  openGenPage('流量运营策略制定 — 圣灵节营销', `
+  <div class="gen-head">
+    <h1>🚀 流量运营策略制定</h1>
+    <div class="sub">从公域引流到私域沉淀 · 圣灵节直播全链路运营 SOP</div>
+  </div>
+  <div class="gen-body">
+    <div class="gen-sec">
+      <h2>🎯 运营目标</h2>
+      <ul>
+        <li>公域曝光：100万+ 次</li>
+        <li>直播间观看：20,000+ 人</li>
+        <li>账号新增关注：3,000+ 人</li>
+        <li>私域沉淀：1,000+ 人进入 WhatsApp/Telegram 社群</li>
+        <li>有效线索：500+ 条</li>
+        <li>试驾预约：80+ 单</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>🔄 全链路运营漏斗</h2>
+      <table>
+        <tr><th>阶段</th><th>触点</th><th>核心动作</th><th>关键指标</th></tr>
+        <tr><td> Awareness 认知</td><td>TikTok DOU+、达人种草、话题挑战</td><td>预热短视频曝光 + 话题造势</td><td>曝光量、播放量、话题参与数</td></tr>
+        <tr><td> Interest 兴趣</td><td>直播间、短视频评论区</td><td>内容种草 + 福袋吸引 + 直播预约</td><td>关注率、预约数、评论互动率</td></tr>
+        <tr><td> Desire 欲望</td><td>直播间车型讲解、优惠释放</td><td>XR全息展示 + 限时优惠 + 用户证言</td><td>停留时长、互动率、加购/留资数</td></tr>
+        <tr><td> Action 行动</td><td>直播间小黄车、私信、表单</td><td>试驾预约 + 优惠领取 + 社群加入</td><td>线索数、试驾预约数、社群新增</td></tr>
+        <tr><td> Loyalty 忠诚</td><td>私域社群、会员体系</td><td>社群运营 + 车主活动 + 转介绍激励</td><td>复购率、转介绍率、NPS</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>📱 公域运营策略</h2>
+      <p><span class="highlight">1. TikTok 主阵地</span></p>
+      <ul>
+        <li>直播前7天发布3条预热视频，每条视频配套DOU+投放</li>
+        <li>直播中每30分钟发布1条高光切片，引导回流直播间</li>
+        <li>直播后48小时内发布3条精华剪辑，持续收割长尾流量</li>
+        <li>每日固定时段（12:00-13:00、19:00-20:00）发布日常种草内容</li>
+      </ul>
+      <br>
+      <p><span class="highlight">2. Instagram Reels 辅助曝光</span></p>
+      <ul>
+        <li>将TikTok视频同步适配为Reels，增加Stories倒计时贴纸</li>
+        <li>与巴西生活方式类KOL合作发布Story直播预告</li>
+        <li>直播中在Stories实时更新「直播中」标签</li>
+      </ul>
+      <br>
+      <p><span class="highlight">3. YouTube Shorts 长尾分发</span></p>
+      <ul>
+        <li>将直播精华剪辑为Shorts，覆盖搜索流量</li>
+        <li>视频标题优化：「BYD Brasil Pentecostes XR Live」「Carro Elétrico Brasil」</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>💬 私域运营 SOP</h2>
+      <table>
+        <tr><th>时间节点</th><th>社群动作</th><th>内容模板</th></tr>
+        <tr><td>直播前7天</td><td>社群预告 + 早鸟福利</td><td>「🎉 Live especial da BYD Brasil chegando! Reserve agora e ganhe um voucher exclusivo.」</td></tr>
+        <tr><td>直播前1天</td><td>倒计时提醒</td><td>「⏰ Falta 1 dia! Amanhã às 20h tem live XR holográfica, não perca!」</td></tr>
+        <tr><td>直播前1小时</td><td>最终提醒 + 链接推送</td><td>「🔥 Daqui a pouco começa! Clique no link para entrar na live: [link]」</td></tr>
+        <tr><td>直播中</td><td>实时同步福袋 + 爆款车型</td><td>「🎁 Sorteio AO VIVO agora! Corra para a live e participe!」</td></tr>
+        <tr><td>直播后30分钟</td><td>感谢参与 + 回放链接</td><td>「Obrigado a todos! Assista ao replay e aproveite a oferta por tempo limitado: [link]」</td></tr>
+        <tr><td>直播后3天</td><td>试驾跟进 + 1V1服务</td><td>「Olá! Vi que você reservou o test drive. Qual dia fica melhor para você?」</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>📊 数据运营看板</h2>
+      <ul>
+        <li><span class="highlight">实时看板：</span>在线人数、互动率、新增关注、留资数、成交额</li>
+        <li><span class="highlight">小时复盘：</span>每小时对比目标完成率，调整投放和互动节奏</li>
+        <li><span class="highlight">周度复盘：</span>总曝光、总观看、CPL、ROI、私域转化率</li>
+        <li><span class="highlight">A/B测试：</span>测试不同封面、文案、投放时段的效果差异</li>
+      </ul>
+    </div>
+  </div>
+  `);
+}
+
+/* ===== 8. 合规风险校验预警 ===== */
+function genCompliance() {
+  openGenPage('合规风险校验预警 — 圣灵节营销', `
+  <div class="gen-head">
+    <h1>🛡️ 合规风险校验预警</h1>
+    <div class="sub">巴西广告法、消费者保护法、数据隐私法合规自查清单</div>
+  </div>
+  <div class="gen-body">
+    <div class="gen-sec">
+      <h2>⚠️ 风险等级总览</h2>
+      <table>
+        <tr><th>风险类别</th><th>风险等级</th><th>主要法规</th><th>重点关注</th></tr>
+        <tr><td>广告虚假宣传</td><td>🔴 高</td><td>Lei 8.078/1990（CDC）、Lei 13.709/2018（LGPD）</td><td>价格、续航、优惠真实性</td></tr>
+        <tr><td>消费者权益保护</td><td>🟠 中</td><td>CDC 第6条、第30条</td><td>退换货、质保、合同条款</td></tr>
+        <tr><td>数据隐私保护</td><td>🔴 高</td><td>LGPD</td><td>用户信息收集、Cookie、跨境传输</td></tr>
+        <tr><td>抽奖/促销合规</td><td>🟠 中</td><td>Lei 5.768/1971（抽奖法）、CDC</td><td>奖品设置、参与规则、中奖公示</td></tr>
+        <tr><td>宗教文化敏感</td><td>🟡 低</td><td>行业自律规范</td><td>圣灵节相关表述尊重性</td></tr>
+        <tr><td>金融信贷宣传</td><td>🟠 中</td><td>Banco Central do Brasil 规定</td><td>贷款利率、首付比例表述</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>✅ 广告法合规检查项</h2>
+      <ul>
+        <li>□ 所有价格必须包含税费，避免使用「仅 R$XX」等误导性表述</li>
+        <li>□ 续航里程需标注测试工况（如 NEDC/WLTP）并注明「数据仅供参考」</li>
+        <li>□ 优惠政策需明确有效期、适用车型、使用条件</li>
+        <li>□ 避免使用「最好」「第一」「最便宜」等绝对化用语</li>
+        <li>□ 代言人/KOL合作需标注「Publi/Propaganda」或类似广告标识</li>
+        <li>□ 车辆图片需为实车或取得授权，避免过度PS导致误解</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>✅ 消费者保护法检查项</h2>
+      <ul>
+        <li>□ 直播购车合同需提供明确的质保期限与范围</li>
+        <li>□ 退换货政策需符合巴西7天无理由退货规定（Código de Defesa do Consumidor）</li>
+        <li>□ 金融服务条款需清晰展示年化利率、总成本与违约后果</li>
+        <li>□ 赠品价值需真实可兑，避免「虚假宣传奖品」</li>
+        <li>□ 客服渠道需在直播中明确展示，便于消费者咨询</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>✅ 数据隐私（LGPD）检查项</h2>
+      <ul>
+        <li>□ 收集用户信息前必须获得明确同意（Opt-in）</li>
+        <li>□ 隐私政策链接需在留资页面、社群入群流程中提供</li>
+        <li>□ 用户信息仅用于约定目的，不得二次销售</li>
+        <li>□ 数据存储需符合LGPD要求，敏感数据加密</li>
+        <li>□ 用户有权要求删除、修改其个人信息（需设置处理通道）</li>
+        <li>□ 使用TikTok Pixel等追踪工具需在隐私政策中说明</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>✅ 抽奖促销合规检查项</h2>
+      <ul>
+        <li>□ 奖品总价值、数量、开奖时间需在活动规则中明确</li>
+        <li>□ 开奖过程需公开透明，建议直播中实时开奖</li>
+        <li>□ 中奖名单需在活动结束后7日内公示</li>
+        <li>□ 奖品发放需保留签收记录，避免纠纷</li>
+        <li>□ 员工及家属不得参与抽奖（需在规则中说明）</li>
+      </ul>
+    </div>
+    <div class="gen-sec">
+      <h2>🚨 高风险预警词库</h2>
+      <table>
+        <tr><th>禁用/慎用词汇</th><th>风险</th><th>建议替换</th></tr>
+        <tr><td>「melhor carro elétrico do Brasil」</td><td>绝对化表述，涉嫌虚假宣传</td><td>「um dos carros elétricos mais completos」</td></tr>
+        <tr><td>「100% garantido」</td><td>过度承诺</td><td>「garantia oficial BYD de X anos」</td></tr>
+        <tr><td>「investimento zero risco」</td><td>金融误导</td><td>「opção sustentável de longo prazo」</td></tr>
+        <tr><td>「oferta por tempo limitado」无具体时限</td><td>误导性紧迫感</td><td>「válido apenas durante a live de X a X」</td></tr>
+        <tr><td>直接承诺具体销量/排名</td><td>虚假/误导</td><td>引用第三方认证或市场报告数据</td></tr>
+      </table>
+    </div>
+    <div class="gen-sec">
+      <h2>📋 上线前合规复核流程</h2>
+      <ul>
+        <li><span class="highlight">第一轮：</span>市场团队自查（广告法、消费者权益）</li>
+        <li><span class="highlight">第二轮：</span>法务团队审核（LGPD、抽奖法、金融合规）</li>
+        <li><span class="highlight">第三轮：</span>本地文化顾问审阅（宗教文化敏感性）</li>
+        <li><span class="highlight">第四轮：</span>直播平台预审（TikTok 社区准则与广告政策）</li>
+        <li><span class="highlight">上线后：</span>舆情监控，及时处理用户投诉与合规问题</li>
+      </ul>
+    </div>
+  </div>
+  `);
+}
+
+/* ----- Live Script Export Modal ----- */
+const exportBtn = document.getElementById('exportBtn');
+const liveModal = document.getElementById('liveModal');
+const closeModal = document.getElementById('closeModal');
+const closeModal2 = document.getElementById('closeModal2');
+const copyScript = document.getElementById('copyScript');
+
+function openModal() { liveModal.classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeModalFn() { liveModal.classList.remove('show'); document.body.style.overflow = ''; }
+
+exportBtn.addEventListener('click', openModal);
+closeModal.addEventListener('click', closeModalFn);
+closeModal2.addEventListener('click', closeModalFn);
+liveModal.addEventListener('click', (e) => { if (e.target === liveModal) closeModalFn(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && liveModal.classList.contains('show')) closeModalFn(); });
+
+copyScript.addEventListener('click', () => {
+  const text = `Roteiro de Live · 直播脚本策划案
+
+Plataforma / 平台：TikTok
+Horário / 时间：X月X日 20:00–24:00
+Tema / 主题：三年同行、绿动巴西
+Idioma / 语言：Português · 葡萄牙语
+
+🎯 Sistema de Metas em 3 Camadas · 三层目标体系
+• Atrair / 吸引层：总观看人数突破 2万人
+• Retter / 留住层：平均互动率超过 8%
+• Converter / 转化层：成功收集 500条有效线索
+
+🚗 Modelos e Destaques · 主推车型与卖点
+• 城市小精灵：Compacto e ágil, zero emissões, design jovem e personalizável
+• 都市探险家：SUV versátil, alta autonomia, tecnologia inteligente
+• 旗舰星耀客：Sedã premium, luxo e conectividade, segurança avançada
+
+✨ Formato Inovador：Live XR Holográfica · XR 全息直播
+👥 Público-Alvo：25–45 anos, grandes centros urbanos do Brasil
+
+🎬 Roteiro da Live · 直播流程
+1. Abertura · 开场：Apresentação do tema + sorteio de vouchers
+2. Apresentação dos Modelos · 车型讲解：Cenas XR + diferenciais + depoimentos
+3. Interação · 互动：Quiz, comentários premiados, desafios, Q&A
+4. Fechamento · 逼单：Oferta exclusiva + link de lead + test drive + contagem regressiva
+
+🎙 Atmosfera：Calorosa, leve e envolvente · 热情轻松，引导留资与到店试驾转化`;
+  navigator.clipboard.writeText(text).then(() => {
+    const old = copyScript.textContent;
+    copyScript.textContent = 'Copiado! · 已复制 ✓';
+    setTimeout(() => copyScript.textContent = old, 1800);
+  }).catch(() => {
+    alert('Não foi possível copiar. / 复制失败，请手动复制。');
+  });
+});
+</script>
+<a href="javascript:history.back()" aria-label="返回智能体" style="position:fixed;left:20px;top:20px;z-index:9999;padding:10px 14px;border-radius:10px;background:#ffffff;color:#07543e;text-decoration:none;font:700 14px Microsoft YaHei,sans-serif;box-shadow:0 6px 22px #0005">← 返回数字营销助手</a>
+</body>
+</html>
