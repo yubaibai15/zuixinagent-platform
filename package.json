@@ -1,0 +1,26 @@
+{
+  "name": "growth-agent-collaboration-center",
+  "version": "1.0.0",
+  "private": true,
+  "description": "增长智能体协同中心 · 集团内部账号与三智能体入口平台",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check cloudbase-runtime.js && node --check platform-features.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@cloudbase/node-sdk": "^3.7.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "exceljs": "^4.4.0",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.8.0",
+    "multer": "^2.0.2",
+    "pdf-parse": "^1.1.1"
+  }
+}
