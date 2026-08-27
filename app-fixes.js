@@ -10,7 +10,7 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    body:has(#dashboard.active) #app>.sidebar,body:has(#dashboard.active) .topbar{display:none!important}
+    .login-mascot{display:none!important}body:has(#dashboard.active) #app>.sidebar,body:has(#dashboard.active) .topbar{display:none!important}
     body:has(#dashboard.active) #app>.main{margin-left:0!important;width:100%!important}
     body:has(#dashboard.active) .content{max-width:none!important;padding:0!important}
     #dashboard.active>.heading,#dashboard.active>.hero,#dashboard.active>.stats,#dashboard.active>.section-title,#dashboard.active>.roles,#dashboard.active>.twocol{display:none!important}

@@ -35,6 +35,9 @@ for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'bridge-runt
   app.get(`/${file}`, (_, res) => res.sendFile(path.join(__dirname, file)));
 }
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
+// 技能成果和下载资料与前端同域发布，部署后使用 /results 与 /downloads 相对链接即可访问。
+app.use('/results', express.static(path.join(__dirname, 'results')));
+app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
 
 const now = () => new Date().toISOString();
 const id = () => crypto.randomUUID();
