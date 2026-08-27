@@ -96,7 +96,8 @@
     { test: /全年.{0,4}(?:营销)?日历|营销日历|日历.{0,6}营销/i, label:'全年营销日历', text:'已生成全年营销节奏入口，可查看 2026 年节点、活动和内容排期。', href:'/results/marketing-calendar.html', link:'打开全年营销日历' },
     { test: /独立站.{0,6}(?:看板|数据)|独立站看板/i, label:'独立站数据看板', text:'独立站运营数据看板已生成，可全屏查看访问、停留与转化数据。', href:'/results/independent-site-dashboard.html', link:'全屏打开独立站看板' },
     { test: /社媒.{0,6}(?:看板|数据)|社交媒体.{0,6}看板/i, label:'社媒数据看板', text:'社媒数据看板已生成，可全屏查看粉丝、互动与活动效果。', href:'/results/social-dashboard.html', link:'全屏打开社媒看板' },
-    { test: /客户画像|用户画像.{0,6}看板|客户.{0,6}看板/i, label:'客户画像看板', text:'客户画像可视化看板已生成，可全屏查看区域、年龄、偏好和转化路径。', href:'/results/customer-profile-dashboard.html', link:'全屏打开客户画像看板' }
+    { test: /客户画像|用户画像.{0,6}看板|客户.{0,6}看板/i, label:'客户画像看板', text:'客户画像可视化看板已生成，可全屏查看区域、年龄、偏好和转化路径。', href:'/results/customer-profile-dashboard.html', link:'全屏打开客户画像看板' },
+    { test: /(?:数据分析|经营|业务)?数据看板|看数据看板/i, label:'数据分析看板', text:'已整理三类数据成果，请选择独立站、社媒或客户画像看板全屏查看。', href:'/results/data-dashboards.html', link:'选择数据看板' }
   ];
   function showKeywordSkill(skill, query) {
     const input = document.getElementById('agentInput');

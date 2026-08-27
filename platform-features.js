@@ -174,6 +174,48 @@
   const old=window.enterApp;window.enterApp=async()=>{await old();await normalizeLegacyUi();if(admin())setTimeout(()=>{build();const h=document.querySelector('#agents .heading');if(h&&!document.getElementById('fixedLibraryButton'))h.insertAdjacentHTML('beforeend','<button id="fixedLibraryButton" class="secondary" style="margin-right:8px" onclick="openFixedLibrary()">▤ 固定答案库</button>')},40);else setTimeout(()=>{const mine=(window.remoteAgents||[])[0]; if(mine) openAgentChat(mine._id); else say('管理员尚未发布与你岗位匹配的智能体。'); document.querySelector('.sidebar').style.display='none';document.querySelector('.main').style.marginLeft='0';document.querySelector('.topbar').style.display='none';},60)};document.addEventListener('input',x=>{if(x.target.id==='fns')preview()});
 })();
 
+/* 核心技能路由：即使线上接口已配置，也优先交付用户指定的本地成果。 */
+(()=>{
+  const resultPages={
+    '独立站看板':'/results/independent-site-dashboard.html','社媒看板':'/results/social-dashboard.html',
+    '客户画像':'/results/customer-profile-dashboard.html','用户画像':'/results/customer-profile-dashboard.html',
+    '知识图谱':'/results/knowledge-graph.html','全年日历':'/results/marketing-calendar.html',
+    '营销日历':'/results/marketing-calendar.html','发布平台':'/results/publish-platform.html','发布物料':'/results/publish-platform.html'
+  };
+  const escapeText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const findSkill=q=>{
+    q=String(q||'');
+    if(/爬取|采集|直播数据|直播.*数据|数据.*直播/.test(q))return {name:'直播数据采集',href:'/downloads/A企业、竞品直播数据.xlsx',label:'下载 Excel 数据'};
+    if(/知识图谱|图谱/.test(q))return {name:'知识图谱',href:resultPages['知识图谱'],label:'打开知识图谱'};
+    if(/全年.*日历|营销日历|日历/.test(q))return {name:'全年营销日历',href:resultPages['全年日历'],label:'打开全年营销日历'};
+    if(/发布平台|发布渠道|分发平台/.test(q))return {name:'内容分发平台',href:resultPages['发布平台'],label:'打开发布平台'};
+    if(/独立站.*看板|看板.*独立站/.test(q))return {name:'独立站看板',href:resultPages['独立站看板'],label:'全屏打开独立站看板'};
+    if(/社媒.*看板|看板.*社媒/.test(q))return {name:'社媒看板',href:resultPages['社媒看板'],label:'全屏打开社媒看板'};
+    if(/客户画像|用户画像|画像.*看板/.test(q))return {name:'客户画像看板',href:resultPages['客户画像'],label:'全屏打开客户画像看板'};
+    if(/(?:数据分析|经营|业务)?数据看板|看数据看板/.test(q))return {name:'数据分析看板',href:'/results/data-dashboards.html',label:'选择数据看板'};
+  };
+  const oldPreview=window.thinkThenPreview;
+  window.thinkThenPreview=(name,src)=>{
+    if(!resultPages[name])return oldPreview?.(name,src);
+    const cover=document.createElement('div');cover.style.cssText='position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#f6faf7;color:#0b4f3d;font:600 20px Microsoft YaHei';cover.textContent='正在生成「'+name+'」成果…';document.body.appendChild(cover);
+    setTimeout(()=>location.href=resultPages[name],1300);
+  };
+  const oldOpen=window.thinkThenOpen;
+  window.thinkThenOpen=(name,url)=>{
+    if(!resultPages[name])return oldOpen?.(name,url);
+    window.thinkThenPreview(name);
+  };
+  const oldSend=window.sendAgentChat;
+  window.sendAgentChat=async()=>{
+    const input=document.getElementById('agentInput')||document.getElementById('chatInput'),q=input?.value.trim(),history=document.getElementById('agentMessages')||document.getElementById('chatHistory');
+    const skill=findSkill(q);if(!skill||!history)return oldSend?.();
+    input.value='';
+    const mine=document.createElement('div');mine.className='bubble me';mine.textContent=q;history.appendChild(mine);
+    const waiting=document.createElement('div');waiting.className='bubble bot';waiting.textContent='正在调用「'+skill.name+'」技能，整理成果中…';history.appendChild(waiting);history.scrollTop=history.scrollHeight;
+    setTimeout(()=>{waiting.innerHTML='已完成「'+escapeText(skill.name)+'」技能调用。<br><a href="'+skill.href+'" style="display:inline-block;margin-top:10px;padding:10px 14px;border-radius:9px;background:#087e58;color:#fff;text-decoration:none;font-weight:700">'+skill.label+' →</a>';history.scrollTop=history.scrollHeight},1600);
+  };
+})();
+
 /* 生产升级层：巴西业务入口、Agent 生命周期、审计、成员文件与上线自检。 */
 (() => {
   const token=()=>localStorage.getItem('nev_token')||'';
