@@ -27,6 +27,10 @@ if (!memoryMode) {
 
 app.use(cors({ origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(x => x.trim()) : false }));
 app.use(express.json({ limit: '1mb' }));
+app.disable('x-powered-by');
+app.use((req, res, next) => { res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('X-Frame-Options', 'SAMEORIGIN'); res.setHeader('Referrer-Policy', 'same-origin'); next(); });
+const loginAttempts = new Map();
+function loginGuard(req, res, next) { const key = req.ip || 'unknown'; const now = Date.now(); const state = loginAttempts.get(key) || { count: 0, resetAt: now + 15 * 60 * 1000 }; if (now > state.resetAt) { state.count = 0; state.resetAt = now + 15 * 60 * 1000; } if (state.count >= 8) return res.status(429).json({ error: '登录尝试次数过多，请 15 分钟后再试。' }); req.loginAttempt = state; next(); }
 // 仅公开浏览器所需的两个文件，不把服务端代码、部署说明或示例配置暴露为静态资源。
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/index.html', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
@@ -78,7 +82,9 @@ async function ensureSeed() {
     await insert('users', { email: adminEmail, name: 'ADMIN-001', role: 'admin', jobRole: '系统管理员', avatarKey: 'admin', enabled: true, passwordHash: await bcrypt.hash(process.env.ADMIN_INITIAL_PASSWORD, 12) });
   }
   // 演示账号使用匿名工号；不保存或展示真实姓名。
-  const teamInitialPassword = process.env.TEAM_INITIAL_PASSWORD || '123456';
+  // 已存在成员不依赖该变量登录；只有首次创建或管理员明确要求重置时才需要它。
+  const teamInitialPassword = process.env.TEAM_INITIAL_PASSWORD || (memoryMode ? '123456' : '');
+  const resetDefaultMembers = process.env.RESET_DEFAULT_MEMBER_PASSWORDS === 'true';
   const defaultMembers = [
     ['ops@nev.com', '电商运营师', '电商运营师', 'ops'],
     ['design@nev.com', '视觉设计师', '视觉设计师', 'visual'],
@@ -86,8 +92,13 @@ async function ensureSeed() {
     ['marketing@nev.com', '数字营销师', '数字营销师', 'marketing']
   ];
   for (const [email, name, jobRole, avatarKey] of defaultMembers) {
-    if (!(await one('users', { email }))) {
+    const existing = await one('users', { email });
+    if (!existing) {
+      if (!teamInitialPassword) throw new Error('请设置 TEAM_INITIAL_PASSWORD 后再初始化成员账号。');
       await insert('users', { email, name, role: 'member', jobRole, avatarKey, enabled: true, passwordHash: await bcrypt.hash(teamInitialPassword, 12) });
+    } else if (resetDefaultMembers) {
+      if (!teamInitialPassword) throw new Error('重置员工密码前请设置 TEAM_INITIAL_PASSWORD。');
+      await change('users', existing._id, { passwordHash: await bcrypt.hash(teamInitialPassword, 12), enabled: true });
     }
   }
   if ((await list('agents')).length === 0) {
@@ -140,9 +151,10 @@ app.get('/api/readiness', (_, res) => {
   const ready = Object.values(checks).every(Boolean);
   res.status(ready ? 200 : 503).json({ ready, mode: memoryMode ? 'memory' : 'cloudbase', checks });
 });
-app.post('/api/auth/login', async (req, res, next) => {
+app.post('/api/auth/login', loginGuard, async (req, res, next) => {
   try { await ensureSeed(); const account = clean(req.body.email, 120).toLowerCase(); const email = account.includes('@') ? account : `${account}@group.local`; const user = await one('users', { email });
-    if (!user || !user.enabled || !(await bcrypt.compare(String(req.body.password || ''), user.passwordHash))) return res.status(401).json({ error: '账号或密码不正确。' });
+    if (!user || !user.enabled || !(await bcrypt.compare(String(req.body.password || ''), user.passwordHash))) { req.loginAttempt.count += 1; return res.status(401).json({ error: '账号或密码不正确。' }); }
+    loginAttempts.delete(req.ip || 'unknown');
     await audit({ email: user.email }, 'auth.login', 'user', user._id, { jobRole: user.jobRole });
     res.json({ token: tokenFor(user), user: { name: user.name, email: user.email, role: user.role, jobRole: user.jobRole, avatarKey: user.avatarKey || 'default' } });
   } catch (e) { next(e); }
@@ -207,7 +219,7 @@ async function extractText(file) {
   return '';
 }
 app.post('/api/files', auth, upload.single('file'), async (req, res, next) => {
-  try { if (!req.file) return res.status(400).json({ error: '请选择需要上传的文件。' }); const safeName = req.file.originalname.replace(/[^\w.\-\u4e00-\u9fa5]/g, '_'); const cloudPath = `uploads/${req.user.sub}/${Date.now()}-${safeName}`; let fileID = `memory://${cloudPath}`;
+  try { if (!req.file) return res.status(400).json({ error: '请选择需要上传的文件。' }); const allowedExtensions = new Set(['.pdf', '.docx', '.xlsx', '.xls', '.csv', '.txt', '.md', '.json']); const extension = path.extname(req.file.originalname).toLowerCase(); if (!allowedExtensions.has(extension)) return res.status(415).json({ error: '仅支持 PDF、Word、Excel、CSV、TXT、Markdown 与 JSON 文件。' }); const safeName = req.file.originalname.replace(/[^\w.\-\u4e00-\u9fa5]/g, '_'); const cloudPath = `uploads/${req.user.sub}/${Date.now()}-${safeName}`; let fileID = `memory://${cloudPath}`;
     if (!memoryMode) { const uploaded = await cloud.uploadFile({ cloudPath, fileContent: req.file.buffer }); fileID = uploaded.fileID; }
     const record = await insert('files', { ownerId: req.user.sub, ownerEmail: req.user.email, name: req.file.originalname, mimeType: req.file.mimetype, size: req.file.size, fileID, extractedText: await extractText(req.file) }); await audit(req.user, 'file.upload', 'file', record._id, { name: record.name, size: record.size }); res.status(201).json({ _id: record._id, name: record.name, size: record.size, fileID: record.fileID, indexed: Boolean(record.extractedText) });
   } catch (e) { next(e); }

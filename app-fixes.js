@@ -33,10 +33,19 @@
 
   function addComposerSkills(id) {
     const composer = document.querySelector('#agent-chat .chat-composer');
-    if (!composer || composer.querySelector('.composer-skill-bar')) return;
+    const toolRow = composer?.querySelector('.composer-tools > div:first-child');
+    if (!composer || !toolRow || composer.querySelector('.skill-picker')) return;
     const [, skills] = roster[id] || roster['demo-data'];
-    composer.insertAdjacentHTML('beforeend', `<div class="composer-skill-bar" aria-label="可调用技能包"><b>可调用技能包</b>${skills.map(name => `<button type="button" onclick="openInternalSkill('${escapeHtml(name)}')">${escapeHtml(name)}</button>`).join('')}</div>`);
+    toolRow.insertAdjacentHTML('beforeend', `<button class="skill-trigger" type="button" onclick="toggleSkillPicker(event)" aria-expanded="false">✦ 技能包</button>`);
+    composer.insertAdjacentHTML('beforeend', `<div class="skill-picker" role="dialog" aria-label="选择技能包"><div><b>选择可调用技能</b><button type="button" onclick="toggleSkillPicker(event)" aria-label="关闭技能包">×</button></div><p>选择后将由当前助手执行对应工作流。</p>${skills.map(name => `<button type="button" onclick="openInternalSkill('${escapeHtml(name)}');toggleSkillPicker(event)">${escapeHtml(name)} <span>→</span></button>`).join('')}</div>`);
   }
+
+  window.toggleSkillPicker = event => {
+    event?.preventDefault(); event?.stopPropagation();
+    const picker = document.querySelector('#agent-chat .skill-picker'); const trigger = document.querySelector('#agent-chat .skill-trigger');
+    if (!picker) return; const open = picker.classList.toggle('show'); if (trigger) trigger.setAttribute('aria-expanded', String(open));
+  };
+  document.addEventListener('click', event => { if (!event.target.closest('.skill-picker') && !event.target.closest('.skill-trigger')) { const picker = document.querySelector('#agent-chat .skill-picker'); if (picker) picker.classList.remove('show'); document.querySelector('#agent-chat .skill-trigger')?.setAttribute('aria-expanded', 'false'); } });
 
   const originalOpenAgentChat = window.openAgentChat;
   window.openAgentChat = id => {
@@ -132,4 +141,92 @@
       bridge.querySelector('.bridge-head p').textContent = '数据、运营、营销与视觉四个岗位助手，都在同一平台内完成技能调用与成果保存。';
     }, 160);
   });
+})();
+
+/* 无 IP 登录页：以岗位协作网络取代形象图，保持企业团队空间的专业感。 */
+(()=>{
+  const style=document.createElement('style');
+  style.textContent=`
+    #login.login{grid-template-columns:minmax(0,1.12fr) minmax(420px,.88fr)!important;background:#f5f8f6!important}
+    #login .login-intro{padding:clamp(42px,6vw,88px)!important;background:linear-gradient(145deg,#eff8f2 0%,#e4f3e9 58%,#d9eee3 100%)!important}
+    #login .login-intro:after{width:680px!important;height:680px!important;right:-270px!important;bottom:-320px!important;border-color:rgba(7,118,83,.13)!important}
+    #login .login-copy{max-width:600px!important}.login-mascot{display:none!important}
+    #login .login-intro h1{font-size:clamp(38px,4.1vw,64px)!important;max-width:590px!important;color:#0c3b2e!important}#login .login-intro>.brand .brand-mark{width:46px!important;height:46px!important;background:#087653!important;border:0!important;box-shadow:none!important;font-size:0!important}#login .login-intro>.brand .brand-mark:after{content:'NEV';font-size:11px;font-weight:800;color:#fff;letter-spacing:.04em}
+    #login .login-network{position:relative;width:min(470px,78%);height:210px;margin:42px 0 0;border:1px solid rgba(12,116,83,.17);border-radius:22px;background:rgba(255,255,255,.52);overflow:hidden}
+    #login .login-network:before,#login .login-network:after{content:"";position:absolute;top:50%;left:50%;width:72%;height:1px;background:#93c6aa;transform-origin:left}#login .login-network:before{transform:rotate(28deg)}#login .login-network:after{transform:rotate(-28deg)}
+    #login .login-network span{position:absolute;z-index:1;display:grid;place-items:center;width:56px;height:56px;border-radius:18px;background:#fff;border:1px solid #cce3d4;color:#087653;font-size:12px;font-weight:800;box-shadow:0 10px 23px rgba(19,83,55,.09)}
+    #login .login-network .network-center{left:calc(50% - 30px);top:calc(50% - 28px);width:60px;height:60px;border-color:#087653;background:#087653;color:#fff;font-size:15px}#login .login-network span:nth-child(2){left:9%;top:22px}#login .login-network span:nth-child(3){right:9%;top:22px}#login .login-network span:nth-child(4){left:16%;bottom:22px}#login .login-network span:nth-child(5){right:16%;bottom:22px}
+    #login .login-panel{background:#fff!important;padding:clamp(32px,5vw,76px)!important}#login .login-card{max-width:460px!important;border-radius:18px!important;box-shadow:0 20px 55px rgba(20,71,53,.08)!important}#login .workspace-badge>span{background:#087653!important}
+    #login .login-card .primary{min-height:48px!important;background:#087653!important;box-shadow:0 10px 22px rgba(8,118,83,.18)!important}#login .login-card .primary:hover{background:#066447!important;transform:translateY(-1px)}#login .login-card input:focus{outline:3px solid rgba(8,118,83,.17)!important;border-color:#087653!important}
+    @media(max-width:1000px){#login .login-network{display:none}#login.login{grid-template-columns:1fr!important}#login .login-intro{display:none!important}}
+    @media(prefers-reduced-motion:reduce){#login .login-card .primary{transition:none!important}}
+  `;document.head.appendChild(style);
+  const install=()=>{const intro=document.querySelector('#login .login-intro');if(!intro||intro.querySelector('.login-network'))return;intro.querySelector('.login-mascot')?.remove();const copy=intro.querySelector('.login-copy');if(copy)copy.insertAdjacentHTML('beforeend','<div class="login-network" aria-label="四个岗位智能助手协作网络"><span class="network-center">AI</span><span>数据</span><span>运营</span><span>营销</span><span>设计</span></div>')};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
+})();
+
+/* 电商运营资料导入 → 知识图谱：统一显示上传状态，并为生成操作提供明确入口。 */
+(()=>{
+  const assetNames=()=>JSON.parse(localStorage.getItem('nev_ops_graph_files')||'[]');
+  const saveAssets=files=>localStorage.setItem('nev_ops_graph_files',JSON.stringify(files));
+  const setStatus=(text,kind='')=>{const el=document.getElementById('opsGraphImportStatus');if(el){el.textContent=text;el.dataset.state=kind;}};
+  const oldUpload=window.chatUpload;
+  window.chatUpload=async event=>{
+    const names=[...event.target.files].map(file=>file.name);
+    if(!names.length)return;
+    setStatus('正在导入：'+names.join('、'),'loading');
+    try{await oldUpload(event);saveAssets([...assetNames(),...names]);setStatus('已导入 '+assetNames().length+' 份资料，可生成知识图谱。','ready');}
+    catch(error){const message='导入失败：'+(error.message||'请检查登录状态和文件大小后重试。');setStatus(message,'error');const chatStatus=document.getElementById('chatFileStatus');if(chatStatus)chatStatus.textContent=message;}
+  };
+  window.requestKnowledgeGraph=()=>{
+    const files=assetNames();
+    if(!files.length){setStatus('请先导入 Excel、CSV、PDF、Word 或 TXT 资料。','error');return;}
+    const input=document.getElementById('agentInput');
+    if(!input)return;
+    input.value='根据已导入的 '+files.length+' 份资料生成知识图谱';
+    window.sendAgentChat();
+  };
+  function addOpsImport(id){
+    if(id!=='demo-ops')return;
+    const composer=document.querySelector('#agent-chat .chat-composer');
+    const picker=composer?.querySelector('input[type=file]');
+    if(!composer||!picker||composer.querySelector('.ops-graph-import'))return;
+    picker.id='opsGraphFilePicker';
+    composer.insertAdjacentHTML('afterbegin',`<section class="ops-graph-import" aria-label="知识图谱资料导入"><div><small>KNOWLEDGE GRAPH</small><b>导入运营资料，生成知识图谱</b><span id="opsGraphImportStatus">支持 Excel、CSV、PDF、Word、TXT，单个文件不超过 15MB</span></div><div class="ops-import-actions"><label for="opsGraphFilePicker">导入资料</label><button type="button" onclick="requestKnowledgeGraph()">生成知识图谱 →</button></div></section>`);
+    const files=assetNames();if(files.length)setStatus('已导入 '+files.length+' 份资料，可生成知识图谱。','ready');
+  }
+  const oldOpen=window.openAgentChat;
+  window.openAgentChat=id=>{oldOpen(id);addOpsImport(id);};
+  const style=document.createElement('style');style.textContent=`
+    .ops-graph-import{display:flex;justify-content:space-between;align-items:center;gap:18px;margin:0 0 12px;padding:14px 15px;border:1px solid #cfe5d7;border-radius:13px;background:linear-gradient(100deg,#eff9f2,#fbfdfb)}.ops-graph-import small,.ops-graph-import b,.ops-graph-import span{display:block}.ops-graph-import small{font-size:9px;letter-spacing:.11em;color:#087653}.ops-graph-import b{margin:4px 0;font-size:13px;color:#123f30}.ops-graph-import span{font-size:10px;color:#708078}.ops-graph-import span[data-state="ready"]{color:#087653}.ops-graph-import span[data-state="error"]{color:#b84747}.ops-import-actions{display:flex;gap:8px;flex-shrink:0}.ops-import-actions label,.ops-import-actions button{min-height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;padding:8px 11px;font-size:11px;font-weight:700;cursor:pointer}.ops-import-actions label{border:1px solid #b9d9c5;background:#fff;color:#087653}.ops-import-actions button{border:0;background:#087653;color:#fff}@media(max-width:620px){.ops-graph-import{align-items:stretch;flex-direction:column}.ops-import-actions>*{flex:1}}
+  `;document.head.appendChild(style);
+})();
+
+/* 知识库上传不再使用原型假成功提示，改为真实文件接口与可恢复错误状态。 */
+(()=>{
+  const htmlEscape=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const baseOpenModal=window.openModal;
+  window.openModal=type=>{
+    if(type!=='upload')return baseOpenModal?.(type);
+    const modal=document.getElementById('modal');if(!modal)return;
+    document.getElementById('modalTitle').textContent='导入知识库资料';
+    document.getElementById('modalBody').innerHTML=`<section class="knowledge-upload-panel"><p>文件会被保存到团队知识库，并在上传完成后用于对应岗位智能体的资料引用。</p><label>选择文件<input id="realKnowledgeFile" type="file" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt,.md,.json"></label><label>归属知识库<select id="realKnowledgeBase"><option>跨境电商运营库</option><option>海外市场与政策库</option><option>品牌视觉规范库</option></select></label><div id="realKnowledgeStatus" role="status">支持 Excel、CSV、PDF、Word、TXT，单个文件不超过 15MB。</div></section>`;
+    const foot=modal.querySelector('.modal-foot');if(foot)foot.innerHTML='<button class="secondary" onclick="closeModal()">取消</button><button class="primary" onclick="uploadKnowledgeDocument()">开始导入</button>';
+    modal.classList.add('show');
+  };
+  window.uploadKnowledgeDocument=async()=>{
+    const file=document.getElementById('realKnowledgeFile')?.files?.[0],status=document.getElementById('realKnowledgeStatus');
+    if(!file){status.textContent='请先选择一个需要导入的文件。';status.dataset.state='error';return;}
+    const button=document.querySelector('#modal .modal-foot .primary');if(button){button.disabled=true;button.textContent='正在导入…';}
+    status.textContent='正在上传并提取 '+file.name+' 中的可检索内容…';status.dataset.state='loading';
+    try{
+      const form=new FormData();form.append('file',file);const token=localStorage.getItem('nev_token')||'';
+      const response=await fetch('/api/files',{method:'POST',headers:token?{Authorization:'Bearer '+token}:{},body:form});const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw Error(data.error||'上传失败，请检查登录状态或部署配置。');
+      status.textContent='导入成功：'+file.name+(data.indexed?'，内容已可供智能体引用。':'，文件已保存，等待索引。');status.dataset.state='ready';
+      const tbody=document.querySelector('#knowledge tbody');if(tbody)tbody.insertAdjacentHTML('afterbegin',`<tr><td><b>${htmlEscape(file.name)}</b></td><td>${htmlEscape(document.getElementById('realKnowledgeBase').value)}</td><td>${htmlEscape((file.name.split('.').pop()||'FILE').toUpperCase())}</td><td><span class="status">● ${data.indexed?'已完成':'索引中'}</span></td><td>刚刚</td><td><button class="link">已导入</button></td></tr>`);
+    }catch(error){status.textContent='导入失败：'+error.message;status.dataset.state='error';}
+    finally{if(button){button.disabled=false;button.textContent='开始导入';}}
+  };
+  const style=document.createElement('style');style.textContent=`.knowledge-upload-panel{display:grid;gap:14px}.knowledge-upload-panel p{margin:0;color:#687971;line-height:1.65;font-size:12px}.knowledge-upload-panel label{display:grid;gap:7px;color:#385346;font-size:12px;font-weight:700}.knowledge-upload-panel input,.knowledge-upload-panel select{width:100%;min-height:42px;border:1px solid #d7e4dc;border-radius:9px;padding:9px;background:#fbfdfb}.knowledge-upload-panel #realKnowledgeStatus{padding:10px 12px;border-radius:9px;background:#f2f8f4;color:#718178;font-size:11px;line-height:1.55}.knowledge-upload-panel #realKnowledgeStatus[data-state="ready"]{background:#e8f6ed;color:#087653}.knowledge-upload-panel #realKnowledgeStatus[data-state="error"]{background:#fff1f0;color:#b84c45}.chat-composer{position:relative}.skill-trigger{background:#f6f9f7!important;color:#07543e!important;border:1px solid #d6e8dc!important}.skill-trigger[aria-expanded="true"]{background:#e3f3e9!important;border-color:#9bcdb0!important}.skill-picker{display:none;position:absolute;z-index:30;left:12px;bottom:calc(100% + 8px);width:min(310px,calc(100vw - 48px));padding:13px;border:1px solid #cfe3d6;border-radius:13px;background:#fff;box-shadow:0 16px 38px rgba(16,64,45,.17)}.skill-picker.show{display:block;animation:skillPop .18s ease-out}.skill-picker>div{display:flex;justify-content:space-between;align-items:center}.skill-picker>div b{font-size:13px;color:#123f30}.skill-picker>div button{width:28px;height:28px;border:0;border-radius:8px;background:#f1f7f3;color:#087653;font-size:18px}.skill-picker p{margin:7px 0 9px;color:#75847d;font-size:10px;line-height:1.5}.skill-picker>button{display:flex;width:100%;justify-content:space-between;align-items:center;padding:10px 9px;border:0;border-top:1px solid #edf2ee;background:#fff;color:#294a3d;text-align:left;font-size:12px}.skill-picker>button:hover{background:#f2f8f4;color:#087653}.skill-picker>button span{color:#087653;font-weight:800}@keyframes skillPop{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}`;document.head.appendChild(style);
 })();
