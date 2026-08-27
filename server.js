@@ -77,10 +77,10 @@ async function ensureSeed() {
   // 演示账号使用匿名工号；不保存或展示真实姓名。
   const teamInitialPassword = process.env.TEAM_INITIAL_PASSWORD || '123456';
   const defaultMembers = [
-    ['ops-a01@group.local', 'OPS-A01', '电商运营师', 'ops'],
-    ['visual-b01@group.local', 'VIS-B01', '视觉设计师', 'visual'],
-    ['data-c01@group.local', 'DATA-C01', '数据分析师', 'data'],
-    ['marketing-d01@group.local', 'MKT-D01', '数字营销师', 'marketing']
+    ['ops@nev.com', '电商运营师', '电商运营师', 'ops'],
+    ['design@nev.com', '视觉设计师', '视觉设计师', 'visual'],
+    ['data@nev.com', '数据分析师', '数据分析师', 'data'],
+    ['marketing@nev.com', '数字营销师', '数字营销师', 'marketing']
   ];
   for (const [email, name, jobRole, avatarKey] of defaultMembers) {
     if (!(await one('users', { email }))) {
@@ -88,20 +88,20 @@ async function ensureSeed() {
     }
   }
   if ((await list('agents')).length === 0) {
-    await insert('agents', { name: '巴西市场洞察助手', role: '数据分析师', description: '分析巴西新能源汽车市场规模、州别机会、竞品、税费与进入路径。', systemPrompt: '你是新能源汽车巴西市场分析专家。重点考虑巴西宏观经济、ANFAVEA 产业数据、进口税与本地化生产、充电网络、州别差异和中巴贸易环境。请给出审慎、结构化、可执行的建议。', fixedAnswers: [{ question: '巴西市场的核心机会是什么？', answer: '建议优先聚焦圣保罗州、里约热内卢州和巴拉那州，采用中端纯电 SUV 与混动产品组合；同步评估进口税、本地组装路径、经销与售后网络，以及葡萄牙语本地化营销。' }], scope: 'team', status: 'published', createdBy: adminEmail });
-    await insert('agents', { name: '巴西跨境运营助手', role: '电商运营师', description: '支持巴西电商渠道、Mercado Livre 店铺运营、物流、税费与售后策略。', systemPrompt: '你是巴西跨境电商与新能源汽车运营专家。熟悉 Mercado Livre、Shopee Brasil、当地物流、消费者保护和葡语运营表达，输出可执行的运营计划。', fixedAnswers: [], scope: 'team', status: 'published', createdBy: adminEmail });
-    await insert('agents', { name: '巴西社媒增长助手', role: '数字营销师', description: '生成巴西葡萄牙语社媒内容、广告创意、KOL 合作与活动方案。', systemPrompt: '你是巴西新能源汽车数字营销专家。默认使用巴西葡萄牙语语境，结合 Instagram、TikTok、YouTube 与本地节日、足球和出行文化提出营销建议。', fixedAnswers: [], scope: 'team', status: 'published', createdBy: adminEmail });
-    await insert('agents', { name: '巴西广告视觉策划助手', role: '视觉设计师', description: '输出符合巴西市场审美的广告视觉方向、拍摄脚本与素材规范。', systemPrompt: '你是面向巴西市场的汽车品牌视觉创意总监。输出可落地的葡语视觉简报、镜头语言、热带城市与家庭出行场景建议，并遵守品牌规范。', fixedAnswers: [], scope: 'team', status: 'published', createdBy: adminEmail });
+    await insert('agents', { name: '数据洞察助手', role: '数据分析师', description: '分析经营数据、用户画像与增长机会，生成可视化报告。', systemPrompt: '你是数据分析师，负责将经营数据、用户行为和业务目标整理为清晰、可执行的洞察与数据看板。', fixedAnswers: [{ question: '数据分析应该从哪里开始？', answer: '先明确业务目标和核心指标，再统一数据口径，识别趋势、异常与关键用户群，最后给出可执行的建议。' }], scope: 'team', status: 'published', createdBy: adminEmail });
+    await insert('agents', { name: '电商运营助手', role: '电商运营师', description: '支持店铺诊断、选品分析、知识图谱与售后运营。', systemPrompt: '你是电商运营师，围绕商品、店铺、内容、转化与售后流程输出可执行的运营方案。', fixedAnswers: [], scope: 'team', status: 'published', createdBy: adminEmail });
+    await insert('agents', { name: '数字营销助手', role: '数字营销师', description: '规划直播脚本、全年营销日历、投流复盘和内容发布。', systemPrompt: '你是数字营销师，擅长品牌传播、直播营销、内容分发与广告投放复盘，输出清晰的增长行动方案。', fixedAnswers: [], scope: 'team', status: 'published', createdBy: adminEmail });
+    await insert('agents', { name: '内容创意助手', role: '视觉设计师', description: '生成视觉简报、产品图方向、品牌规范与设计文案。', systemPrompt: '你是视觉设计师，负责把业务目标转化为可执行的视觉创意、产品图方向和品牌表达规范。', fixedAnswers: [], scope: 'team', status: 'published', createdBy: adminEmail });
   }
-  if ((await list('workflows')).length === 0) await insert('workflows', { name: '巴西市场进入评估', description: '市场洞察、法规税费、渠道、模型分析与进入建议输出。', nodes: ['开始', '巴西知识检索', 'DeepSeek 分析', '输出进入建议'], status: 'published', createdBy: adminEmail });
-  if ((await list('knowledge_bases')).length === 0) await insert('knowledge_bases', { name: '巴西市场与政策库', description: '巴西市场研究、税费法规、竞品、渠道与葡语素材', status: 'ready', createdBy: adminEmail });
+  if ((await list('workflows')).length === 0) await insert('workflows', { name: '智能体协同增长流程', description: '由数据、运营、营销与视觉岗位协同完成洞察、方案和成果输出。', nodes: ['开始', '业务资料整理', '智能体分析', '输出成果'], status: 'published', createdBy: adminEmail });
+  if ((await list('knowledge_bases')).length === 0) await insert('knowledge_bases', { name: '团队业务知识库', description: '沉淀商品、用户、营销、设计与运营资料', status: 'ready', createdBy: adminEmail });
   if ((await list('model_configs')).length === 0) await insert('model_configs', { name: 'DeepSeek V4 Flash', provider: 'DeepSeek', modelId: process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash', baseUrl: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com', enabled: true, createdBy: adminEmail });
   if ((await list('tool_configs')).length === 0) await insert('tool_configs', { name: '文件解析器', description: '解析 PDF、Word、Excel 与文本资料', endpoint: 'built-in://file-parser', scope: 'team', enabled: true, createdBy: adminEmail });
   if ((await list('projects')).length === 0) {
-    const project = await insert('projects', { code: 'BR-GROWTH-01', name: '巴西市场增长专项', description: '汽车增长、独立站本地化与直播营销联合增长项目。', status: 'active', progress: 68, ownerEmail: adminEmail, createdBy: adminEmail });
-    await insert('tasks', { projectId: project._id, title: '整理直播数据源 Excel', description: '统一数据口径并归档直播场次数据。', status: 'todo', priority: 'high', assigneeEmail: 'data-c01@group.local', dueDate: '本周三', createdBy: adminEmail });
-    await insert('tasks', { projectId: project._id, title: '输出车型用户画像看板', description: '汇总核心用户画像与增长机会。', status: 'doing', priority: 'high', assigneeEmail: 'data-c01@group.local', dueDate: '本周四', createdBy: adminEmail });
-    await insert('tasks', { projectId: project._id, title: '葡语页面视觉简报', description: '确认页面主视觉与内容表达方向。', status: 'review', priority: 'normal', assigneeEmail: 'visual-b01@group.local', dueDate: '本周五', createdBy: adminEmail });
+    const project = await insert('projects', { code: 'TEAM-GROWTH-01', name: '智能体增长协同项目', description: '数据、运营、营销与视觉岗位联动完成增长方案与成果交付。', status: 'active', progress: 68, ownerEmail: adminEmail, createdBy: adminEmail });
+    await insert('tasks', { projectId: project._id, title: '整理直播数据源', description: '统一直播场次数据口径并归档。', status: 'todo', priority: 'high', assigneeEmail: 'data@nev.com', dueDate: '本周三', createdBy: adminEmail });
+    await insert('tasks', { projectId: project._id, title: '输出用户画像看板', description: '汇总核心用户画像与增长机会。', status: 'doing', priority: 'high', assigneeEmail: 'data@nev.com', dueDate: '本周四', createdBy: adminEmail });
+    await insert('tasks', { projectId: project._id, title: '完成产品视觉简报', description: '确认页面主视觉与内容表达方向。', status: 'review', priority: 'normal', assigneeEmail: 'design@nev.com', dueDate: '本周五', createdBy: adminEmail });
   }
 }
 
@@ -109,10 +109,10 @@ async function ensureRoleAgent(jobRole, createdBy) {
   const existing = (await list('agents', { role: jobRole })).find(agent => agent.status === 'published' && agent.scope === 'team');
   if (existing) return existing;
   const templates = {
-    '数据分析师': { name: '巴西市场洞察助手', description: '分析巴西新能源汽车市场规模、州别机会、竞品、税费与进入路径。', systemPrompt: '你是新能源汽车巴西市场分析专家。重点分析圣保罗、里约热内卢、巴拉那等区域，以及税费、渠道和本地化路径。' },
-    '电商运营师': { name: '巴西跨境运营助手', description: '支持 Mercado Livre、Shopee Brasil、物流、税费与售后策略。', systemPrompt: '你是巴西跨境电商与新能源汽车运营专家。围绕渠道、物流、商品运营、葡语客服和售后给出可执行建议。' },
-    '数字营销师': { name: '巴西社媒增长助手', description: '生成巴西葡萄牙语社媒内容、广告创意与 KOL 合作方案。', systemPrompt: '你是巴西新能源汽车数字营销专家，默认使用巴西葡萄牙语语境，输出适用于 Instagram、TikTok 和 YouTube 的增长方案。' },
-    '视觉设计师': { name: '巴西广告视觉策划助手', description: '输出符合巴西市场审美的广告视觉方向、拍摄脚本与素材规范。', systemPrompt: '你是面向巴西市场的汽车品牌视觉创意总监，输出可落地的视觉创意简报和素材建议。' }
+    '数据分析师': { name: '数据洞察助手', description: '分析经营数据、用户画像与增长机会，生成可视化报告。', systemPrompt: '你是数据分析师，负责把经营数据、用户行为和业务目标转化为清晰、可执行的洞察。' },
+    '电商运营师': { name: '电商运营助手', description: '支持店铺诊断、选品分析、知识图谱与售后运营。', systemPrompt: '你是电商运营师，围绕商品、店铺、内容、转化与售后流程输出可执行的运营方案。' },
+    '数字营销师': { name: '数字营销助手', description: '规划直播脚本、全年营销日历、投流复盘和内容发布。', systemPrompt: '你是数字营销师，擅长品牌传播、直播营销、内容分发与广告投放复盘。' },
+    '视觉设计师': { name: '内容创意助手', description: '生成视觉简报、产品图方向、品牌规范与设计文案。', systemPrompt: '你是视觉设计师，负责把业务目标转化为可执行的视觉创意和品牌表达规范。' }
   };
   const template = templates[jobRole];
   if (!template) return null;
