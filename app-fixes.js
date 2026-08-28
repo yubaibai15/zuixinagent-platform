@@ -156,6 +156,13 @@
   });
 })();
 
+/* 登录成功后，内联隐藏状态必须优先于登录页的展示样式。 */
+(()=>{
+  const style=document.createElement('style');
+  style.textContent='#login[style*="display: none"]{display:none!important}#app[style*="display: flex"]{display:flex!important}';
+  document.head.appendChild(style);
+})();
+
 /* 管理员工作台：显示四个岗位及对应团队成员，员工端不展示此管理视图。 */
 (() => {
   const roles = [

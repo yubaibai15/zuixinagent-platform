@@ -10,6 +10,12 @@
     return data;
   };
   const toast = text => typeof notify === 'function' ? notify(text) : alert(text);
+  // 登录页的视觉样式包含 display 的强制规则；切换身份时必须使用同等优先级隐藏它，避免页面与后台叠在一起。
+  const showAuthenticatedApp = () => {
+    document.getElementById('login').style.setProperty('display', 'none', 'important');
+    document.getElementById('app').style.setProperty('display', 'flex', 'important');
+    window.showPage?.('dashboard');
+  };
   const originalEnterApp = window.enterApp;
   window.enterApp = async () => {
     const email = document.getElementById('account').value.trim();
@@ -19,7 +25,7 @@
     try {
       const result = await api('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
       token = result.token; localStorage.setItem('nev_token', token);
-      document.getElementById('login').style.display = 'none'; document.getElementById('app').style.display = 'flex';
+      showAuthenticatedApp();
       window.currentUser = result.user.role === 'admin' ? '超级管理员' : (result.user.jobRole || '团队成员');
       document.body.classList.toggle('admin-session', result.user.role === 'admin');
       document.querySelector('.side-bottom').innerHTML = `<span class="user-dot">${result.user.name.slice(0, 1)}</span>${result.user.name}<br><span style="margin-left:33px;font-size:10px">${result.user.role === 'admin' ? '超级管理员' : '只读调用成员'}</span>`;
@@ -28,6 +34,7 @@
       const isLocalPreview = location.port === '4173' || ['127.0.0.1', 'localhost', '::1'].includes(location.hostname);
       if (isLocalPreview) {
         originalEnterApp();
+        showAuthenticatedApp();
         toast('已进入本地演示模式；正式部署后将使用真实账号验证');
       } else {
         toast(error.message);
