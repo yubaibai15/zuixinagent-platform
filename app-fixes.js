@@ -168,7 +168,9 @@
   style.textContent = `
     body.admin-session #dashboard .roles .role{position:relative;min-height:178px;padding:20px 18px 18px 112px!important;cursor:pointer}
     body.admin-session #dashboard .roles .team-role-avatar{position:absolute;left:18px;top:20px;width:76px;height:76px;object-fit:cover;border:2px solid #d9ebe0;border-radius:18px;background:#fff;box-shadow:0 8px 18px rgba(17,70,50,.12)}
-    body.admin-session #dashboard .roles .role-icon{display:none}
+    body.admin-session #dashboard .roles .role-icon{display:none!important}
+    body.admin-session #dashboard .roles .role img:not(.team-role-avatar){display:none!important}
+    body.admin-session #dashboard .roles .role>.tag{display:none!important}
     body.admin-session #dashboard .roles .team-role-member{display:block;margin:5px 0 12px;color:#087653;font-size:12px;font-weight:800}
     body.admin-session #dashboard .team-assistant-showcase{margin:28px 0 0}
     body.admin-session #dashboard .team-assistant-showcase .showcase-title{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:14px}
@@ -188,6 +190,9 @@
   document.head.appendChild(style);
 
   document.addEventListener('DOMContentLoaded', () => setTimeout(() => {
+    document.querySelectorAll('#dashboard .section-title h3').forEach(title => {
+      if (title.textContent.trim() === '岗位专属助手') title.textContent = '岗位';
+    });
     document.querySelectorAll('#dashboard .roles .role').forEach(card => {
       const heading = card.querySelector('h4');
       const role = roles.find(item => item[0] === heading?.textContent.trim());
