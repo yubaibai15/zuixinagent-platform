@@ -35,7 +35,7 @@ function loginGuard(req, res, next) { const key = req.ip || 'unknown'; const now
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/index.html', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/group-platform.html', (_, res) => res.sendFile(path.join(__dirname, 'group-platform.html')));
-for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'bridge-runtime.js', 'preview-theme.css']) {
+for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'bridge-runtime.js', 'preview-theme.css', 'app-fixes.js']) {
   app.get(`/${file}`, (_, res) => res.sendFile(path.join(__dirname, file)));
 }
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
@@ -96,9 +96,13 @@ async function ensureSeed() {
     if (!existing) {
       if (!teamInitialPassword) throw new Error('请设置 TEAM_INITIAL_PASSWORD 后再初始化成员账号。');
       await insert('users', { email, name, role: 'member', jobRole, avatarKey, enabled: true, passwordHash: await bcrypt.hash(teamInitialPassword, 12) });
-    } else if (resetDefaultMembers) {
-      if (!teamInitialPassword) throw new Error('重置员工密码前请设置 TEAM_INITIAL_PASSWORD。');
-      await change('users', existing._id, { passwordHash: await bcrypt.hash(teamInitialPassword, 12), enabled: true });
+    } else {
+      const canonicalProfile = { name, role: 'member', jobRole, avatarKey, enabled: true };
+      if (resetDefaultMembers) {
+        if (!teamInitialPassword) throw new Error('重置员工密码前请设置 TEAM_INITIAL_PASSWORD。');
+        canonicalProfile.passwordHash = await bcrypt.hash(teamInitialPassword, 12);
+      }
+      if (Object.entries(canonicalProfile).some(([key, value]) => existing[key] !== value)) await change('users', existing._id, canonicalProfile);
     }
   }
   if ((await list('agents')).length === 0) {
@@ -162,7 +166,7 @@ app.post('/api/auth/login', loginGuard, async (req, res, next) => {
 app.get('/api/me', auth, async (req, res) => res.json(req.user));
 
 app.get('/api/agents', auth, async (req, res, next) => {
-  try { if (req.user.role !== 'admin') await ensureRoleAgent(req.user.jobRole, req.user.email); const agents = await list('agents'); const visible = req.user.role === 'admin' ? agents : agents.filter(a => a.status === 'published' && a.scope === 'team'); res.json(visible); } catch (e) { next(e); }
+  try { if (req.user.role !== 'admin') await ensureRoleAgent(req.user.jobRole, req.user.email); const agents = await list('agents'); const visible = req.user.role === 'admin' ? agents : agents.filter(a => a.status === 'published' && a.scope === 'team' && a.role === req.user.jobRole); res.json(visible); } catch (e) { next(e); }
 });
 app.post('/api/agents', auth, adminOnly, async (req, res, next) => {
   try { const agent = await insert('agents', { name: clean(req.body.name, 80), role: clean(req.body.role, 40), description: clean(req.body.description, 500), systemPrompt: clean(req.body.systemPrompt, 8000), fixedAnswers: Array.isArray(req.body.fixedAnswers) ? req.body.fixedAnswers.slice(0, 30) : [], scope: req.body.scope === 'private' ? 'private' : 'team', status: 'draft', createdBy: req.user.email }); await audit(req.user, 'agent.create', 'agent', agent._id, { name: agent.name }); res.status(201).json(agent); } catch (e) { next(e); }
@@ -219,7 +223,7 @@ async function extractText(file) {
   return '';
 }
 app.post('/api/files', auth, upload.single('file'), async (req, res, next) => {
-  try { if (!req.file) return res.status(400).json({ error: '请选择需要上传的文件。' }); const allowedExtensions = new Set(['.pdf', '.docx', '.xlsx', '.xls', '.csv', '.txt', '.md', '.json']); const extension = path.extname(req.file.originalname).toLowerCase(); if (!allowedExtensions.has(extension)) return res.status(415).json({ error: '仅支持 PDF、Word、Excel、CSV、TXT、Markdown 与 JSON 文件。' }); const safeName = req.file.originalname.replace(/[^\w.\-\u4e00-\u9fa5]/g, '_'); const cloudPath = `uploads/${req.user.sub}/${Date.now()}-${safeName}`; let fileID = `memory://${cloudPath}`;
+  try { if (!req.file) return res.status(400).json({ error: '请选择需要上传的文件。' }); const allowedExtensions = new Set(['.pdf', '.docx', '.xlsx', '.csv', '.txt', '.md', '.json']); const extension = path.extname(req.file.originalname).toLowerCase(); if (extension === '.xls') return res.status(415).json({ error: '旧版 XLS 暂不支持解析，请在 Excel 中另存为 XLSX 后重新导入。' }); if (!allowedExtensions.has(extension)) return res.status(415).json({ error: '仅支持 PDF、Word、XLSX、CSV、TXT、Markdown 与 JSON 文件。' }); const safeName = req.file.originalname.replace(/[^\w.\-\u4e00-\u9fa5]/g, '_'); const cloudPath = `uploads/${req.user.sub}/${Date.now()}-${safeName}`; let fileID = `memory://${cloudPath}`;
     if (!memoryMode) { const uploaded = await cloud.uploadFile({ cloudPath, fileContent: req.file.buffer }); fileID = uploaded.fileID; }
     const record = await insert('files', { ownerId: req.user.sub, ownerEmail: req.user.email, name: req.file.originalname, mimeType: req.file.mimetype, size: req.file.size, fileID, extractedText: await extractText(req.file) }); await audit(req.user, 'file.upload', 'file', record._id, { name: record.name, size: record.size }); res.status(201).json({ _id: record._id, name: record.name, size: record.size, fileID: record.fileID, indexed: Boolean(record.extractedText) });
   } catch (e) { next(e); }

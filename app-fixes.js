@@ -10,7 +10,7 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    .login-mascot{display:none!important}body:has(#dashboard.active) #app>.sidebar,body:has(#dashboard.active) .topbar{display:none!important}
+    body:has(#dashboard.active) #app>.sidebar,body:has(#dashboard.active) .topbar{display:none!important}
     body:has(#dashboard.active) #app>.main{margin-left:0!important;width:100%!important}
     body:has(#dashboard.active) .content{max-width:none!important;padding:0!important}
     #dashboard.active>.heading,#dashboard.active>.hero,#dashboard.active>.stats,#dashboard.active>.section-title,#dashboard.active>.roles,#dashboard.active>.twocol{display:none!important}
@@ -23,7 +23,7 @@
     #dashboard.active #agent-bridge .bridge-card h3{font-size:20px!important;margin:12px 0 8px!important}
     #dashboard.active #agent-bridge .bridge-card p{font-size:13px!important;min-height:0!important}
     #dashboard.active #agent-bridge .bridge-card a{min-height:46px;margin-top:auto!important;border-radius:10px!important;padding:12px 14px!important;font-size:13px!important}
-    .composer-skill-bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed #dbe8df}.composer-skill-bar b{display:flex;align-items:center;color:#718078;font-size:10px;margin-right:2px}.composer-skill-bar button{min-height:34px;border:1px solid #cfe2d6;background:#f7fbf8;color:#07543e;border-radius:9px;padding:7px 10px;font-size:11px}.composer-skill-bar button:hover,.composer-skill-bar button:focus-visible{background:#e5f4ea;outline:2px solid #b1dbc0;outline-offset:1px}.skill-result-link{display:inline-flex;margin-top:9px;padding:8px 11px;border-radius:8px;background:#087653;color:#fff!important;text-decoration:none;font-weight:700;font-size:12px}
+    .assistant-skills small{display:block;color:#718078;letter-spacing:.12em}.assistant-skills h2{margin:7px 0 4px}.assistant-skills>p{margin:0 0 10px;color:#7b8982;font-size:11px;line-height:1.55}.assistant-skills .skill-list{display:grid;gap:8px}.assistant-skills .skill-list button{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:9px;width:100%;min-height:56px;padding:9px;border:1px solid #dce8e0;border-radius:11px;background:#fff;color:#203c32;text-align:left}.assistant-skills .skill-list button:hover,.assistant-skills .skill-list button:focus-visible{border-color:#9bcdb0;background:#f2f8f4;outline:2px solid #cbe6d5}.assistant-skills .skill-list i{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#e9f6ee;color:#087653;font-size:9px;font-style:normal}.assistant-skills .skill-list b{font-size:12px}.assistant-skills .skill-list span{color:#087653;font-size:10px;font-weight:800}.skill-result-link{display:inline-flex;margin-top:9px;padding:8px 11px;border-radius:8px;background:#087653;color:#fff!important;text-decoration:none;font-weight:700;font-size:12px}
     .knowledge-graph{min-height:100vh;padding:clamp(24px,4vw,58px);background:#f6faf7}.knowledge-graph header{max-width:1320px;margin:0 auto 26px}.knowledge-graph .back{min-height:44px;background:transparent;color:#087653;font-weight:700}.knowledge-graph h1{font-size:clamp(28px,3vw,44px);margin:12px 0 8px}.knowledge-graph p{color:#66786f}.graph-board{max-width:1320px;min-height:560px;margin:auto;position:relative;overflow:hidden;border:1px solid #d8e8de;border-radius:24px;background:radial-gradient(#c8dcd0 .8px,transparent .8px) 0 0/18px 18px,#fff}.graph-board:before,.graph-board:after{content:"";position:absolute;left:23%;top:48%;width:53%;height:2px;background:#aacdb9;transform-origin:left}.graph-board:before{transform:rotate(-25deg)}.graph-board:after{transform:rotate(23deg)}.graph-node{position:absolute;z-index:1;width:190px;padding:17px;border-radius:16px;background:#fff;border:1px solid #d6e6dc;box-shadow:0 12px 28px rgba(15,73,53,.1)}.graph-node b,.graph-node span{display:block}.graph-node b{font-size:15px;color:#123f30}.graph-node span{margin-top:6px;font-size:11px;color:#718178;line-height:1.55}.graph-node.center{left:calc(50% - 95px);top:calc(50% - 55px);background:#087653;color:#fff;border-color:#087653}.graph-node.center b,.graph-node.center span{color:#fff}.graph-node.n1{left:8%;top:12%}.graph-node.n2{right:8%;top:13%}.graph-node.n3{left:10%;bottom:11%}.graph-node.n4{right:8%;bottom:12%}.graph-legend{max-width:1320px;margin:18px auto 0;display:flex;gap:12px;flex-wrap:wrap}.graph-legend span{padding:8px 11px;border-radius:999px;background:#eaf7ef;color:#0b684b;font-size:12px}
     @media(max-width:980px){#dashboard.active #agent-bridge .bridge-head{display:block!important}#dashboard.active #agent-bridge .bridge-head p{margin-top:16px!important}#dashboard.active #agent-bridge .bridge-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.graph-board{min-height:720px}.graph-node{width:160px}.graph-node.center{left:calc(50% - 80px);top:calc(50% - 48px)}}
     @media(max-width:620px){#dashboard.active #agent-bridge{padding:24px 16px!important}#dashboard.active #agent-bridge .bridge-grid{grid-template-columns:1fr!important}.composer-skill-bar{display:grid;grid-template-columns:1fr 1fr}.composer-skill-bar b{grid-column:1/-1}.knowledge-graph{padding:20px 14px}.graph-board{min-height:760px}.graph-node{width:calc(50% - 26px);padding:12px}.graph-node.n1{left:12px;top:22px}.graph-node.n2{right:12px;top:22px}.graph-node.n3{left:12px;bottom:24px}.graph-node.n4{right:12px;bottom:24px}.graph-node.center{left:calc(50% - 80px);top:calc(50% - 52px)}}
@@ -32,12 +32,10 @@
   document.head.appendChild(style);
 
   function addComposerSkills(id) {
-    const composer = document.querySelector('#agent-chat .chat-composer');
-    const toolRow = composer?.querySelector('.composer-tools > div:first-child');
-    if (!composer || !toolRow || composer.querySelector('.skill-picker')) return;
+    const assist = document.querySelector('#agent-chat .chat-assist');
+    if (!assist || assist.querySelector('.assistant-skills')) return;
     const [, skills] = roster[id] || roster['demo-data'];
-    toolRow.insertAdjacentHTML('beforeend', `<button class="skill-trigger" type="button" onclick="toggleSkillPicker(event)" aria-expanded="false">✦ 技能包</button>`);
-    composer.insertAdjacentHTML('beforeend', `<div class="skill-picker" role="dialog" aria-label="选择技能包"><div><b>选择可调用技能</b><button type="button" onclick="toggleSkillPicker(event)" aria-label="关闭技能包">×</button></div><p>选择后将由当前助手执行对应工作流。</p>${skills.map(name => `<button type="button" onclick="openInternalSkill('${escapeHtml(name)}');toggleSkillPicker(event)">${escapeHtml(name)} <span>→</span></button>`).join('')}</div>`);
+    assist.insertAdjacentHTML('beforeend', `<section class="assistant-skills"><small>SKILLS</small><h2>技能包</h2><p>选择技能后由当前助手调用标准化工作流。</p><div class="skill-list">${skills.map((name,index) => `<button type="button" onclick="openInternalSkill('${escapeHtml(name)}')"><i>SK${index+1}</i><b>${escapeHtml(name)}</b><span>调用</span></button>`).join('')}</div></section>`);
   }
 
   window.toggleSkillPicker = event => {
@@ -50,7 +48,9 @@
   const originalOpenAgentChat = window.openAgentChat;
   window.openAgentChat = id => {
     originalOpenAgentChat(id);
-    const key = roster[id] ? id : Object.keys(roster).find(item => id === roster[item][0]) || 'demo-data';
+    const remoteAgent=(window.remoteAgents||[]).find(agent=>agent._id===id);
+    const roleKeys={'数据分析师':'demo-data','电商运营师':'demo-ops','数字营销师':'demo-marketing','视觉设计师':'demo-visual'};
+    const key = roster[id] ? id : Object.keys(roster).find(item => id === roster[item][0]) || roleKeys[remoteAgent?.role] || 'demo-data';
     addComposerSkills(key);
   };
   window.openAgent = window.openAgentChat;
@@ -66,7 +66,7 @@
     const html = `<html><head><meta charset="utf-8"></head><body><table border="1">${rows.map((row, index) => `<tr>${row.map(cell => `<${index ? 'td' : 'th'}>${escapeHtml(cell)}</${index ? 'td' : 'th'}>`).join('')}</tr>`).join('')}</table></body></html>`;
     const link = document.createElement('a');
     link.href = URL.createObjectURL(new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' }));
-    link.download = '直播数据分析样表.xls';
+    link.download = '直播数据分析样表.xlsx';
     link.click();
     setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   };
@@ -150,7 +150,7 @@
     #login.login{grid-template-columns:minmax(0,1.12fr) minmax(420px,.88fr)!important;background:#f5f8f6!important}
     #login .login-intro{padding:clamp(42px,6vw,88px)!important;background:linear-gradient(145deg,#eff8f2 0%,#e4f3e9 58%,#d9eee3 100%)!important}
     #login .login-intro:after{width:680px!important;height:680px!important;right:-270px!important;bottom:-320px!important;border-color:rgba(7,118,83,.13)!important}
-    #login .login-copy{max-width:600px!important}.login-mascot{display:none!important}
+    #login .login-copy{max-width:600px!important}#login .login-mascot{display:block!important;max-width:min(430px,44vw)!important;max-height:48vh!important;object-fit:contain!important}
     #login .login-intro h1{font-size:clamp(38px,4.1vw,64px)!important;max-width:590px!important;color:#0c3b2e!important}#login .login-intro>.brand .brand-mark{width:46px!important;height:46px!important;background:#087653!important;border:0!important;box-shadow:none!important;font-size:0!important}#login .login-intro>.brand .brand-mark:after{content:'NEV';font-size:11px;font-weight:800;color:#fff;letter-spacing:.04em}
     #login .login-network{position:relative;width:min(470px,78%);height:210px;margin:42px 0 0;border:1px solid rgba(12,116,83,.17);border-radius:22px;background:rgba(255,255,255,.52);overflow:hidden}
     #login .login-network:before,#login .login-network:after{content:"";position:absolute;top:50%;left:50%;width:72%;height:1px;background:#93c6aa;transform-origin:left}#login .login-network:before{transform:rotate(28deg)}#login .login-network:after{transform:rotate(-28deg)}
@@ -161,7 +161,7 @@
     @media(max-width:1000px){#login .login-network{display:none}#login.login{grid-template-columns:1fr!important}#login .login-intro{display:none!important}}
     @media(prefers-reduced-motion:reduce){#login .login-card .primary{transition:none!important}}
   `;document.head.appendChild(style);
-  const install=()=>{const intro=document.querySelector('#login .login-intro');if(!intro||intro.querySelector('.login-network'))return;intro.querySelector('.login-mascot')?.remove();const copy=intro.querySelector('.login-copy');if(copy)copy.insertAdjacentHTML('beforeend','<div class="login-network" aria-label="四个岗位智能助手协作网络"><span class="network-center">AI</span><span>数据</span><span>运营</span><span>营销</span><span>设计</span></div>')};
+  const install=()=>{const mascot=document.querySelector('#login .login-mascot');if(mascot)mascot.src='assets/agent-ip.png'};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
 })();
 
@@ -191,7 +191,7 @@
     const composer=document.querySelector('#agent-chat .chat-composer');
     const picker=composer?.querySelector('input[type=file]');
     if(!composer||!picker||composer.querySelector('.ops-graph-import'))return;
-    picker.id='opsGraphFilePicker';
+    picker.id='opsGraphFilePicker';picker.setAttribute('accept','.pdf,.docx,.xlsx,.csv,.txt,.md,.json');
     composer.insertAdjacentHTML('afterbegin',`<section class="ops-graph-import" aria-label="知识图谱资料导入"><div><small>KNOWLEDGE GRAPH</small><b>导入运营资料，生成知识图谱</b><span id="opsGraphImportStatus">支持 Excel、CSV、PDF、Word、TXT，单个文件不超过 15MB</span></div><div class="ops-import-actions"><label for="opsGraphFilePicker">导入资料</label><button type="button" onclick="requestKnowledgeGraph()">生成知识图谱 →</button></div></section>`);
     const files=assetNames();if(files.length)setStatus('已导入 '+files.length+' 份资料，可生成知识图谱。','ready');
   }
@@ -210,7 +210,7 @@
     if(type!=='upload')return baseOpenModal?.(type);
     const modal=document.getElementById('modal');if(!modal)return;
     document.getElementById('modalTitle').textContent='导入知识库资料';
-    document.getElementById('modalBody').innerHTML=`<section class="knowledge-upload-panel"><p>文件会被保存到团队知识库，并在上传完成后用于对应岗位智能体的资料引用。</p><label>选择文件<input id="realKnowledgeFile" type="file" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt,.md,.json"></label><label>归属知识库<select id="realKnowledgeBase"><option>跨境电商运营库</option><option>海外市场与政策库</option><option>品牌视觉规范库</option></select></label><div id="realKnowledgeStatus" role="status">支持 Excel、CSV、PDF、Word、TXT，单个文件不超过 15MB。</div></section>`;
+    document.getElementById('modalBody').innerHTML=`<section class="knowledge-upload-panel"><p>文件会被保存到团队知识库，并在上传完成后用于对应岗位智能体的资料引用。</p><label>选择文件<input id="realKnowledgeFile" type="file" accept=".pdf,.docx,.xlsx,.csv,.txt,.md,.json"></label><label>归属知识库<select id="realKnowledgeBase"><option>跨境电商运营库</option><option>海外市场与政策库</option><option>品牌视觉规范库</option></select></label><div id="realKnowledgeStatus" role="status">支持 XLSX、CSV、PDF、Word、TXT，单个文件不超过 15MB。</div></section>`;
     const foot=modal.querySelector('.modal-foot');if(foot)foot.innerHTML='<button class="secondary" onclick="closeModal()">取消</button><button class="primary" onclick="uploadKnowledgeDocument()">开始导入</button>';
     modal.classList.add('show');
   };
