@@ -76,6 +76,7 @@ function makeDraggable(el){el.onmousedown=e=>{let r=el.getBoundingClientRect(),p
   enterApp = function () {
     originalEnterApp();
     const isAdmin = currentUser === '超级管理员';
+    document.body.classList.toggle('admin-session', isAdmin);
     document.querySelectorAll('[data-page="compose"],[data-page="workflow"],[data-page="knowledge"],[data-page="models"],[data-page="tools"],[data-page="team"],[data-page="analytics"],[data-page="settings"]').forEach(x => x.style.display = isAdmin ? '' : 'none');
     if (!isAdmin) {
       document.querySelectorAll('#dashboard .primary, #agents + * .primary').forEach(x => x.style.display = 'none');

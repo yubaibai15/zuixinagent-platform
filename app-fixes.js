@@ -10,19 +10,22 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    body:has(#dashboard.active) #app>.sidebar,body:has(#dashboard.active) .topbar{display:none!important}
-    body:has(#dashboard.active) #app>.main{margin-left:0!important;width:100%!important}
-    body:has(#dashboard.active) .content{max-width:none!important;padding:0!important}
-    #dashboard.active>.heading,#dashboard.active>.hero,#dashboard.active>.stats,#dashboard.active>.section-title,#dashboard.active>.roles,#dashboard.active>.twocol{display:none!important}
-    #dashboard.active #agent-bridge{box-sizing:border-box;min-height:100vh;margin:0!important;padding:clamp(28px,4vw,72px)!important;border:0!important;border-radius:0!important;background:linear-gradient(135deg,#0b3027 0%,#155a46 58%,#0e382e 100%)!important;box-shadow:none!important}
-    #dashboard.active #agent-bridge .bridge-head{max-width:1440px;margin:0 auto 30px!important;align-items:flex-end!important}
-    #dashboard.active #agent-bridge .bridge-head h2{font-size:clamp(30px,3.3vw,54px)!important;line-height:1.15!important;max-width:720px}
-    #dashboard.active #agent-bridge .bridge-head p{max-width:430px!important;font-size:14px!important;line-height:1.75!important}
-    #dashboard.active #agent-bridge .bridge-grid{max-width:1440px;margin:auto;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:18px!important}
-    #dashboard.active #agent-bridge .bridge-card{min-height:300px;padding:22px!important;display:flex;flex-direction:column;border-radius:18px!important;background:rgba(255,255,255,.075)!important}
-    #dashboard.active #agent-bridge .bridge-card h3{font-size:20px!important;margin:12px 0 8px!important}
-    #dashboard.active #agent-bridge .bridge-card p{font-size:13px!important;min-height:0!important}
-    #dashboard.active #agent-bridge .bridge-card a{min-height:46px;margin-top:auto!important;border-radius:10px!important;padding:12px 14px!important;font-size:13px!important}
+    body:not(.admin-session):has(#dashboard.active) #app>.sidebar,body:not(.admin-session):has(#dashboard.active) .topbar{display:none!important}
+    body:not(.admin-session):has(#dashboard.active) #app>.main{margin-left:0!important;width:100%!important}
+    body:not(.admin-session):has(#dashboard.active) .content{max-width:none!important;padding:0!important}
+    body:not(.admin-session) #dashboard.active>.heading,body:not(.admin-session) #dashboard.active>.hero,body:not(.admin-session) #dashboard.active>.stats,body:not(.admin-session) #dashboard.active>.section-title,body:not(.admin-session) #dashboard.active>.roles,body:not(.admin-session) #dashboard.active>.twocol{display:none!important}
+    body:not(.admin-session) #dashboard.active #agent-bridge{box-sizing:border-box;min-height:100vh;margin:0!important;padding:clamp(28px,4vw,72px)!important;border:0!important;border-radius:0!important;background:linear-gradient(135deg,#0b3027 0%,#155a46 58%,#0e382e 100%)!important;box-shadow:none!important}
+    body:not(.admin-session) #dashboard.active #agent-bridge .bridge-head{max-width:1440px;margin:0 auto 30px!important;align-items:flex-end!important}
+    body:not(.admin-session) #dashboard.active #agent-bridge .bridge-head h2{font-size:clamp(30px,3.3vw,54px)!important;line-height:1.15!important;max-width:720px}
+    body:not(.admin-session) #dashboard.active #agent-bridge .bridge-head p{max-width:430px!important;font-size:14px!important;line-height:1.75!important}
+    body:not(.admin-session) #dashboard.active #agent-bridge .bridge-grid{max-width:1440px;margin:auto;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:18px!important}
+    body:not(.admin-session) #dashboard.active #agent-bridge .bridge-card{min-height:300px;padding:22px!important;display:flex;flex-direction:column;border-radius:18px!important;background:rgba(255,255,255,.075)!important}
+    body:not(.admin-session) #dashboard.active #agent-bridge .bridge-role-avatar{width:78px!important;height:78px!important;object-fit:cover!important;object-position:center!important;border:3px solid rgba(255,255,255,.9)!important;border-radius:20px!important;background:#fff!important;box-shadow:0 8px 20px rgba(0,0,0,.18)!important}
+    body:not(.admin-session) #dashboard.active #agent-bridge .bridge-card h3{font-size:20px!important;margin:12px 0 8px!important}
+    body:not(.admin-session) #dashboard.active #agent-bridge .bridge-card p{font-size:13px!important;min-height:0!important}
+    body:not(.admin-session) #dashboard.active #agent-bridge .bridge-card a{min-height:46px;margin-top:auto!important;border-radius:10px!important;padding:12px 14px!important;font-size:13px!important}
+    body.admin-session #agent-bridge{display:none!important}
+    #dashboard.active #agent-bridge .admin-workspace-link{display:inline-flex;align-items:center;gap:9px;margin-top:16px;padding:11px 14px;border:1px solid #e5bc52;border-radius:10px;background:transparent;color:#fff;font-weight:800;cursor:pointer}.admin-workspace-link:hover{background:#e5bc52;color:#192c25}
     .assistant-skills small{display:block;color:#718078;letter-spacing:.12em}.assistant-skills h2{margin:7px 0 4px}.assistant-skills>p{margin:0 0 10px;color:#7b8982;font-size:11px;line-height:1.55}.assistant-skills .skill-list{display:grid;gap:8px}.assistant-skills .skill-list button{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:9px;width:100%;min-height:56px;padding:9px;border:1px solid #dce8e0;border-radius:11px;background:#fff;color:#203c32;text-align:left}.assistant-skills .skill-list button:hover,.assistant-skills .skill-list button:focus-visible{border-color:#9bcdb0;background:#f2f8f4;outline:2px solid #cbe6d5}.assistant-skills .skill-list i{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#e9f6ee;color:#087653;font-size:9px;font-style:normal}.assistant-skills .skill-list b{font-size:12px}.assistant-skills .skill-list span{color:#087653;font-size:10px;font-weight:800}.skill-result-link{display:inline-flex;margin-top:9px;padding:8px 11px;border-radius:8px;background:#087653;color:#fff!important;text-decoration:none;font-weight:700;font-size:12px}
     .knowledge-graph{min-height:100vh;padding:clamp(24px,4vw,58px);background:#f6faf7}.knowledge-graph header{max-width:1320px;margin:0 auto 26px}.knowledge-graph .back{min-height:44px;background:transparent;color:#087653;font-weight:700}.knowledge-graph h1{font-size:clamp(28px,3vw,44px);margin:12px 0 8px}.knowledge-graph p{color:#66786f}.graph-board{max-width:1320px;min-height:560px;margin:auto;position:relative;overflow:hidden;border:1px solid #d8e8de;border-radius:24px;background:radial-gradient(#c8dcd0 .8px,transparent .8px) 0 0/18px 18px,#fff}.graph-board:before,.graph-board:after{content:"";position:absolute;left:23%;top:48%;width:53%;height:2px;background:#aacdb9;transform-origin:left}.graph-board:before{transform:rotate(-25deg)}.graph-board:after{transform:rotate(23deg)}.graph-node{position:absolute;z-index:1;width:190px;padding:17px;border-radius:16px;background:#fff;border:1px solid #d6e6dc;box-shadow:0 12px 28px rgba(15,73,53,.1)}.graph-node b,.graph-node span{display:block}.graph-node b{font-size:15px;color:#123f30}.graph-node span{margin-top:6px;font-size:11px;color:#718178;line-height:1.55}.graph-node.center{left:calc(50% - 95px);top:calc(50% - 55px);background:#087653;color:#fff;border-color:#087653}.graph-node.center b,.graph-node.center span{color:#fff}.graph-node.n1{left:8%;top:12%}.graph-node.n2{right:8%;top:13%}.graph-node.n3{left:10%;bottom:11%}.graph-node.n4{right:8%;bottom:12%}.graph-legend{max-width:1320px;margin:18px auto 0;display:flex;gap:12px;flex-wrap:wrap}.graph-legend span{padding:8px 11px;border-radius:999px;background:#eaf7ef;color:#0b684b;font-size:12px}
     @media(max-width:980px){#dashboard.active #agent-bridge .bridge-head{display:block!important}#dashboard.active #agent-bridge .bridge-head p{margin-top:16px!important}#dashboard.active #agent-bridge .bridge-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.graph-board{min-height:720px}.graph-node{width:160px}.graph-node.center{left:calc(50% - 80px);top:calc(50% - 48px)}}
@@ -139,6 +142,16 @@
       if (!bridge) return;
       bridge.querySelector('.bridge-head small').textContent = 'FOUR ASSISTANTS · ONE TEAM';
       bridge.querySelector('.bridge-head p').textContent = '数据、运营、营销与视觉四个岗位助手，都在同一平台内完成技能调用与成果保存。';
+      const avatarPaths = ['data-analyst.png', 'ecommerce-operator.png', 'digital-marketer.png', 'visual-designer.jpg'];
+      bridge.querySelectorAll('.bridge-role-avatar').forEach((avatar, index) => { avatar.src = `/assets/role-avatars/${avatarPaths[index]}`; });
+      if (!bridge.querySelector('.admin-workspace-link')) {
+        const link = document.createElement('button');
+        link.type = 'button';
+        link.className = 'admin-workspace-link';
+        link.innerHTML = '管理员空间 <span>→</span>';
+        link.addEventListener('click', () => { window.showPage?.('agents'); window.scrollTo(0, 0); });
+        bridge.querySelector('.bridge-head').appendChild(link);
+      }
     }, 160);
   });
 })();

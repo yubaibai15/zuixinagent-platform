@@ -21,6 +21,7 @@
       token = result.token; localStorage.setItem('nev_token', token);
       document.getElementById('login').style.display = 'none'; document.getElementById('app').style.display = 'flex';
       window.currentUser = result.user.role === 'admin' ? '超级管理员' : (result.user.jobRole || '团队成员');
+      document.body.classList.toggle('admin-session', result.user.role === 'admin');
       document.querySelector('.side-bottom').innerHTML = `<span class="user-dot">${result.user.name.slice(0, 1)}</span>${result.user.name}<br><span style="margin-left:33px;font-size:10px">${result.user.role === 'admin' ? '超级管理员' : '只读调用成员'}</span>`;
       applyRole(result.user.role); await loadAgents(); toast(`登录成功，欢迎 ${result.user.name}`);
     } catch (error) {
