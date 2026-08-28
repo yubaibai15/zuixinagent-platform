@@ -156,6 +156,70 @@
   });
 })();
 
+/* 管理员工作台：显示四个岗位及对应团队成员，员工端不展示此管理视图。 */
+(() => {
+  const roles = [
+    ['数据分析师', 'data-member.jpg'],
+    ['电商运营师', 'ecommerce-member.jpg'],
+    ['数字营销师', 'marketing-member.jpg'],
+    ['视觉设计师', 'visual-member.png']
+  ];
+  const style = document.createElement('style');
+  style.textContent = `
+    body.admin-session #dashboard .roles .role{position:relative;min-height:178px;padding:20px 18px 18px 112px!important;cursor:pointer}
+    body.admin-session #dashboard .roles .team-role-avatar{position:absolute;left:18px;top:20px;width:76px;height:76px;object-fit:cover;border:2px solid #d9ebe0;border-radius:18px;background:#fff;box-shadow:0 8px 18px rgba(17,70,50,.12)}
+    body.admin-session #dashboard .roles .role-icon{display:none}
+    body.admin-session #dashboard .roles .team-role-member{display:block;margin:5px 0 12px;color:#087653;font-size:12px;font-weight:800}
+    body.admin-session #dashboard .team-assistant-showcase{margin:28px 0 0}
+    body.admin-session #dashboard .team-assistant-showcase .showcase-title{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:14px}
+    body.admin-session #dashboard .team-assistant-showcase h3{margin:0;color:#143f31;font-size:20px}
+    body.admin-session #dashboard .team-assistant-showcase p{margin:5px 0 0;color:#718178;font-size:12px}
+    body.admin-session #dashboard .assistant-showcase-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+    body.admin-session #dashboard .assistant-showcase-card{overflow:hidden;border:1px solid #dce9e1;border-radius:16px;background:#fff;box-shadow:0 8px 22px rgba(23,73,54,.06)}
+    body.admin-session #dashboard .assistant-showcase-card img{display:block;width:100%;height:160px;object-fit:cover;object-position:center 18%;background:#f6faf7}
+    body.admin-session #dashboard .assistant-showcase-body{padding:14px 15px 16px}
+    body.admin-session #dashboard .assistant-showcase-body small{color:#087653;font-weight:800;letter-spacing:.06em}
+    body.admin-session #dashboard .assistant-showcase-body h4{margin:7px 0 6px;color:#143f31;font-size:16px}
+    body.admin-session #dashboard .assistant-showcase-body button{width:100%;margin-top:12px;padding:9px 11px;border:0;border-radius:9px;background:#087653;color:#fff;font-weight:800;cursor:pointer}
+    @media(max-width:980px){body.admin-session #dashboard .assistant-showcase-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:540px){body.admin-session #dashboard .assistant-showcase-grid{grid-template-columns:1fr}}
+    @media(max-width:680px){body.admin-session #dashboard .roles .role{padding-left:104px!important}}
+  `;
+  document.head.appendChild(style);
+
+  document.addEventListener('DOMContentLoaded', () => setTimeout(() => {
+    document.querySelectorAll('#dashboard .roles .role').forEach(card => {
+      const heading = card.querySelector('h4');
+      const role = roles.find(item => item[0] === heading?.textContent.trim());
+      if (!role || card.querySelector('.team-role-avatar')) return;
+      const image = document.createElement('img');
+      image.className = 'team-role-avatar';
+      image.src = `/assets/role-avatars/${role[1]}`;
+      image.alt = `${role[0]}岗位头像`;
+      heading.before(image);
+      const member = document.createElement('span');
+      member.className = 'team-role-member';
+      member.textContent = '岗位智能助手';
+      heading.after(member);
+    });
+
+    if (!document.getElementById('team-assistant-showcase')) {
+      const assistants = [
+        ['数据洞察助手', '数据分析师', 'data-analyst.png', 'demo-data'],
+        ['电商运营助手', '电商运营师', 'ecommerce-operator.png', 'demo-ops'],
+        ['数字营销助手', '数字营销师', 'digital-marketer.png', 'demo-marketing'],
+        ['内容创意助手', '视觉设计师', 'visual-designer.jpg', 'demo-visual']
+      ];
+      const section = document.createElement('section');
+      section.id = 'team-assistant-showcase';
+      section.className = 'team-assistant-showcase';
+      section.innerHTML = `<div class="showcase-title"><div><h3>岗位智能体</h3><p>每个岗位配置一位专属智能助手，可直接调用。</p></div></div><div class="assistant-showcase-grid">${assistants.map(item => `<article class="assistant-showcase-card"><img src="/assets/role-avatars/${item[2]}" alt="${item[0]} IP 形象"><div class="assistant-showcase-body"><small>${item[1]}</small><h4>${item[0]}</h4><button type="button" data-agent="${item[3]}">进入智能体 →</button></div></article>`).join('')}</div>`;
+      document.querySelector('#dashboard .roles')?.after(section);
+      section.querySelectorAll('[data-agent]').forEach(button => button.addEventListener('click', () => window.openAgentChat?.(button.dataset.agent) || window.showPage?.('agents')));
+    }
+  }, 220));
+})();
+
 /* 无 IP 登录页：以岗位协作网络取代形象图，保持企业团队空间的专业感。 */
 (()=>{
   const style=document.createElement('style');
