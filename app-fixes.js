@@ -247,6 +247,64 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
 })();
 
+/* 企业团队入口：按最终视觉稿重构，去除所有 IP、人物与装饰性图片。 */
+(() => {
+  const style = document.createElement('style');
+  style.textContent = `
+    #login.login{position:relative;min-height:100dvh;display:block!important;background:#f7f5f0!important}
+    #login .login-intro{position:relative;isolation:isolate;display:flex!important;flex-direction:column;width:60%;min-height:100dvh;padding:clamp(48px,7vw,110px)!important;background:#f7f5f0!important;color:#123f32!important;overflow:hidden}
+    #login .login-intro:before{content:"";position:absolute;inset:0;z-index:-2;opacity:.78;background-image:linear-gradient(rgba(18,63,50,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(18,63,50,.07) 1px,transparent 1px),radial-gradient(circle at 74% 47%,rgba(184,150,69,.18) 0 3px,transparent 4px),radial-gradient(circle at 54% 63%,rgba(184,150,69,.16) 0 3px,transparent 4px),radial-gradient(circle at 88% 69%,rgba(184,150,69,.16) 0 3px,transparent 4px);background-size:72px 72px,72px 72px,190px 160px,210px 190px,240px 180px;background-position:0 0,0 0,0 0,50px 40px,120px 80px}
+    #login .login-intro:after{content:"";position:absolute;z-index:-1;width:88%;height:64%;right:-18%;bottom:12%;border:1px solid rgba(184,150,69,.45)!important;border-left:0!important;border-radius:55% 0 0 48%!important;transform:rotate(-12deg);box-shadow:-220px 116px 0 -219px rgba(184,150,69,.5),-420px 4px 0 -419px rgba(184,150,69,.5),-110px -106px 0 -109px rgba(184,150,69,.5)}
+    #login .login-world-map{position:absolute;z-index:0;inset:17% 2% 8% 2%;background:none!important;opacity:.68;pointer-events:none}
+    #login .login-world-map svg{display:block;width:100%;height:100%}
+    #login .login-intro>.brand{position:relative;z-index:1;padding:0!important;color:#123f32!important}
+    #login .login-intro>.brand .brand-mark{display:grid!important;width:48px!important;height:48px!important;border-radius:12px!important;background:#123f32!important;box-shadow:none!important}
+    #login .login-intro>.brand .brand-mark:after{content:"NEV"!important;color:#fff!important;font-size:11px!important;letter-spacing:.05em}
+    #login .login-intro>.brand b{font-size:15px!important;color:#123f32!important}.login-intro>.brand small{color:#6f8479!important;letter-spacing:.12em!important}
+    #login .login-copy{position:relative;z-index:1;max-width:760px!important;margin:auto 0!important}
+    #login .login-kicker{color:#087653!important;font-weight:800!important;letter-spacing:.14em!important}
+    #login .login-copy h1{max-width:760px!important;margin:24px 0 22px!important;color:#123f32!important;font-family:"Noto Serif SC","Songti SC","STSong",serif!important;font-size:clamp(42px,4.35vw,72px)!important;line-height:1.08!important;letter-spacing:-.055em!important;text-wrap:balance}
+    #login .login-copy p{max-width:540px!important;color:#64786e!important;font-size:15px!important;line-height:1.9!important}
+    #login .login-features{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:0!important;max-width:760px;margin:58px 0 0!important;border-top:1px solid rgba(18,63,50,.17);padding-top:20px!important}
+    #login .login-features span{display:block!important;padding:0 20px!important;border:0!important;border-left:1px solid rgba(18,63,50,.14)!important;border-radius:0!important;background:transparent!important;color:#123f32!important;font-size:15px!important;font-weight:800!important;white-space:normal!important}
+    #login .login-features span:first-child{padding-left:0!important;border-left:0!important}
+    #login .login-features span small{display:block;margin-top:7px;color:#71847a;font-size:11px;font-weight:500;line-height:1.5}
+    #login .login-mascot,#login .login-network{display:none!important}
+    #login .login-panel{position:absolute!important;inset:0 0 0 auto!important;width:40%!important;min-height:100dvh;display:flex!important;flex-direction:column;justify-content:center;padding:clamp(42px,4.5vw,92px)!important;background:#fbfaf7!important;border-left:1px solid #e7e1d5}
+    #login .workspace-badge{max-width:460px!important;margin:0 auto 24px!important}.workspace-badge>span{width:44px!important;height:44px!important;border-radius:11px!important;background:#123f32!important}.workspace-badge b{color:#123f32!important}.workspace-badge small{color:#809087!important}
+    #login .login-card{width:100%!important;max-width:460px!important;margin:0 auto!important;padding:38px!important;border:1px solid #e4ded2!important;border-radius:16px!important;background:rgba(255,255,255,.72)!important;box-shadow:0 18px 48px rgba(35,61,49,.08)!important}
+    #login .login-card h2{margin:16px 0 8px!important;color:#123f32!important;font-family:"Noto Serif SC","Songti SC","STSong",serif!important;font-size:30px!important;letter-spacing:-.04em!important}
+    #login .login-card p{margin-bottom:28px!important;color:#77867f!important}.login-card label{color:#466055!important;font-size:12px!important}
+    #login .login-card input{height:52px!important;margin-bottom:18px!important;border:1px solid #dce4dc!important;border-radius:9px!important;background:#fff!important;color:#123f32!important}
+    #login .login-card .primary{min-height:54px!important;margin-top:5px!important;border-radius:8px!important;background:#123f32!important;box-shadow:none!important;font-weight:800!important}.login-card .primary:hover{background:#0b3027!important;transform:translateY(-1px)}
+    #login .login-options{margin:14px 0 4px!important;color:#708078!important}.login-options button{color:#087653!important}.hint{margin-top:18px!important;background:#f2f5f0!important;color:#6c7d73!important;border-radius:8px!important}.login-security{color:#89948d!important}
+    @media(max-width:1000px){#login .login-intro{display:none!important}#login .login-panel{position:relative!important;width:100%!important;min-height:100dvh;border-left:0}}
+  `;
+  document.head.appendChild(style);
+
+  const install = () => {
+    document.title = '新能源汽车跨境出海方案';
+    const intro = document.querySelector('#login .login-intro');
+    if (!intro) return;
+    if (!intro.querySelector('.login-world-map')) intro.insertAdjacentHTML('afterbegin', `<div class="login-world-map" aria-hidden="true"><svg viewBox="0 0 1400 850" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke="#9eb5a7" stroke-width="2" opacity=".42" stroke-linecap="round" stroke-linejoin="round"><path d="M87 208 129 166 191 145 254 151 290 184 284 220 325 248 316 287 276 303 245 335 196 331 173 368 123 346 101 303 62 277Z"/><path d="M312 389 345 410 361 466 341 510 354 562 327 629 297 655 281 611 289 555 262 496 269 438Z"/><path d="M536 190 584 165 641 176 681 155 738 170 771 204 759 237 798 254 827 289 805 327 764 319 728 351 682 344 657 371 608 356 590 316 553 300 542 258 511 238Z"/><path d="M698 388 741 375 773 404 786 452 766 487 778 547 752 602 718 620 692 578 668 532 676 481 652 438Z"/><path d="M825 224 881 190 944 197 979 233 1027 245 1062 279 1052 314 1010 335 977 325 946 362 901 349 878 316 842 298Z"/><path d="M1052 504 1092 481 1147 495 1184 535 1176 585 1134 611 1092 592 1062 554Z"/></g><g stroke="#b99845" stroke-width="2.4" opacity=".72" stroke-linecap="round"><path d="M813 330C705 219 510 190 270 285"/><path d="M813 330C650 398 458 423 317 461"/><path d="M813 330C901 226 978 233 1051 289"/><path d="M813 330C934 400 1047 483 1117 543"/><path d="M813 330C738 432 726 514 729 575"/></g><g fill="#b99845" opacity=".9"><circle cx="813" cy="330" r="8"/><circle cx="270" cy="285" r="6"/><circle cx="317" cy="461" r="6"/><circle cx="1051" cy="289" r="6"/><circle cx="1117" cy="543" r="6"/><circle cx="729" cy="575" r="6"/></g></svg></div>`);
+    const brand = intro.querySelector('.brand');
+    if (brand) { brand.querySelector('b').textContent = '新能源汽车跨境出海方案'; brand.querySelector('small').textContent = 'ENTERPRISE WORKSPACE'; }
+    const copy = intro.querySelector('.login-copy');
+    if (copy) {
+      copy.querySelector('.login-kicker').textContent = 'TEAM WORKSPACE';
+      copy.querySelector('h1').innerHTML = '一个团队空间，<br>协同四类专业能力';
+      copy.querySelector('p').textContent = '从数据洞察、跨境运营到数字营销与视觉创意，让项目、任务与知识在同一空间有序协作。';
+      copy.querySelector('.login-features').innerHTML = '<span>数据洞察<small>市场趋势与经营分析</small></span><span>电商运营<small>店铺策略与合规管理</small></span><span>数字营销<small>内容策划与增长协同</small></span><span>视觉创意<small>品牌表达与设计规范</small></span>';
+    }
+    const hint = document.querySelector('#login .hint');
+    if (hint) hint.textContent = '安全加密传输 · 保障数据安全 · 私密团队空间';
+    const security = document.querySelector('#login .login-security');
+    if (security) security.textContent = '企业级安全防护，守护每一次协作';
+    intro.querySelector('.login-mascot')?.remove();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install); else install();
+})();
+
 /* 电商运营资料导入 → 知识图谱：统一显示上传状态，并为生成操作提供明确入口。 */
 (()=>{
   const assetNames=()=>JSON.parse(localStorage.getItem('nev_ops_graph_files')||'[]');
