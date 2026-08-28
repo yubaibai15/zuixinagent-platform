@@ -14,7 +14,9 @@ const app = express();
 const PORTS = [...new Set([Number(process.env.PORT || 80), 80, 8080])];
 const ENV_ID = process.env.CLOUDBASE_ENV_ID || 'cs-d4glz3ytydaa6e72a';
 const memoryMode = process.env.USE_MEMORY_STORE === 'true';
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } });
+// 资料可统一上传；文本资料在本服务快速解析，多媒体可交给外部解析服务异步转写。
+const MAX_UPLOAD_MB = Math.min(Math.max(Number(process.env.MAX_UPLOAD_MB || 100), 1), 200);
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_MB * 1024 * 1024 } });
 const memory = { users: [], agents: [], files: [], chats: [], workflows: [], knowledge_bases: [], model_configs: [], tool_configs: [], platform_settings: [], agent_versions: [], audit_logs: [], projects: [], tasks: [], deliverables: [], approvals: [], agent_launches: [] };
 let rdb; let cloud;
 
@@ -47,7 +49,7 @@ const now = () => new Date().toISOString();
 const id = () => crypto.randomUUID();
 const clean = (value, limit = 4000) => String(value || '').trim().slice(0, limit);
 
-const columns = { _id: 'id', passwordHash: 'password_hash', jobRole: 'job_role', avatarKey: 'avatar_key', fixedAnswers: 'fixed_answers', systemPrompt: 'system_prompt', createdBy: 'created_by', updatedBy: 'updated_by', publishedAt: 'published_at', ownerId: 'owner_id', ownerEmail: 'owner_email', mimeType: 'mime_type', fileID: 'file_id', extractedText: 'extracted_text', userId: 'user_id', agentId: 'agent_id', modelId: 'model_id', baseUrl: 'base_url', versionNo: 'version_no', publishedBy: 'published_by', actorEmail: 'actor_email', targetType: 'target_type', targetId: 'target_id', projectId: 'project_id', taskId: 'task_id', assigneeEmail: 'assignee_email', dueDate: 'due_date', reviewerEmail: 'reviewer_email', deliverableId: 'deliverable_id', agentKey: 'agent_key', createdAt: 'created_at', updatedAt: 'updated_at' };
+const columns = { _id: 'id', passwordHash: 'password_hash', jobRole: 'job_role', avatarKey: 'avatar_key', fixedAnswers: 'fixed_answers', systemPrompt: 'system_prompt', createdBy: 'created_by', updatedBy: 'updated_by', publishedAt: 'published_at', ownerId: 'owner_id', ownerEmail: 'owner_email', mimeType: 'mime_type', fileID: 'file_id', extractedText: 'extracted_text', parseStatus: 'parse_status', parseMessage: 'parse_message', userId: 'user_id', agentId: 'agent_id', modelId: 'model_id', baseUrl: 'base_url', versionNo: 'version_no', publishedBy: 'published_by', actorEmail: 'actor_email', targetType: 'target_type', targetId: 'target_id', projectId: 'project_id', taskId: 'task_id', assigneeEmail: 'assignee_email', dueDate: 'due_date', reviewerEmail: 'reviewer_email', deliverableId: 'deliverable_id', agentKey: 'agent_key', createdAt: 'created_at', updatedAt: 'updated_at' };
 const reverseColumns = Object.fromEntries(Object.entries(columns).map(([key, value]) => [value, key]));
 const toDb = data => Object.fromEntries(Object.entries(data).map(([key, value]) => [columns[key] || key, value]));
 const fromDb = data => Object.fromEntries(Object.entries(data || {}).map(([key, value]) => [reverseColumns[key] || key, value]));
@@ -222,10 +224,55 @@ async function extractText(file) {
   if (ext === '.pdf') return (await pdf(file.buffer)).text.slice(0, 12000);
   return '';
 }
+
+function isMedia(file) {
+  return /^(image|audio|video)\//.test(String(file.mimetype || ''));
+}
+
+async function parseWithExternalService(file) {
+  const endpoint = String(process.env.MULTIMODAL_PARSER_URL || '').trim();
+  if (!endpoint) return null;
+  const body = new FormData();
+  body.append('file', new Blob([file.buffer], { type: file.mimetype || 'application/octet-stream' }), file.originalname);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), Number(process.env.PARSER_TIMEOUT_MS || 45000));
+  try {
+    const headers = {};
+    if (process.env.MULTIMODAL_PARSER_API_KEY) headers.Authorization = `Bearer ${process.env.MULTIMODAL_PARSER_API_KEY}`;
+    const response = await fetch(endpoint, { method: 'POST', headers, body, signal: controller.signal });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || data.message || '多媒体解析服务暂时不可用。');
+    return { text: String(data.text || data.extractedText || data.transcript || '').slice(0, 24000), message: String(data.message || '') };
+  } finally { clearTimeout(timer); }
+}
+
+function langsmithEnabled() { return String(process.env.LANGSMITH_TRACING || '').toLowerCase() === 'true' && Boolean(process.env.LANGSMITH_API_KEY); }
+function traceLangSmith(name, inputs, outputs, metadata = {}) {
+  if (!langsmithEnabled()) return;
+  const includeContent = String(process.env.LANGSMITH_TRACE_CONTENT || '').toLowerCase() === 'true';
+  const started = new Date(); const runId = crypto.randomUUID();
+  const payload = {
+    id: runId, trace_id: runId, dotted_order: `${started.toISOString().replace(/[-:.TZ]/g, '')}${runId.replace(/-/g, '')}`,
+    name, run_type: 'chain', start_time: started.toISOString(), end_time: new Date().toISOString(),
+    project_name: process.env.LANGSMITH_PROJECT || 'nev-agent-platform',
+    inputs: includeContent ? inputs : { content_logged: false, input_size: JSON.stringify(inputs || {}).length },
+    outputs: includeContent ? outputs : { content_logged: false, output_size: JSON.stringify(outputs || {}).length },
+    extra: { metadata }
+  };
+  fetch(`${(process.env.LANGSMITH_ENDPOINT || 'https://api.smith.langchain.com').replace(/\/$/, '')}/runs`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.LANGSMITH_API_KEY }, body: JSON.stringify(payload) }).catch(error => console.warn('LangSmith trace skipped:', error.message));
+}
 app.post('/api/files', auth, upload.single('file'), async (req, res, next) => {
-  try { if (!req.file) return res.status(400).json({ error: '请选择需要上传的文件。' }); const allowedExtensions = new Set(['.pdf', '.docx', '.xlsx', '.csv', '.txt', '.md', '.json']); const extension = path.extname(req.file.originalname).toLowerCase(); if (extension === '.xls') return res.status(415).json({ error: '旧版 XLS 暂不支持解析，请在 Excel 中另存为 XLSX 后重新导入。' }); if (!allowedExtensions.has(extension)) return res.status(415).json({ error: '仅支持 PDF、Word、XLSX、CSV、TXT、Markdown 与 JSON 文件。' }); const safeName = req.file.originalname.replace(/[^\w.\-\u4e00-\u9fa5]/g, '_'); const cloudPath = `uploads/${req.user.sub}/${Date.now()}-${safeName}`; let fileID = `memory://${cloudPath}`;
+  try { if (!req.file) return res.status(400).json({ error: '请选择需要上传的文件。' }); const safeName = req.file.originalname.replace(/[^\w.\-\u4e00-\u9fa5]/g, '_'); const cloudPath = `uploads/${req.user.sub}/${Date.now()}-${safeName}`; let fileID = `memory://${cloudPath}`;
     if (!memoryMode) { const uploaded = await cloud.uploadFile({ cloudPath, fileContent: req.file.buffer }); fileID = uploaded.fileID; }
-    const record = await insert('files', { ownerId: req.user.sub, ownerEmail: req.user.email, name: req.file.originalname, mimeType: req.file.mimetype, size: req.file.size, fileID, extractedText: await extractText(req.file) }); await audit(req.user, 'file.upload', 'file', record._id, { name: record.name, size: record.size }); res.status(201).json({ _id: record._id, name: record.name, size: record.size, fileID: record.fileID, indexed: Boolean(record.extractedText) });
+    let extractedText = await extractText(req.file); let parseStatus = extractedText ? 'ready' : 'pending'; let parseMessage = extractedText ? '已提取文字，可直接用于问答。' : '文件已保存，等待解析。';
+    if (!extractedText && process.env.MULTIMODAL_PARSER_URL) {
+      try { const parsed = await parseWithExternalService(req.file); extractedText = parsed?.text || ''; parseStatus = extractedText ? 'ready' : 'pending'; parseMessage = extractedText ? (parsed.message || '已完成解析，可直接用于问答。') : '解析服务未返回可检索文本，文件已保存。'; }
+      catch (error) { parseStatus = 'pending'; parseMessage = `文件已保存，解析稍后重试：${error.message}`; }
+    } else if (!extractedText && isMedia(req.file)) parseMessage = '文件已保存；配置多媒体解析服务后可自动转写并用于问答。';
+    else if (!extractedText) parseMessage = '文件已保存；该格式需要配置解析服务后才能用于问答。';
+    const record = await insert('files', { ownerId: req.user.sub, ownerEmail: req.user.email, name: req.file.originalname, mimeType: req.file.mimetype, size: req.file.size, fileID, extractedText, parseStatus, parseMessage });
+    traceLangSmith('file_ingestion', { name: req.file.originalname, mimeType: req.file.mimetype, size: req.file.size }, { indexed: Boolean(extractedText), parseStatus }, { user: req.user.email, media: isMedia(req.file) });
+    await audit(req.user, 'file.upload', 'file', record._id, { name: record.name, size: record.size, parseStatus }); res.status(201).json({ _id: record._id, name: record.name, size: record.size, fileID: record.fileID, indexed: Boolean(extractedText), parseStatus, parseMessage });
   } catch (e) { next(e); }
 });
 app.get('/api/files', auth, async (req, res, next) => { try { const files = await list('files'); res.json(req.user.role === 'admin' ? files : files.filter(f => f.ownerId === req.user.sub)); } catch (e) { next(e); } });
@@ -233,7 +280,7 @@ app.get('/api/files', auth, async (req, res, next) => { try { const files = awai
 async function deepseek(messages) {
   if (!process.env.DEEPSEEK_API_KEY) throw new Error('尚未配置 DEEPSEEK_API_KEY。请在 CloudBase 云托管环境变量中添加后重新部署。');
   const response = await fetch(`${(process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com').replace(/\/$/, '')}/chat/completions`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}` }, body: JSON.stringify({ model: process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash', messages, temperature: 0.35, max_tokens: 1800 }) });
-  const data = await response.json(); if (!response.ok) throw new Error(data?.error?.message || 'DeepSeek 调用失败。'); return data.choices?.[0]?.message?.content || '模型未返回有效内容。';
+  const data = await response.json(); if (!response.ok) throw new Error(data?.error?.message || 'DeepSeek 调用失败。'); const answer = data.choices?.[0]?.message?.content || '模型未返回有效内容。'; traceLangSmith('deepseek_chat', { messages }, { answer }, { model: process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash' }); return answer;
 }
 app.post('/api/chat', auth, async (req, res, next) => {
   try { const question = clean(req.body.message, 5000); if (!question) return res.status(400).json({ error: '请输入问题。' }); const agent = await one('agents', { _id: req.body.agentId }); if (!agent || (req.user.role !== 'admin' && !(agent.status === 'published' && agent.scope === 'team' && agent.role === req.user.jobRole))) return res.status(403).json({ error: '你没有调用该智能体的权限。' });

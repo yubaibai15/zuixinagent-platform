@@ -68,11 +68,15 @@ CREATE TABLE IF NOT EXISTS public.files (
   size integer NOT NULL DEFAULT 0,
   file_id text NOT NULL,
   extracted_text text,
+  parse_status text NOT NULL DEFAULT 'pending',
+  parse_message text,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
 ALTER TABLE public.files ADD COLUMN IF NOT EXISTS knowledge_base_id uuid;
+ALTER TABLE public.files ADD COLUMN IF NOT EXISTS parse_status text NOT NULL DEFAULT 'pending';
+ALTER TABLE public.files ADD COLUMN IF NOT EXISTS parse_message text;
 ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS knowledge_base_ids jsonb NOT NULL DEFAULT '[]'::jsonb;
 
 CREATE TABLE IF NOT EXISTS public.chats (

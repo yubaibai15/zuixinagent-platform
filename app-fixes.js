@@ -331,8 +331,8 @@
     const composer=document.querySelector('#agent-chat .chat-composer');
     const picker=composer?.querySelector('input[type=file]');
     if(!composer||!picker||composer.querySelector('.ops-graph-import'))return;
-    picker.id='opsGraphFilePicker';picker.setAttribute('accept','.pdf,.docx,.xlsx,.csv,.txt,.md,.json');
-    composer.insertAdjacentHTML('afterbegin',`<section class="ops-graph-import" aria-label="知识图谱资料导入"><div><small>KNOWLEDGE GRAPH</small><b>导入运营资料，生成知识图谱</b><span id="opsGraphImportStatus">支持 Excel、CSV、PDF、Word、TXT，单个文件不超过 15MB</span></div><div class="ops-import-actions"><label for="opsGraphFilePicker">导入资料</label><button type="button" onclick="requestKnowledgeGraph()">生成知识图谱 →</button></div></section>`);
+    picker.id='opsGraphFilePicker';picker.setAttribute('accept','*/*');
+    composer.insertAdjacentHTML('afterbegin',`<section class="ops-graph-import" aria-label="知识图谱资料导入"><div><small>KNOWLEDGE GRAPH</small><b>导入运营资料，生成知识图谱</b><span id="opsGraphImportStatus">支持任意文件上传，图片、音视频和压缩包会进入解析流程</span></div><div class="ops-import-actions"><label for="opsGraphFilePicker">导入资料</label><button type="button" onclick="requestKnowledgeGraph()">生成知识图谱 →</button></div></section>`);
     const files=assetNames();if(files.length)setStatus('已导入 '+files.length+' 份资料，可生成知识图谱。','ready');
   }
   const oldOpen=window.openAgentChat;
@@ -350,7 +350,7 @@
     if(type!=='upload')return baseOpenModal?.(type);
     const modal=document.getElementById('modal');if(!modal)return;
     document.getElementById('modalTitle').textContent='导入知识库资料';
-    document.getElementById('modalBody').innerHTML=`<section class="knowledge-upload-panel"><p>文件会被保存到团队知识库，并在上传完成后用于对应岗位智能体的资料引用。</p><label>选择文件<input id="realKnowledgeFile" type="file" accept=".pdf,.docx,.xlsx,.csv,.txt,.md,.json"></label><label>归属知识库<select id="realKnowledgeBase"><option>跨境电商运营库</option><option>海外市场与政策库</option><option>品牌视觉规范库</option></select></label><div id="realKnowledgeStatus" role="status">支持 XLSX、CSV、PDF、Word、TXT，单个文件不超过 15MB。</div></section>`;
+    document.getElementById('modalBody').innerHTML=`<section class="knowledge-upload-panel"><p>任何格式的文件都可上传至团队知识库。可直接解析的文本资料会立即用于问答；图片、音视频和压缩包需要多媒体解析服务完成后才可引用。</p><label>选择文件<input id="realKnowledgeFile" type="file" accept="*/*"></label><label>归属知识库<select id="realKnowledgeBase"><option>跨境电商运营库</option><option>海外市场与政策库</option><option>品牌视觉规范库</option></select></label><div id="realKnowledgeStatus" role="status">默认单个文件不超过 100MB；文本资料快速解析，多媒体资料进入转写流程。</div></section>`;
     const foot=modal.querySelector('.modal-foot');if(foot)foot.innerHTML='<button class="secondary" onclick="closeModal()">取消</button><button class="primary" onclick="uploadKnowledgeDocument()">开始导入</button>';
     modal.classList.add('show');
   };
@@ -363,7 +363,7 @@
       const form=new FormData();form.append('file',file);const token=localStorage.getItem('nev_token')||'';
       const response=await fetch('/api/files',{method:'POST',headers:token?{Authorization:'Bearer '+token}:{},body:form});const data=await response.json().catch(()=>({}));
       if(!response.ok)throw Error(data.error||'上传失败，请检查登录状态或部署配置。');
-      status.textContent='导入成功：'+file.name+(data.indexed?'，内容已可供智能体引用。':'，文件已保存，等待索引。');status.dataset.state='ready';
+      status.textContent='导入成功：'+file.name+(data.indexed?'，内容已可供智能体引用。':'，'+(data.parseMessage||'文件已保存，等待解析。'));status.dataset.state='ready';
       const tbody=document.querySelector('#knowledge tbody');if(tbody)tbody.insertAdjacentHTML('afterbegin',`<tr><td><b>${htmlEscape(file.name)}</b></td><td>${htmlEscape(document.getElementById('realKnowledgeBase').value)}</td><td>${htmlEscape((file.name.split('.').pop()||'FILE').toUpperCase())}</td><td><span class="status">● ${data.indexed?'已完成':'索引中'}</span></td><td>刚刚</td><td><button class="link">已导入</button></td></tr>`);
     }catch(error){status.textContent='导入失败：'+error.message;status.dataset.state='error';}
     finally{if(button){button.disabled=false;button.textContent='开始导入';}}
