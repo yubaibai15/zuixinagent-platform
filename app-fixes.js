@@ -34,11 +34,23 @@
   `;
   document.head.appendChild(style);
 
+  window.runComposerSkill = name => {
+    const input = document.getElementById('agentInput');
+    if (input) input.value = name;
+    document.querySelector('#agent-chat .skill-picker')?.classList.remove('show');
+    document.querySelector('#agent-chat .skill-trigger')?.setAttribute('aria-expanded', 'false');
+    if (typeof window.invokeSkill === 'function') return window.invokeSkill(name, '根据当前对话资料执行此技能');
+    return window.openInternalSkill?.(name);
+  };
   function addComposerSkills(id) {
-    const assist = document.querySelector('#agent-chat .chat-assist');
-    if (!assist || assist.querySelector('.assistant-skills')) return;
+    const composer = document.querySelector('#agent-chat .chat-composer');
+    if (!composer || composer.querySelector('.skill-picker')) return;
+    // 技能不再占用右侧栏，统一放进输入框底部，与附件、知识库和深度思考并列。
+    document.querySelectorAll('#agent-chat .chat-assist .assistant-skills,#agent-chat .chat-assist .skill-pack').forEach(item => item.remove());
     const [, skills] = roster[id] || roster['demo-data'];
-    assist.insertAdjacentHTML('beforeend', `<section class="assistant-skills"><small>SKILLS</small><h2>技能包</h2><p>选择技能后由当前助手调用标准化工作流。</p><div class="skill-list">${skills.map((name,index) => `<button type="button" onclick="openInternalSkill('${escapeHtml(name)}')"><i>SK${index+1}</i><b>${escapeHtml(name)}</b><span>调用</span></button>`).join('')}</div></section>`);
+    const toolRow = composer.querySelector('.composer-tools>div:first-child');
+    toolRow?.insertAdjacentHTML('beforeend', '<button type="button" class="skill-trigger" aria-expanded="false" onclick="toggleSkillPicker(event)">✦ 技能包</button>');
+    composer.insertAdjacentHTML('beforeend', `<section class="skill-picker" aria-label="技能包"><div><b>技能包</b><button type="button" onclick="toggleSkillPicker(event)" aria-label="关闭技能包">×</button></div><p>选择一个技能，智能体会带着本轮已上传的资料执行。</p>${skills.map((name,index) => `<button type="button" onclick="runComposerSkill('${escapeHtml(name)}')"><i>SK${index+1}</i><b>${escapeHtml(name)}</b><span>调用</span></button>`).join('')}</section>`);
   }
 
   window.toggleSkillPicker = event => {

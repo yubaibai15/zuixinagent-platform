@@ -263,7 +263,13 @@ function traceLangSmith(name, inputs, outputs, metadata = {}) {
 }
 app.post('/api/files', auth, upload.single('file'), async (req, res, next) => {
   try { if (!req.file) return res.status(400).json({ error: '请选择需要上传的文件。' }); const safeName = req.file.originalname.replace(/[^\w.\-\u4e00-\u9fa5]/g, '_'); const cloudPath = `uploads/${req.user.sub}/${Date.now()}-${safeName}`; let fileID = `memory://${cloudPath}`;
-    if (!memoryMode) { const uploaded = await cloud.uploadFile({ cloudPath, fileContent: req.file.buffer }); fileID = uploaded.fileID; }
+    if (!memoryMode) {
+      try { const uploaded = await cloud.uploadFile({ cloudPath, fileContent: req.file.buffer }); fileID = uploaded.fileID; }
+      catch (error) {
+        if (/INVALID_ACCESS_TOKEN|signing key|access token/i.test(String(error.message || ''))) return res.status(503).json({ error: '腾讯云文件存储授权已失效：请在云托管环境变量中重新填写有效的 CLOUDBASE_APIKEY，然后重新部署。' });
+        throw error;
+      }
+    }
     let extractedText = await extractText(req.file); let parseStatus = extractedText ? 'ready' : 'pending'; let parseMessage = extractedText ? '已提取文字，可直接用于问答。' : '文件已保存，等待解析。';
     if (!extractedText && process.env.MULTIMODAL_PARSER_URL) {
       try { const parsed = await parseWithExternalService(req.file); extractedText = parsed?.text || ''; parseStatus = extractedText ? 'ready' : 'pending'; parseMessage = extractedText ? (parsed.message || '已完成解析，可直接用于问答。') : '解析服务未返回可检索文本，文件已保存。'; }
