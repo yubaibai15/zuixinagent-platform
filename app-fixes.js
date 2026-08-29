@@ -95,14 +95,22 @@
     const project = [...nav.querySelectorAll('button')].find(button => button.textContent.trim() === '我的项目');
     if (project) project.insertAdjacentElement('afterend', entry); else nav.appendChild(entry);
   }
+  function promoteWelcomeIP() {
+    const welcome = document.querySelector('#agent-chat .chat-welcome'); const title = welcome?.querySelector('h1'); const image = welcome?.querySelector('img');
+    if (title && image && title.nextElementSibling !== image) title.insertAdjacentElement('afterend', image);
+  }
+  // 对话页会在运行时重绘，持续监听以确保左侧“团队空间”入口不会被后续脚本覆盖。
+  const teamSpaceObserver = new MutationObserver(() => { addTeamSpaceEntry(); promoteWelcomeIP(); });
+  document.addEventListener('DOMContentLoaded', () => teamSpaceObserver.observe(document.body, { childList:true, subtree:true }));
+  if (document.body) teamSpaceObserver.observe(document.body, { childList:true, subtree:true });
   const teamSpaceStyle = document.createElement('style');
   teamSpaceStyle.textContent = `.team-space-page{max-width:980px;margin:0 auto;padding:40px 34px}.team-space-page header small{display:block;margin-top:22px;color:#087653;font-weight:800;letter-spacing:.12em}.team-space-page h1{margin:9px 0;color:#143f31;font-size:32px}.team-space-page header p{color:#728178;line-height:1.75}.team-space-board{margin-top:28px;border:1px solid #dce9e1;border-radius:16px;background:#fff;overflow:hidden}.team-space-head{display:flex;align-items:center;justify-content:space-between;padding:17px 19px;border-bottom:1px solid #e8f0eb}.team-space-head b{color:#143f31}.team-space-head span{margin-left:10px;color:#718178;font-size:12px}.team-shared-files article{display:flex;align-items:center;gap:13px;padding:16px 19px;border-bottom:1px solid #eef3ef}.team-shared-files article:last-child{border-bottom:0}.team-shared-files i{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:#eaf7ef;color:#087653;font-style:normal}.team-shared-files b,.team-shared-files span{display:block}.team-shared-files b{color:#173f31;font-size:14px}.team-shared-files span{margin-top:4px;color:#77867f;font-size:12px}.team-shared-files em{margin-left:auto;padding:5px 8px;border-radius:999px;background:#f1f7f3;color:#087653;font-size:10px;font-style:normal}.team-space-empty{padding:48px 20px;text-align:center;color:#75847d}.team-space-empty b{display:block;color:#244b3b}.team-space-empty p{margin:7px 0 0;font-size:12px}@media(max-width:680px){.team-space-page{padding:26px 16px}.team-space-head{align-items:flex-start;gap:12px}.team-shared-files article{padding:14px}.team-shared-files em{display:none}}`;
   document.head.appendChild(teamSpaceStyle);
   const welcomeHeroStyle = document.createElement('style');
-  welcomeHeroStyle.textContent = `#agent-chat .chat-welcome img{width:172px!important;height:172px!important;border-radius:34px!important}#agent-chat .chat-welcome h1{margin:24px 0 12px!important;font-size:clamp(38px,3.2vw,52px)!important;line-height:1.16!important;letter-spacing:-.04em!important}@media(max-width:700px){#agent-chat .chat-welcome img{width:140px!important;height:140px!important}#agent-chat .chat-welcome h1{font-size:32px!important}}`;
+  welcomeHeroStyle.textContent = `#agent-chat .chat-welcome h1{margin:8px 0 12px!important;font-size:clamp(38px,3.2vw,52px)!important;line-height:1.16!important;letter-spacing:-.04em!important}#agent-chat .chat-welcome img{display:block;width:246px!important;height:246px!important;margin:20px auto 18px!important;border-radius:42px!important}@media(max-width:700px){#agent-chat .chat-welcome img{width:180px!important;height:180px!important}#agent-chat .chat-welcome h1{font-size:32px!important}}`;
   document.head.appendChild(welcomeHeroStyle);
   const openAgentChatWithTeamSpace = window.openAgentChat;
-  window.openAgentChat = id => { openAgentChatWithTeamSpace(id); addTeamSpaceEntry(); };
+  window.openAgentChat = id => { openAgentChatWithTeamSpace(id); addTeamSpaceEntry(); promoteWelcomeIP(); };
 
   window.downloadLiveDataExcel = () => {
     const rows = [
@@ -200,6 +208,64 @@
       }
     }, 160);
   });
+})();
+
+/* 统一页面跳转：所有岗位工具和团队资料页都保留当前助手上下文，避免落入旧的静态页面。 */
+(() => {
+  const previousOpenAgentChat = window.openAgentChat;
+  window.nevNavigation = window.nevNavigation || { lastAgentId: 'demo-data' };
+
+  window.openAgentChat = id => {
+    if (id) window.nevNavigation.lastAgentId = id;
+    return previousOpenAgentChat(id);
+  };
+
+  window.returnToCurrentAgent = () => window.openAgentChat(window.nevNavigation.lastAgentId || 'demo-data');
+
+  const previousTeamSpace = window.openTeamSpace;
+  window.openTeamSpace = async () => {
+    const result = await previousTeamSpace?.();
+    const page = document.getElementById('team-space-files');
+    if (page) {
+      page.querySelectorAll('button').forEach(button => {
+        const text = button.textContent || '';
+        if (/返回|上传团队资料/.test(text)) {
+          button.removeAttribute('onclick');
+          button.onclick = () => window.returnToCurrentAgent();
+        }
+      });
+    }
+    return result;
+  };
+
+  const downloadSkill = name => /直播数据导出/.test(name || '');
+  const previousInternalSkill = window.openInternalSkill;
+  window.openInternalSkill = name => {
+    if (downloadSkill(name)) return window.downloadLiveDataExcel?.();
+    if (typeof window.openQuickFeature === 'function') return window.openQuickFeature(name);
+    return previousInternalSkill?.(name);
+  };
+
+  const resultNameByPath = {
+    'independent-site-dashboard.html': '独立站看板',
+    'social-dashboard.html': '社媒看板',
+    'customer-profile-dashboard.html': '客户画像',
+    'knowledge-graph.html': '知识图谱',
+    'marketing-calendar.html': '全年营销日历',
+    'publish-platform.html': '发布平台',
+    'data-dashboards.html': '数据看板'
+  };
+
+  document.addEventListener('click', event => {
+    const link = event.target.closest('a[href]');
+    if (!link || link.hasAttribute('download')) return;
+    const href = link.getAttribute('href') || '';
+    if (!href.startsWith('/results/')) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const filename = href.split('/').pop();
+    window.openInternalSkill(resultNameByPath[filename] || link.textContent.trim() || '成果预览');
+  }, true);
 })();
 
 /* 登录成功后，内联隐藏状态必须优先于登录页的展示样式。 */
