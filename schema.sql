@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS public.files (
   extracted_text text,
   parse_status text NOT NULL DEFAULT 'pending',
   parse_message text,
+  visibility text NOT NULL DEFAULT 'private',
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
@@ -77,6 +78,7 @@ CREATE TABLE IF NOT EXISTS public.files (
 ALTER TABLE public.files ADD COLUMN IF NOT EXISTS knowledge_base_id uuid;
 ALTER TABLE public.files ADD COLUMN IF NOT EXISTS parse_status text NOT NULL DEFAULT 'pending';
 ALTER TABLE public.files ADD COLUMN IF NOT EXISTS parse_message text;
+ALTER TABLE public.files ADD COLUMN IF NOT EXISTS visibility text NOT NULL DEFAULT 'private';
 ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS knowledge_base_ids jsonb NOT NULL DEFAULT '[]'::jsonb;
 
 CREATE TABLE IF NOT EXISTS public.chats (
