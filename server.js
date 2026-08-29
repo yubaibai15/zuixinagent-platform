@@ -180,6 +180,7 @@ app.get('/api/readiness', (_, res) => {
   const ready = Object.values(checks).every(Boolean);
   res.status(ready ? 200 : 503).json({ ready, mode: memoryMode ? 'memory' : 'cloudbase', checks });
 });
+app.get('/api/auth/session', auth, (req, res) => res.json({ user: req.user }));
 app.post('/api/auth/login', loginGuard, async (req, res, next) => {
   try { await ensureSeed(); const account = clean(req.body.email, 120).toLowerCase(); const email = account.includes('@') ? account : `${account}@group.local`; const user = await one('users', { email });
     if (!user || !user.enabled || !(await bcrypt.compare(String(req.body.password || ''), user.passwordHash))) { req.loginAttempt.count += 1; return res.status(401).json({ error: '账号或密码不正确。' }); }

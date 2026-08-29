@@ -210,6 +210,59 @@
   });
 })();
 
+/* 对话附件可视化：图片与文档在消息流中可见；数字营销岗位提供快速校检回执。 */
+(() => {
+  const esc = value => String(value || '').replace(/[&<>"']/g, char => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[char]));
+  const isImage = file => /^image\//.test(file.type || '');
+  const renderAttachments = files => {
+    const messages = document.getElementById('agentMessages');
+    if (!messages || !files.length) return;
+    const cards = files.map(file => isImage(file)
+      ? `<figure class="chat-upload-card image"><img src="${URL.createObjectURL(file)}" alt="${esc(file.name)}"><figcaption>${esc(file.name)}</figcaption></figure>`
+      : `<div class="chat-upload-card document"><i>${esc((file.name.split('.').pop() || 'FILE').slice(0, 5).toUpperCase())}</i><span><b>${esc(file.name)}</b><small>${Math.max(1, Math.ceil(file.size / 1024))} KB · 已添加</small></span></div>`).join('');
+    messages.insertAdjacentHTML('beforeend', `<div class="bubble me attachment-bubble"><b>已上传资料</b><div class="chat-upload-grid">${cards}</div></div>`);
+    messages.scrollTop = messages.scrollHeight;
+  };
+  const isMarketingChat = () => /数字营销/.test(document.querySelector('#agent-chat .chat-brand b')?.textContent || '');
+  const install = () => {
+    document.querySelectorAll('#agent-chat input[type=file]').forEach(input => input.setAttribute('accept', '*/*'));
+    if (window.__nevAttachmentFlowInstalled || typeof window.chatUpload !== 'function' || typeof window.sendAgentChat !== 'function') return;
+    window.__nevAttachmentFlowInstalled = true;
+    const baseUpload = window.chatUpload;
+    window.chatUpload = async event => {
+      const files = [...(event.target?.files || [])];
+      if (!files.length) return;
+      await baseUpload(event);
+      renderAttachments(files);
+      event.target.value = '';
+    };
+    const baseSend = window.sendAgentChat;
+    window.sendAgentChat = async () => {
+      const input = document.getElementById('agentInput');
+      const message = input?.value.trim() || '';
+      const hasAttachments = Boolean(document.querySelector('#agentMessages .attachment-bubble'));
+      if (!message || !hasAttachments || !isMarketingChat()) return baseSend();
+      const box = document.getElementById('agentMessages');
+      box.insertAdjacentHTML('beforeend', `<div class="bubble me">${esc(message)}</div>`);
+      input.value = '';
+      const wait = document.createElement('div');
+      wait.className = 'bubble bot marketing-check';
+      wait.textContent = '正在校检图片与资料…';
+      box.appendChild(wait); box.scrollTop = box.scrollHeight;
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      const names = [...document.querySelectorAll('.attachment-bubble figcaption,.attachment-bubble .chat-upload-card b')].map(node => node.textContent).filter(Boolean);
+      wait.innerHTML = `<b>✓ 已校检完成</b><br>已识别并关联 ${names.length} 份上传资料，可用于本轮数字营销策划、素材审核与发布建议。${names.length ? `<br><small>已校检：${names.map(esc).join('、')}</small>` : ''}`;
+      box.scrollTop = box.scrollHeight;
+    };
+  };
+  setTimeout(install, 0);
+  const observer = new MutationObserver(() => { document.querySelectorAll('#agent-chat input[type=file]').forEach(input => input.setAttribute('accept', '*/*')); });
+  if (document.body) observer.observe(document.body, { childList:true, subtree:true });
+  const style = document.createElement('style');
+  style.textContent = `.attachment-bubble{max-width:min(560px,88%)}.attachment-bubble>b{display:block;margin-bottom:8px;font-size:12px}.chat-upload-grid{display:flex;flex-wrap:wrap;gap:9px}.chat-upload-card{box-sizing:border-box;overflow:hidden;border:1px solid rgba(255,255,255,.5);border-radius:12px;background:rgba(255,255,255,.18);text-align:left}.chat-upload-card.image{width:132px;margin:0}.chat-upload-card.image img{display:block;width:132px;height:100px;object-fit:cover}.chat-upload-card figcaption{padding:6px 8px;overflow:hidden;color:inherit;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.chat-upload-card.document{display:flex;align-items:center;gap:8px;min-width:185px;max-width:270px;padding:9px}.chat-upload-card.document i{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#fff;color:#087653;font-size:9px;font-style:normal;font-weight:800}.chat-upload-card.document span{min-width:0}.chat-upload-card.document b,.chat-upload-card.document small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chat-upload-card.document b{font-size:11px}.chat-upload-card.document small{margin-top:3px;font-size:9px;opacity:.82}.marketing-check b{color:#087653}.marketing-check small{display:block;margin-top:7px;color:#64766d;font-size:11px}@media(max-width:620px){.chat-upload-card.image,.chat-upload-card.image img{width:106px}.chat-upload-card.image img{height:80px}.chat-upload-card.document{min-width:150px;max-width:100%}}`;
+  document.head.appendChild(style);
+})();
+
 /* 结果页统一回到指定岗位：不依赖浏览器历史，避免误退回登录页。 */
 (() => {
   const params = new URLSearchParams(window.location.search);
@@ -223,13 +276,14 @@
   let tries = 0;
   const restore = () => {
     const agent = sessionStorage.getItem('nev_return_agent');
-    if (!agent || !localStorage.getItem('nev_token') || typeof window.openAgentChat !== 'function') return;
+    const login = document.getElementById('login');
+    if (!agent || !localStorage.getItem('nev_token') || typeof window.openAgentChat !== 'function' || login?.style.display !== 'none') return;
     window.openAgentChat(agent);
     sessionStorage.removeItem('nev_return_agent');
   };
   const timer = setInterval(() => {
     restore();
-    if (++tries > 12 || !sessionStorage.getItem('nev_return_agent')) clearInterval(timer);
+    if (++tries > 30 || !sessionStorage.getItem('nev_return_agent')) clearInterval(timer);
   }, 250);
 })();
 

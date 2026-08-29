@@ -107,5 +107,22 @@
     }
     return demoSubmitModal();
   };
+  async function restoreSavedSession() {
+    if (!token) return;
+    try {
+      const result = await api('/api/auth/session');
+      showAuthenticatedApp();
+      window.currentUser = result.user.role === 'admin' ? '超级管理员' : (result.user.jobRole || '团队成员');
+      document.body.classList.toggle('admin-session', result.user.role === 'admin');
+      const sideBottom = document.querySelector('.side-bottom');
+      if (sideBottom) sideBottom.innerHTML = `<span class="user-dot">${escapeHtml(result.user.name.slice(0, 1))}</span>${escapeHtml(result.user.name)}<br><span style="margin-left:33px;font-size:10px">${result.user.role === 'admin' ? '超级管理员' : '团队成员'}</span>`;
+      applyRole(result.user.role);
+      await loadAgents();
+    } catch (_) {
+      localStorage.removeItem('nev_token');
+      token = '';
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restoreSavedSession, { once: true }); else restoreSavedSession();
   function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char])); }
 })();
