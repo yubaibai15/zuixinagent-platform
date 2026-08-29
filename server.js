@@ -266,12 +266,16 @@ function traceLangSmith(name, inputs, outputs, metadata = {}) {
   fetch(`${(process.env.LANGSMITH_ENDPOINT || 'https://api.smith.langchain.com').replace(/\/$/, '')}/runs`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.LANGSMITH_API_KEY }, body: JSON.stringify(payload) }).catch(error => console.warn('LangSmith trace skipped:', error.message));
 }
 app.post('/api/files', auth, upload.single('file'), async (req, res, next) => {
-  try { if (!req.file) return res.status(400).json({ error: '请选择需要上传的文件。' }); const safeName = req.file.originalname.replace(/[^\w.\-\u4e00-\u9fa5]/g, '_'); const cloudPath = `uploads/${req.user.sub}/${Date.now()}-${safeName}`; let fileID = `memory://${cloudPath}`;
+  try { if (!req.file) return res.status(400).json({ error: '请选择需要上传的文件。' }); const safeName = req.file.originalname.replace(/[^\w.\-\u4e00-\u9fa5]/g, '_'); const cloudPath = `uploads/${req.user.sub}/${Date.now()}-${safeName}`; let fileID = `memory://${cloudPath}`; let storageWarning = '';
     if (!memoryMode) {
       try { const uploaded = await cloud.uploadFile({ cloudPath, fileContent: req.file.buffer }); fileID = uploaded.fileID; }
       catch (error) {
-        if (/INVALID_ACCESS_TOKEN|signing key|access token/i.test(String(error.message || ''))) return res.status(503).json({ error: '腾讯云文件存储授权已失效：请在云托管环境变量中重新填写有效的 CLOUDBASE_APIKEY，然后重新部署。' });
-        throw error;
+        if (/INVALID_ACCESS_TOKEN|signing key|access token/i.test(String(error.message || ''))) {
+          console.error('[storage] CloudBase authorization failed; continuing with indexed-text fallback:', error.message);
+          fileID = `indexed-only://${cloudPath}`;
+          storageWarning = '腾讯云原始文件存储暂不可用；已保存可解析文本并可立即用于对话。视频、图片和其他无法提取文字的文件需等待腾讯云存储授权恢复后才能长期保留。';
+        }
+        else throw error;
       }
     }
     let extractedText = await extractText(req.file); let parseStatus = extractedText ? 'ready' : 'pending'; let parseMessage = extractedText ? '已提取文字，可直接用于问答。' : '文件已保存，等待解析。';
@@ -280,10 +284,11 @@ app.post('/api/files', auth, upload.single('file'), async (req, res, next) => {
       catch (error) { parseStatus = 'pending'; parseMessage = `文件已保存，解析稍后重试：${error.message}`; }
     } else if (!extractedText && isMedia(req.file)) parseMessage = '文件已保存；配置多媒体解析服务后可自动转写并用于问答。';
     else if (!extractedText) parseMessage = '文件已保存；该格式需要配置解析服务后才能用于问答。';
+    if (storageWarning) parseMessage = extractedText ? `${parseMessage} ${storageWarning}` : storageWarning;
     const visibility = req.body.visibility === 'team' ? 'team' : 'private';
     const record = await insert('files', { ownerId: req.user.sub, ownerEmail: req.user.email, name: req.file.originalname, mimeType: req.file.mimetype, size: req.file.size, fileID, extractedText, parseStatus, parseMessage, visibility });
     traceLangSmith('file_ingestion', { name: req.file.originalname, mimeType: req.file.mimetype, size: req.file.size }, { indexed: Boolean(extractedText), parseStatus }, { user: req.user.email, media: isMedia(req.file) });
-    await audit(req.user, 'file.upload', 'file', record._id, { name: record.name, size: record.size, parseStatus, visibility }); res.status(201).json({ _id: record._id, name: record.name, size: record.size, fileID: record.fileID, indexed: Boolean(extractedText), parseStatus, parseMessage, visibility });
+    await audit(req.user, 'file.upload', 'file', record._id, { name: record.name, size: record.size, parseStatus, visibility }); res.status(201).json({ _id: record._id, name: record.name, size: record.size, fileID: record.fileID, indexed: Boolean(extractedText), parseStatus, parseMessage, visibility, storageWarning });
   } catch (e) { next(e); }
 });
 app.get('/api/files', auth, async (req, res, next) => { try { const files = await list('files'); res.json(req.user.role === 'admin' ? files : files.filter(f => f.ownerId === req.user.sub || f.visibility === 'team')); } catch (e) { next(e); } });
