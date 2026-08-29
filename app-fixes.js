@@ -263,6 +263,52 @@
   document.head.appendChild(style);
 })();
 
+/* 附件先暂存于输入框，再与文字一次性发送。 */
+(() => {
+  let pendingFiles = [];
+  const escape = value => String(value || '').replace(/[&<>"']/g, char => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[char]));
+  const renderPending = () => {
+    const input = document.getElementById('agentInput');
+    const composer = input?.closest('.chat-composer');
+    if (!composer) return;
+    let tray = composer.querySelector('#chatPendingAttachments');
+    if (!pendingFiles.length) { tray?.remove(); return; }
+    if (!tray) { tray = document.createElement('div'); tray.id = 'chatPendingAttachments'; input.before(tray); }
+    tray.innerHTML = `<span>待发送 ${pendingFiles.length} 项</span>${pendingFiles.map((file, index) => /^image\//.test(file.type || '') ? `<figure><img src="${URL.createObjectURL(file)}" alt="${escape(file.name)}"><button type="button" onclick="removePendingChatFile(${index})" aria-label="移除 ${escape(file.name)}">×</button></figure>` : `<div class="pending-file"><i>${escape((file.name.split('.').pop() || 'FILE').slice(0, 5).toUpperCase())}</i><b>${escape(file.name)}</b><button type="button" onclick="removePendingChatFile(${index})" aria-label="移除 ${escape(file.name)}">×</button></div>`).join('')}`;
+  };
+  window.removePendingChatFile = index => { pendingFiles.splice(index, 1); renderPending(); };
+  const install = () => {
+    if (window.__nevStagedAttachmentsInstalled || typeof window.chatUpload !== 'function' || typeof window.sendAgentChat !== 'function') return;
+    window.__nevStagedAttachmentsInstalled = true;
+    const immediateUpload = window.chatUpload;
+    window.chatUpload = async event => {
+      const chosen = [...(event.target?.files || [])];
+      if (!chosen.length) return;
+      pendingFiles.push(...chosen);
+      event.target.value = '';
+      renderPending();
+      const status = document.getElementById('chatFileStatus');
+      if (status) status.textContent = `已选择 ${pendingFiles.length} 项资料，输入需求后点击发送即可一起提交。`;
+    };
+    const immediateSend = window.sendAgentChat;
+    window.sendAgentChat = async () => {
+      const message = document.getElementById('agentInput')?.value.trim() || '';
+      if (!pendingFiles.length) return immediateSend();
+      if (!message) { const status = document.getElementById('chatFileStatus'); if (status) status.textContent = '请先输入要和资料一起发送的问题或说明。'; return; }
+      const files = pendingFiles.splice(0);
+      renderPending();
+      const status = document.getElementById('chatFileStatus');
+      if (status) status.textContent = `正在提交 ${files.length} 项资料与本次需求…`;
+      await immediateUpload({ target: { files } });
+      return immediateSend();
+    };
+  };
+  setTimeout(install, 20);
+  const style = document.createElement('style');
+  style.textContent = `#chatPendingAttachments{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 10px;padding:10px 12px;border:1px solid #d8e8df;border-radius:13px;background:#f8fcf9}#chatPendingAttachments>span{margin-right:2px;color:#087653;font-size:11px;font-weight:800}#chatPendingAttachments figure,#chatPendingAttachments .pending-file{position:relative;display:flex;align-items:center;gap:7px;margin:0;border:1px solid #dce9e1;border-radius:9px;background:#fff;overflow:hidden}#chatPendingAttachments figure img{display:block;width:54px;height:44px;object-fit:cover}#chatPendingAttachments button{position:absolute;top:2px;right:2px;display:grid;place-items:center;width:18px;height:18px;padding:0;border:0;border-radius:50%;background:rgba(21,41,32,.72);color:#fff;font-size:15px;line-height:1;cursor:pointer}#chatPendingAttachments .pending-file{min-width:145px;max-width:235px;padding:8px 26px 8px 8px}#chatPendingAttachments .pending-file i{display:grid;place-items:center;width:28px;height:28px;border-radius:7px;background:#eaf7ef;color:#087653;font-size:8px;font-style:normal;font-weight:800}#chatPendingAttachments .pending-file b{overflow:hidden;color:#29483b;font-size:10px;text-overflow:ellipsis;white-space:nowrap}`;
+  document.head.appendChild(style);
+})();
+
 /* 结果页统一回到指定岗位：不依赖浏览器历史，避免误退回登录页。 */
 (() => {
   const params = new URLSearchParams(window.location.search);
