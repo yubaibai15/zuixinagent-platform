@@ -17,6 +17,17 @@ MULTIMODAL_PARSER_API_KEY=你的解析服务密钥
 PARSER_TIMEOUT_MS=45000
 ```
 
+## 账号无法登录时的统一重置
+
+设置新的 `ADMIN_INITIAL_PASSWORD` 和 `TEAM_INITIAL_PASSWORD` 后，临时设置以下两个变量为 `true` 并重新部署一次：
+
+```text
+RESET_DEFAULT_ADMIN_PASSWORD=true
+RESET_DEFAULT_MEMBER_PASSWORDS=true
+```
+
+管理员会使用新的管理员密码；四个默认成员会使用新的成员初始密码。确认可以登录后，马上把两个变量改回 `false` 并再部署一次，避免后续部署重复重置密码。
+
 解析服务接收 `POST` 的 `multipart/form-data`，文件字段名为 `file`。它需要返回 JSON，以下任一字段存放可供问答检索的文字即可：
 
 ```json

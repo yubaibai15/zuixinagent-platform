@@ -79,9 +79,13 @@ async function audit(actor, action, targetType, targetId, detail = {}) {
 
 async function ensureSeed() {
   const adminEmail = clean(process.env.ADMIN_EMAIL || 'admin@nev.com').toLowerCase();
-  if (!(await one('users', { email: adminEmail }))) {
+  const existingAdmin = await one('users', { email: adminEmail });
+  if (!existingAdmin) {
     if (!process.env.ADMIN_INITIAL_PASSWORD) throw new Error('请先设置 ADMIN_INITIAL_PASSWORD 后启动服务。');
     await insert('users', { email: adminEmail, name: 'ADMIN-001', role: 'admin', jobRole: '系统管理员', avatarKey: 'admin', enabled: true, passwordHash: await bcrypt.hash(process.env.ADMIN_INITIAL_PASSWORD, 12) });
+  } else if (process.env.RESET_DEFAULT_ADMIN_PASSWORD === 'true') {
+    if (!process.env.ADMIN_INITIAL_PASSWORD) throw new Error('重置管理员密码前请设置 ADMIN_INITIAL_PASSWORD。');
+    await change('users', existingAdmin._id, { passwordHash: await bcrypt.hash(process.env.ADMIN_INITIAL_PASSWORD, 12), enabled: true });
   }
   // 演示账号使用匿名工号；不保存或展示真实姓名。
   // 已存在成员不依赖该变量登录；只有首次创建或管理员明确要求重置时才需要它。

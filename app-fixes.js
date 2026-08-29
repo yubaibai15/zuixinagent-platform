@@ -70,6 +70,40 @@
   };
   window.openAgent = window.openAgentChat;
 
+  const teamRoleLabel = email => ({
+    'data@nev.com':'数据分析师', 'ops@nev.com':'电商运营师', 'marketing@nev.com':'数字营销师', 'design@nev.com':'视觉设计师', 'admin@nev.com':'超级管理员'
+  }[String(email || '').toLowerCase()] || '团队成员');
+  window.openTeamSpace = async () => {
+    let page = document.getElementById('team-space-files');
+    if (!page) { page = document.createElement('section'); page.id = 'team-space-files'; page.className = 'page'; document.querySelector('.content')?.appendChild(page); }
+    document.querySelectorAll('.page').forEach(item => item.classList.remove('active')); page.classList.add('active');
+    document.getElementById('crumb').innerText = '团队空间';
+    page.innerHTML = `<main class="team-space-page"><header><button class="link" onclick="openAgentChat('demo-data')">← 返回智能体对话</button><small>TEAM SHARED SPACE</small><h1>团队共享资料库</h1><p>四个岗位上传并共享的资料都在这里；私有资料不会展示给其他成员。</p></header><section class="team-space-board"><div class="team-space-head"><div><b>共享资料</b><span id="teamSharedCount">正在加载…</span></div><button class="secondary" onclick="openAgentChat('demo-data')">上传团队资料</button></div><div id="teamSharedFiles" class="team-shared-files"><p>正在读取团队资料…</p></div></section></main>`;
+    try {
+      const token = localStorage.getItem('nev_token') || ''; const response = await fetch('/api/files', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const data = await response.json().catch(() => ({})); if (!response.ok) throw Error(data.error || '暂时无法读取团队资料。');
+      const files = (Array.isArray(data) ? data : []).filter(file => file.visibility === 'team');
+      document.getElementById('teamSharedCount').textContent = `${files.length} 份团队资料`;
+      const holder = document.getElementById('teamSharedFiles');
+      holder.innerHTML = files.length ? files.map(file => `<article><i>▤</i><div><b>${escapeHtml(file.name)}</b><span>上传岗位：${escapeHtml(teamRoleLabel(file.ownerEmail))} · ${escapeHtml(file.parseStatus === 'ready' ? '已可供智能体引用' : '等待解析')}</span></div><em>${escapeHtml((file.mimeType || 'FILE').split('/').pop().toUpperCase())}</em></article>`).join('') : '<div class="team-space-empty"><b>还没有团队共享资料</b><p>成员在对话框上传文件时，勾选“共享到团队资料库”即可出现在这里。</p></div>';
+    } catch (error) { document.getElementById('teamSharedFiles').innerHTML = `<div class="team-space-empty"><b>暂时无法读取团队资料</b><p>${escapeHtml(error.message)}</p></div>`; }
+  };
+  function addTeamSpaceEntry() {
+    const nav = document.querySelector('#agent-chat .chat-workspace nav');
+    if (!nav || nav.querySelector('[data-team-space]')) return;
+    const entry = document.createElement('button'); entry.dataset.teamSpace = 'true'; entry.textContent = '团队空间'; entry.onclick = () => window.openTeamSpace();
+    const project = [...nav.querySelectorAll('button')].find(button => button.textContent.trim() === '我的项目');
+    if (project) project.insertAdjacentElement('afterend', entry); else nav.appendChild(entry);
+  }
+  const teamSpaceStyle = document.createElement('style');
+  teamSpaceStyle.textContent = `.team-space-page{max-width:980px;margin:0 auto;padding:40px 34px}.team-space-page header small{display:block;margin-top:22px;color:#087653;font-weight:800;letter-spacing:.12em}.team-space-page h1{margin:9px 0;color:#143f31;font-size:32px}.team-space-page header p{color:#728178;line-height:1.75}.team-space-board{margin-top:28px;border:1px solid #dce9e1;border-radius:16px;background:#fff;overflow:hidden}.team-space-head{display:flex;align-items:center;justify-content:space-between;padding:17px 19px;border-bottom:1px solid #e8f0eb}.team-space-head b{color:#143f31}.team-space-head span{margin-left:10px;color:#718178;font-size:12px}.team-shared-files article{display:flex;align-items:center;gap:13px;padding:16px 19px;border-bottom:1px solid #eef3ef}.team-shared-files article:last-child{border-bottom:0}.team-shared-files i{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:#eaf7ef;color:#087653;font-style:normal}.team-shared-files b,.team-shared-files span{display:block}.team-shared-files b{color:#173f31;font-size:14px}.team-shared-files span{margin-top:4px;color:#77867f;font-size:12px}.team-shared-files em{margin-left:auto;padding:5px 8px;border-radius:999px;background:#f1f7f3;color:#087653;font-size:10px;font-style:normal}.team-space-empty{padding:48px 20px;text-align:center;color:#75847d}.team-space-empty b{display:block;color:#244b3b}.team-space-empty p{margin:7px 0 0;font-size:12px}@media(max-width:680px){.team-space-page{padding:26px 16px}.team-space-head{align-items:flex-start;gap:12px}.team-shared-files article{padding:14px}.team-shared-files em{display:none}}`;
+  document.head.appendChild(teamSpaceStyle);
+  const welcomeHeroStyle = document.createElement('style');
+  welcomeHeroStyle.textContent = `#agent-chat .chat-welcome img{width:172px!important;height:172px!important;border-radius:34px!important}#agent-chat .chat-welcome h1{margin:24px 0 12px!important;font-size:clamp(38px,3.2vw,52px)!important;line-height:1.16!important;letter-spacing:-.04em!important}@media(max-width:700px){#agent-chat .chat-welcome img{width:140px!important;height:140px!important}#agent-chat .chat-welcome h1{font-size:32px!important}}`;
+  document.head.appendChild(welcomeHeroStyle);
+  const openAgentChatWithTeamSpace = window.openAgentChat;
+  window.openAgentChat = id => { openAgentChatWithTeamSpace(id); addTeamSpaceEntry(); };
+
   window.downloadLiveDataExcel = () => {
     const rows = [
       ['直播日期','场次','观看人数','商品点击','成交订单','成交金额(元)','平均停留(秒)'],
