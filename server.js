@@ -4,6 +4,7 @@ const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const fs = require('fs');
 const crypto = require('crypto');
 const mammoth = require('mammoth');
 const ExcelJS = require('exceljs');
@@ -41,6 +42,24 @@ for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'bridge-runt
   app.get(`/${file}`, (_, res) => res.sendFile(path.join(__dirname, file)));
 }
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
+const resultAgentMap = {
+  'customer-profile-dashboard.html': 'demo-data',
+  'independent-site-dashboard.html': 'demo-data',
+  'social-dashboard.html': 'demo-data',
+  'knowledge-graph.html': 'demo-ops',
+  'marketing-calendar.html': 'demo-marketing',
+  'publish-platform.html': 'demo-marketing'
+};
+app.get('/results/:file', (req, res, next) => {
+  const file = path.basename(req.params.file || '');
+  const agent = resultAgentMap[file];
+  if (!agent) return next();
+  try {
+    const source = fs.readFileSync(path.join(__dirname, 'results', file), 'utf8');
+    const injected = source.replace('</body>', `<script src="/results/navigation.js" data-agent="${agent}"></script></body>`);
+    res.type('html').send(injected);
+  } catch (error) { next(error); }
+});
 // 技能成果和下载资料与前端同域发布，部署后使用 /results 与 /downloads 相对链接即可访问。
 app.use('/results', express.static(path.join(__dirname, 'results')));
 app.use('/downloads', express.static(path.join(__dirname, 'downloads')));

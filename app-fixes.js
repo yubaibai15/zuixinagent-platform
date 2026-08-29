@@ -210,6 +210,29 @@
   });
 })();
 
+/* 结果页统一回到指定岗位：不依赖浏览器历史，避免误退回登录页。 */
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const agentFromResult = params.get('agent');
+  if (agentFromResult) {
+    sessionStorage.setItem('nev_return_agent', agentFromResult);
+    params.delete('agent');
+    const cleanQuery = params.toString();
+    history.replaceState({}, '', `${window.location.pathname}${cleanQuery ? `?${cleanQuery}` : ''}${window.location.hash}`);
+  }
+  let tries = 0;
+  const restore = () => {
+    const agent = sessionStorage.getItem('nev_return_agent');
+    if (!agent || !localStorage.getItem('nev_token') || typeof window.openAgentChat !== 'function') return;
+    window.openAgentChat(agent);
+    sessionStorage.removeItem('nev_return_agent');
+  };
+  const timer = setInterval(() => {
+    restore();
+    if (++tries > 12 || !sessionStorage.getItem('nev_return_agent')) clearInterval(timer);
+  }, 250);
+})();
+
 /* 统一页面跳转：所有岗位工具和团队资料页都保留当前助手上下文，避免落入旧的静态页面。 */
 (() => {
   const previousOpenAgentChat = window.openAgentChat;
