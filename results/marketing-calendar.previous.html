@@ -373,148 +373,6 @@
     font-weight: 700;
   }
   .star-plan-summary .sp-value { color: var(--text); flex: 1; word-break: break-word; }
-
-  /* === Pentecost rich layout (圣灵节专场) === */
-  .psp { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
-  .psp-block { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
-  .psp-block-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .psp-block-head .psp-ico {
-    width: 28px; height: 28px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; color: #fff; flex-shrink: 0;
-  }
-  .psp-block-head .psp-title {
-    font-size: 14px; font-weight: 800; color: var(--text);
-  }
-  .psp-block-head .psp-title small { color: #6b7280; font-weight: 500; font-size: 11px; margin-left: 6px; }
-
-  /* 营销目标 — 三层卡片 */
-  .psp-goal-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-  .psp-goal-card {
-    border-radius: 10px; padding: 12px; border: 1px solid;
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  .psp-goal-card .g-tag {
-    font-size: 11px; font-weight: 800; padding: 2px 8px;
-    border-radius: 99px; display: inline-block; align-self: flex-start;
-  }
-  .psp-goal-card .g-metrics { display: flex; flex-direction: column; gap: 4px; }
-  .psp-goal-card .g-metric {
-    font-size: 12px; color: var(--text); line-height: 1.55;
-  }
-  .psp-goal-card .g-metric strong { font-weight: 800; }
-  .psp-goal-brand { background: rgba(139,92,246,0.06); border-color: rgba(139,92,246,0.25); }
-  .psp-goal-brand .g-tag { background: var(--purple); color: #fff; }
-  .psp-goal-brand .g-metric strong { color: var(--purple); }
-  .psp-goal-media { background: rgba(59,130,246,0.06); border-color: rgba(59,130,246,0.25); }
-  .psp-goal-media .g-tag { background: #3b82f6; color: #fff; }
-  .psp-goal-media .g-metric strong { color: #1d4ed8; }
-  .psp-goal-conv { background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.25); }
-  .psp-goal-conv .g-tag { background: #10b981; color: #fff; }
-  .psp-goal-conv .g-metric strong { color: #047857; }
-
-  /* 推广时间 + 推广排期 — 横幅 + 时间轴 */
-  .psp-date-banner {
-    background: linear-gradient(135deg, #1f2937, #4c1d95);
-    color: #fff; border-radius: 10px; padding: 12px 14px;
-    display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
-  }
-  .psp-date-banner .pdb-ico {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
-  }
-  .psp-date-banner .pdb-text { flex: 1; line-height: 1.45; }
-  .psp-date-banner .pdb-text .t1 { font-size: 12px; opacity: 0.8; }
-  .psp-date-banner .pdb-text .t2 { font-size: 16px; font-weight: 800; }
-  .psp-timeline { display: flex; gap: 6px; align-items: stretch; }
-  .psp-phase {
-    flex: 1; border-radius: 10px; padding: 10px;
-    display: flex; flex-direction: column; gap: 4px; text-align: center;
-    position: relative;
-  }
-  .psp-phase .ph-label { font-size: 11px; font-weight: 800; }
-  .psp-phase .ph-date  { font-size: 12px; font-weight: 700; }
-  .psp-phase .ph-desc  { font-size: 11px; color: #6b7280; line-height: 1.4; }
-  .psp-phase-1 { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); }
-  .psp-phase-1 .ph-label { color: #1d4ed8; }
-  .psp-phase-2 { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); }
-  .psp-phase-2 .ph-label { color: #b91c1c; }
-  .psp-phase-3 { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); }
-  .psp-phase-3 .ph-label { color: #047857; }
-
-  /* 营销主题 — 主视觉 */
-  .psp-theme-card {
-    background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(236,72,153,0.08));
-    border: 1px solid rgba(139,92,246,0.2);
-    border-radius: 10px; padding: 16px; text-align: center;
-  }
-  .psp-theme-card .th-tag {
-    font-size: 11px; color: var(--purple); font-weight: 700;
-    letter-spacing: 1px; margin-bottom: 4px;
-  }
-  .psp-theme-card .th-text { font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: 2px; }
-
-  /* 目标用户 */
-  .psp-audience-tag {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(245,158,11,0.1); color: #b45309;
-    padding: 8px 14px; border-radius: 99px; font-weight: 700; font-size: 13px;
-    border: 1px solid rgba(245,158,11,0.3);
-  }
-
-  /* 主推车型 — 双车卡 */
-  .psp-cars { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .psp-car {
-    border-radius: 10px; padding: 12px;
-    display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center;
-    border: 1px solid;
-  }
-  .psp-car .car-emoji { font-size: 24px; }
-  .psp-car .car-name { font-size: 14px; font-weight: 800; color: var(--text); }
-  .psp-car-1 { background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.3); }
-  .psp-car-1 .car-name { color: #4338ca; }
-  .psp-car-2 { background: rgba(217,119,6,0.08); border-color: rgba(217,119,6,0.3); }
-  .psp-car-2 .car-name { color: #b45309; }
-
-  /* 传播渠道 — 标签矩阵 */
-  .psp-channels-desc {
-    font-size: 12px; color: #4b5563; line-height: 1.7;
-    background: #f9fafb; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px;
-  }
-  .psp-channel-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .psp-channel-tag {
-    font-size: 12px; padding: 5px 12px; border-radius: 99px;
-    background: #fff; border: 1px solid var(--line);
-    color: var(--text); font-weight: 600;
-    display: inline-flex; align-items: center; gap: 4px;
-  }
-  .psp-channel-tag::before {
-    content: ''; width: 6px; height: 6px; border-radius: 50%;
-    background: var(--purple);
-  }
-
-  /* 权益激励 — 三步漏斗 */
-  .psp-funnel { display: flex; flex-direction: column; gap: 8px; }
-  .psp-step {
-    display: flex; align-items: center; gap: 12px;
-    background: #fff; border: 1px solid var(--line); border-radius: 10px;
-    padding: 10px 12px;
-  }
-  .psp-step .step-num {
-    width: 32px; height: 32px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0;
-  }
-  .psp-step .step-text { font-size: 13px; color: var(--text); line-height: 1.5; }
-  .psp-step .step-text strong { font-weight: 800; }
-  .psp-step-1 .step-num { background: linear-gradient(135deg, #06b6d4, #0891b2); }
-  .psp-step-1 .step-text strong { color: #0891b2; }
-  .psp-step-2 .step-num { background: linear-gradient(135deg, #f59e0b, #d97706); }
-  .psp-step-2 .step-text strong { color: #d97706; }
-  .psp-step-3 .step-num { background: linear-gradient(135deg, #ef4444, #b91c1c); }
-  .psp-step-3 .step-text strong { color: #b91c1c; }
-
   .star-section-title {
     font-size: 15px; font-weight: 700; color: var(--text);
     margin-bottom: 12px; padding-bottom: 8px;
@@ -1163,8 +1021,8 @@ const MARKS = {
       plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia das Mães: Conforto e Cuidado / 母亲节·舒适守护', goals: '吸引2.2万观看 / 留住8%互动 / 转化420线索', format: 'XR 全息家庭温情场景 + 母亲专属礼包', audience: '28–50岁母亲及家庭成员', cars: '都市探险家、旗舰星耀客' } },
     { d: 13, name: 'N. Sra. de Fátima',           cn: '法蒂玛圣母日',     color: 'blue',
       plan: { platform: 'TikTok', time: 'X年X月', theme: 'Fátima: Luz e Proteção na Estrada / 法蒂玛圣母·路途之光', goals: '吸引8千观看 / 留住5%互动 / 转化150线索', format: 'XR 全息光之隧道与祝福', audience: '30–55岁信仰家庭', cars: '都市探险家、旗舰星耀客' } },
-    { d: 24, name: 'Pentecostes',                 cn: '圣灵节专场营销方案',          color: 'purple', star: true,
-      plan: { time: '2026年5月15日 - 2026年6月10日', schedule: '2026年5月15日-5月22日预热期、2026年5月23日-6月2日爆发期、2026年6月3日-6月10日延续期', marketingGoal: '品牌层--品牌认知提升 12%，正向舆论占比达 85%，破除认知偏见，夯实本土用户信任<br>传播层--短视频总曝光 1200 万，社媒总曝光 800 万，全平台互动 65 万，话题阅读 450 万，直播累计观看 32 万，孵化 UGC 内容 1200 条<br>转化层--获取有效留资线索 11000 条，试驾预约 2200 组，意向订单 780 单，私域新增用户 16000 人', theme: '三年同行、绿动巴西', format: '圣灵节分层权益激励，浏览获出行礼包、留资解锁试驾福利、到店享受购车优惠与限定周边，分层推动用户转化', audience: '25–45岁用户', cars: '城市小精灵、旗舰星耀客', channels: '搭建线上立体化营销传播矩阵，聚合垂类媒体、社交信息流、搜索广告、私域社群，联动本土 KOL 产出圣灵节专题内容，分周期分层投放运营，打通公域曝光‑内容种草‑私域留资完整链路，挖掘意向线索，提升整体转化' } },
+    { d: 24, name: 'Pentecostes',                 cn: '圣灵节',          color: 'purple', star: true,
+      plan: { platform: 'TikTok', time: 'X年X月', theme: '三年同行、绿动巴西', goals: '吸引人·留住人·转化人三层目标：吸引层·总观看突破2万人；留住层·平均互动率超8%；转化层·收集500条有效线索', format: '创新XR全息直播形式', audience: '25–45岁用户', cars: '城市小精灵', lang: 'Português · 葡萄牙语' } },
     { d: 25, name: 'Dia da Indústria',            cn: '工业日',          color: 'orange',
       plan: { platform: 'TikTok', time: 'X年X月', theme: 'Dia da Indústria: Inovação Made in Brasil / 工业日·巴西智造', goals: '吸引1万观看 / 留住6%互动 / 转化200线索', format: 'XR 全息智能工厂与产线', audience: '28–50岁产业与科技人群', cars: '旗舰星耀客、都市探险家' } }
   ],
@@ -1369,14 +1227,14 @@ function showTip(anchor, mk) {
     </div>
     <div class="date">${date}</div>
     <div class="plan">
-      <div class="plan-row"><span class="plan-label">营销目标</span><span class="plan-value">${p.marketingGoal || '—'}</span></div>
-      <div class="plan-row"><span class="plan-label">推广时间</span><span class="plan-value">${p.time || '—'}</span></div>
-      <div class="plan-row"><span class="plan-label">推广排期</span><span class="plan-value">${p.schedule || '—'}</span></div>
-      <div class="plan-row"><span class="plan-label">营销主题</span><span class="plan-value">${p.theme || '—'}</span></div>
+      <div class="plan-row"><span class="plan-label">直播平台</span><span class="plan-value">${p.platform || '—'}</span></div>
+      <div class="plan-row"><span class="plan-label">直播时间</span><span class="plan-value">${p.time || '—'}</span></div>
+      <div class="plan-row"><span class="plan-label">直播主题</span><span class="plan-value">${p.theme || '—'}</span></div>
+      <div class="plan-row"><span class="plan-label">目标体系</span><span class="plan-value">${p.goals || '—'}</span></div>
+      <div class="plan-row"><span class="plan-label">创新全息</span><span class="plan-value">${p.format || '—'}</span></div>
       <div class="plan-row"><span class="plan-label">目标用户</span><span class="plan-value">${p.audience || '—'}</span></div>
       <div class="plan-row"><span class="plan-label">主推车型</span><span class="plan-value">${p.cars || '—'}</span></div>
-      <div class="plan-row"><span class="plan-label">传播渠道</span><span class="plan-value">${p.channels || '—'}</span></div>
-      <div class="plan-row"><span class="plan-label">权益激励</span><span class="plan-value">${p.format || '—'}</span></div>
+      ${p.lang ? `<div class="plan-row"><span class="plan-label">直播语言</span><span class="plan-value">${p.lang}</span></div>` : ''}
     </div>
     ${mk.plan ? '<div class="tip-click-hint">👆 点击日期查看深度策划</div>' : ''}
   `;
@@ -1434,20 +1292,17 @@ function openStarDetail(mk, m, d) {
   document.getElementById('smSub').textContent = `${mk.name} · ${date}`;
 
   const body = document.getElementById('starModalBody');
-  // 圣灵节专场营销方案：专用富布局；其他节日走通用摘要
-  const isPentecost = mk.name === 'Pentecostes';
   body.innerHTML = `
-    ${isPentecost ? renderPentecostPlan(p) : `
     <div class="star-plan-summary">
-      <div class="sp-row"><span class="sp-label">营销目标</span><span class="sp-value">${p.marketingGoal || '—'}</span></div>
-      <div class="sp-row"><span class="sp-label">推广时间</span><span class="sp-value">${p.time || '—'}</span></div>
-      <div class="sp-row"><span class="sp-label">推广排期</span><span class="sp-value">${p.schedule || '—'}</span></div>
-      <div class="sp-row"><span class="sp-label">营销主题</span><span class="sp-value">${p.theme || '—'}</span></div>
+      <div class="sp-row"><span class="sp-label">直播平台</span><span class="sp-value">${p.platform || '—'}</span></div>
+      <div class="sp-row"><span class="sp-label">直播时间</span><span class="sp-value">${p.time || '—'}</span></div>
+      <div class="sp-row"><span class="sp-label">直播主题</span><span class="sp-value">${p.theme || '—'}</span></div>
+      <div class="sp-row"><span class="sp-label">目标体系</span><span class="sp-value">${p.goals || '—'}</span></div>
+      <div class="sp-row"><span class="sp-label">创新全息</span><span class="sp-value">${p.format || '—'}</span></div>
       <div class="sp-row"><span class="sp-label">目标用户</span><span class="sp-value">${p.audience || '—'}</span></div>
       <div class="sp-row"><span class="sp-label">主推车型</span><span class="sp-value">${p.cars || '—'}</span></div>
-      <div class="sp-row"><span class="sp-label">传播渠道</span><span class="sp-value">${p.channels || '—'}</span></div>
-      <div class="sp-row"><span class="sp-label">权益激励</span><span class="sp-value">${p.format || '—'}</span></div>
-    </div>`}
+      ${p.lang ? `<div class="sp-row"><span class="sp-label">直播语言</span><span class="sp-value">${p.lang}</span></div>` : ''}
+    </div>
     <div class="star-section-title">深度策划</div>
     <div class="star-gen-grid">
       <div class="star-gen-card" onclick="genMarketingPlan()">
@@ -1474,177 +1329,9 @@ function openStarDetail(mk, m, d) {
         <div class="sgc-desc">TikTok信息流+达人种草+搜索卡位，全链路流量布局</div>
         <div class="sgc-go">点击生成 →</div>
       </div>
-      <div class="star-gen-card" onclick="genLiveScript()">
-        <div class="sgc-icon" style="background:rgba(245,158,11,0.12);color:#d97706;">🎙️</div>
-        <div class="sgc-name">直播脚本策划</div>
-        <div class="sgc-desc">平台/主题/目标/受众/车型/流程九大模块，一键导出可执行全案</div>
-        <div class="sgc-go">点击生成 →</div>
-      </div>
     </div>
   `;
   document.getElementById('starOverlay').classList.add('show');
-}
-
-/* 圣灵节专场营销方案 — 卡片化富布局 */
-function renderPentecostPlan(p) {
-  // 1. 营销目标三层卡片
-  const goalLayers = [
-    { cls: 'psp-goal-brand', tag: '品牌层', desc: '提升本土信任', metrics: [
-      { l: '品牌认知提升', v: '12%' },
-      { l: '正向舆论占比', v: '85%' },
-      { l: '认知偏见破除', v: '夯实信任' }
-    ]},
-    { cls: 'psp-goal-media', tag: '传播层', desc: '全平台声量引爆', metrics: [
-      { l: '短视频曝光',     v: '1200 万' },
-      { l: '社媒曝光',       v: '800 万' },
-      { l: '全平台互动',     v: '65 万' },
-      { l: '话题阅读',       v: '450 万' },
-      { l: '直播累计观看',   v: '32 万' },
-      { l: 'UGC 内容孵化',   v: '1200 条' }
-    ]},
-    { cls: 'psp-goal-conv',  tag: '转化层', desc: '线索到订单闭环', metrics: [
-      { l: '有效留资线索',   v: '11000 条' },
-      { l: '试驾预约',       v: '2200 组' },
-      { l: '意向订单',       v: '780 单' },
-      { l: '私域新增',       v: '16000 人' }
-    ]}
-  ];
-
-  // 2. 推广排期 3 阶段
-  const phases = [
-    { cls: 'psp-phase-1', label: '预热期', date: '5/15 - 5/22', desc: '悬念海报、KOL 预热种草' },
-    { cls: 'psp-phase-2', label: '爆发期', date: '5/23 - 6/02', desc: '直播+信息流集中引爆' },
-    { cls: 'psp-phase-3', label: '延续期', date: '6/03 - 6/10', desc: 'UGC 沉淀+私域转化' }
-  ];
-
-  // 3. 主推车型双车卡
-  const cars = [
-    { cls: 'psp-car-1', emoji: '🚗', name: '城市小精灵' },
-    { cls: 'psp-car-2', emoji: '🚙', name: '旗舰星耀客' }
-  ];
-
-  // 4. 传播渠道标签矩阵（与 channels 文案里提到的渠道一一对应）
-  const channelTags = ['垂类媒体', '社交信息流', '搜索广告', '私域社群', '本土 KOL'];
-
-  // 5. 权益激励 — 三步漏斗
-  const funnel = [
-    { cls: 'psp-step-1', num: '①', html: '<strong>浏览触达</strong>：用户浏览圣灵节专题内容，即获<strong>出行礼包</strong>' },
-    { cls: 'psp-step-2', num: '②', html: '<strong>留资解锁</strong>：填写意向表单，解锁<strong>专属试驾福利</strong>' },
-    { cls: 'psp-step-3', num: '③', html: '<strong>到店成交</strong>：线下到店即享<strong>购车优惠 + 限定周边</strong>' }
-  ];
-
-  return `
-    <div class="psp">
-
-      <!-- 营销目标 -->
-      <div class="psp-block">
-        <div class="psp-block-head">
-          <div class="psp-ico" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);">🎯</div>
-          <div class="psp-title">营销目标 <small>品牌 · 传播 · 转化三层闭环</small></div>
-        </div>
-        <div class="psp-goal-grid">
-          ${goalLayers.map(L => `
-            <div class="psp-goal-card ${L.cls}">
-              <span class="g-tag">${L.tag}</span>
-              <div class="g-metrics">
-                ${L.metrics.map(m => `<div class="g-metric"><strong>${m.v}</strong> · ${m.l}</div>`).join('')}
-              </div>
-            </div>`).join('')}
-        </div>
-      </div>
-
-      <!-- 推广时间 + 推广排期 -->
-      <div class="psp-block">
-        <div class="psp-block-head">
-          <div class="psp-ico" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">📅</div>
-          <div class="psp-title">推广时间 <small>26 天周期</small></div>
-        </div>
-        <div class="psp-date-banner">
-          <div class="pdb-ico">🗓️</div>
-          <div class="pdb-text">
-            <div class="t1">圣灵节营销周期</div>
-            <div class="t2">${p.time || '2026年5月15日 - 2026年6月10日'}</div>
-          </div>
-        </div>
-        <div class="psp-block-head" style="margin-top:6px;">
-          <div class="psp-title" style="font-size:13px;">推广排期 <small style="color:#6b7280;font-weight:500;">预热 → 爆发 → 延续 三阶段</small></div>
-        </div>
-        <div class="psp-timeline">
-          ${phases.map(ph => `
-            <div class="psp-phase ${ph.cls}">
-              <div class="ph-label">${ph.label}</div>
-              <div class="ph-date">${ph.date}</div>
-              <div class="ph-desc">${ph.desc}</div>
-            </div>`).join('')}
-        </div>
-      </div>
-
-      <!-- 营销主题 -->
-      <div class="psp-block">
-        <div class="psp-block-head">
-          <div class="psp-ico" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);">💎</div>
-          <div class="psp-title">营销主题 <small>品牌核心理念</small></div>
-        </div>
-        <div class="psp-theme-card">
-          <div class="th-tag">CAMPAIGN THEME</div>
-          <div class="th-text">${p.theme || '三年同行、绿动巴西'}</div>
-        </div>
-      </div>
-
-      <!-- 目标用户 -->
-      <div class="psp-block">
-        <div class="psp-block-head">
-          <div class="psp-ico" style="background:linear-gradient(135deg,#f59e0b,#d97706);">👥</div>
-          <div class="psp-title">目标用户</div>
-        </div>
-        <div style="text-align:center;">
-          <span class="psp-audience-tag">🎯 ${p.audience || '25–45岁用户'}</span>
-        </div>
-      </div>
-
-      <!-- 主推车型 -->
-      <div class="psp-block">
-        <div class="psp-block-head">
-          <div class="psp-ico" style="background:linear-gradient(135deg,#6366f1,#4338ca);">🚘</div>
-          <div class="psp-title">主推车型</div>
-        </div>
-        <div class="psp-cars">
-          ${cars.map(c => `
-            <div class="psp-car ${c.cls}">
-              <div class="car-emoji">${c.emoji}</div>
-              <div class="car-name">${c.name}</div>
-            </div>`).join('')}
-        </div>
-      </div>
-
-      <!-- 传播渠道 -->
-      <div class="psp-block">
-        <div class="psp-block-head">
-          <div class="psp-ico" style="background:linear-gradient(135deg,#10b981,#059669);">📡</div>
-          <div class="psp-title">传播渠道 <small>立体化营销矩阵</small></div>
-        </div>
-        <div class="psp-channels-desc">搭建线上立体化营销传播矩阵，聚合垂类媒体、社交信息流、搜索广告、私域社群，联动本土 KOL 产出圣灵节专题内容，分周期分层投放运营，打通公域曝光‑内容种草‑私域留资完整链路，挖掘意向线索，提升整体转化。</div>
-        <div class="psp-channel-tags">
-          ${channelTags.map(t => `<span class="psp-channel-tag">${t}</span>`).join('')}
-        </div>
-      </div>
-
-      <!-- 权益激励 -->
-      <div class="psp-block">
-        <div class="psp-block-head">
-          <div class="psp-ico" style="background:linear-gradient(135deg,#ef4444,#b91c1c);">🎁</div>
-          <div class="psp-title">权益激励 <small>分层转化漏斗</small></div>
-        </div>
-        <div class="psp-funnel">
-          ${funnel.map(s => `
-            <div class="psp-step ${s.cls}">
-              <div class="step-num">${s.num}</div>
-              <div class="step-text">${s.html}</div>
-            </div>`).join('')}
-        </div>
-      </div>
-
-    </div>`;
 }
 
 function closeStarOverlay() {
@@ -1687,19 +1374,6 @@ function openGenPage(title, htmlBody) {
     margin-bottom: 24px; padding: 18px 20px;
     border: 1px solid #e5e7eb; border-radius: 12px; background: #fafbfc;
   }
-  /* doc-body: 还原 Word 文档原貌（无卡片化、保留 H1+H2 层级） */
-  .gen-body.doc-body { padding: 36px 56px; background: #ffffff; }
-  .gen-body.doc-body .doc-h2 {
-    font-size: 17px; font-weight: 700; color: #1f2937;
-    margin: 28px 0 12px; padding-bottom: 4px;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  .gen-body.doc-body .doc-h2:first-child { margin-top: 0; }
-  .gen-body.doc-body .doc-p {
-    font-size: 14px; line-height: 1.9; color: #374151;
-    margin: 6px 0 10px;
-  }
-  .gen-body.doc-body .doc-p strong { color: #111827; font-weight: 700; }
   .gen-sec h2 {
     font-size: 15px; font-weight: 700; color: #6d28d9;
     margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #ede9fe;
@@ -1811,18 +1485,6 @@ function genShortVideo() {
     <div class="sub">预热篇+高潮篇双版本 · TikTok竖版 · 30秒 · PT-BR字幕</div>
   </div>
   <div class="gen-body">
-    <div class="gen-sec">
-      <h2>🐎 核心创意</h2>
-      <p><span class="highlight">创意概念：</span></p>
-      <div class="pt-block">IP 驾车参加圣灵节聚会，以中国古代战马精神为内核，将速度、力量与开拓意志注入行车轨迹。途中自然融入语音交互、智能驾驶等车辆功能，通过东方底蕴与拉美热情的跨文化碰撞，实现从认知到信任的品牌破圈。</div>
-      <br>
-      <ul>
-        <li><span class="highlight">文化锚点：</span>中国古代战马精神（速度 / 力量 / 开拓意志）→ 与巴西圣灵节（信仰 / 团聚 / 欢庆）形成跨文化共鸣</li>
-        <li><span class="highlight">叙事主线：</span>IP 驾车从城市出发→穿越多元场景→抵达圣灵节聚会，自然串联车辆功能点（语音交互、智能驾驶）</li>
-        <li><span class="highlight">情绪节奏：</span>晨光出发（沉稳）→ 行车轨迹（速度与力量）→ 跨文化碰撞（东方底蕴 × 拉美热情）→ 聚会共鸣（品牌信任）</li>
-        <li><span class="highlight">品牌破圈：</span>从车型认知→功能体验→品牌情感，建立"东方 × 拉美"差异化品牌联想</li>
-      </ul>
-    </div>
     <div class="gen-sec">
       <h2>📋 Part A · 预热篇（直播前3天发布）</h2>
       <p><span class="highlight">核心钩子：</span>制造悬念，引导预约直播，预计播放量5万+</p>
@@ -2028,53 +1690,7 @@ function genTrafficStrategy() {
   `);
 }
 
-/* ===== 5. 直播脚本策划（来自《直播脚本策划.docx》原文） ===== */
-function genLiveScript() {
-  openGenPage('直播脚本策划 — 节日营销', `
-  <div class="gen-head" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">
-    <h1>直播脚本策划</h1>
-    <div class="sub">来源：《直播脚本策划.docx》原文 · 段落、层级完整，可直接复制到 Word 使用</div>
-  </div>
-  <div class="gen-body doc-body">
-    <h2 class="doc-h2">一、直播平台</h2>
-    <p class="doc-p">TikTok，以TikTok直播间作为核心输出阵地，依托平台流量优势，同步联动社媒账号进行预热引流，借助短视频流量为直播间导流，扩大直播曝光覆盖面，面向巴西地区开展线上直播营销活动。</p>
-
-    <h2 class="doc-h2">二、直播主题</h2>
-    <p class="doc-p"><strong>三年同行、绿动巴西</strong></p>
-    <p class="doc-p">围绕品牌入驻巴西市场三周年背景，传递绿色新能源出行理念，拉近与巴西本地消费者距离，结合本地化市场，输出品牌价值，强化品牌在巴西市场的认知度。</p>
-
-    <h2 class="doc-h2">三、直播目标</h2>
-    <p class="doc-p"><strong>吸引层</strong></p>
-    <p class="doc-p">直播间总观看人数突破2万人。通过前期短视频预热、话题投放、达人转发，吸引大量公域流量进入直播间，提升直播曝光量级。</p>
-    <p class="doc-p"><strong>留住层</strong></p>
-    <p class="doc-p">直播间平均互动率超过8%。通过问答、抽奖、评论区互动等多种形式，提升用户停留时长，调动直播间观众参与热情，降低直播间用户流失。</p>
-    <p class="doc-p"><strong>转化层</strong></p>
-    <p class="doc-p">成功收集500条有效线索。引导意向用户填写表单信息，收集潜在客户资料，沉淀试驾、购车意向用户，为后续线下门店转化储备客户资源。</p>
-
-    <h2 class="doc-h2">四、直播形式</h2>
-    <p class="doc-p"><strong>XR全息直播</strong> 采用XR全息虚拟直播技术，搭建沉浸式虚拟直播场景，打造贴合巴西本土风格的直播间背景。将车型融入虚拟场景之中，实现车辆多角度立体展示，打破传统直播间布景局限，增强视觉冲击力，带给观众新颖的观看体验。</p>
-
-    <h2 class="doc-h2">五、目标受众</h2>
-    <p class="doc-p"><strong>25-45岁家庭用户</strong> 面向巴西25-45岁城市家庭消费群体。该群体拥有家庭出行需求，具备一定消费能力，关注汽车的经济性、舒适性，重视绿色出行，是新能源家用车的核心潜在消费人群。</p>
-
-    <h2 class="doc-h2">六、主推车型</h2>
-    <p class="doc-p"><strong>城市小精灵：</strong>主打城市通勤，小巧灵活，适合日常城区代步，满足家庭短途出行，适配巴西城市路况。</p>
-    <p class="doc-p"><strong>旗舰星耀客：</strong>品牌旗舰车型，空间宽敞，配置丰富，主打家庭长途出游，面向追求高品质出行体验的家庭用户。</p>
-
-    <h2 class="doc-h2">七、主播服装</h2>
-    <p class="doc-p"><strong>旗袍</strong> 主播身着旗袍出镜，融入东方美学元素，塑造品牌差异化形象，打造记忆点，形成直播视觉特色。</p>
-
-    <h2 class="doc-h2">八、直播流程</h2>
-    <p class="doc-p"><strong>开场：</strong>主播登场，进行自我介绍，介绍本次直播主题，说明直播福利活动，快速抓住观众注意力，欢迎进入直播间的观众。</p>
-    <p class="doc-p"><strong>车型讲解：</strong>分别对两款主推车型进行详细介绍，结合使用场景，讲解车辆核心配置、性能优势，针对家庭用户痛点解读产品卖点。</p>
-    <p class="doc-p"><strong>互动：</strong>开启评论区问答、弹幕抽奖，回复观众提出的车型、价格、售后相关问题，发起评论互动任务，提升直播间活跃度，留住在线观众。</p>
-    <p class="doc-p"><strong>逼单：</strong>公布直播间专属限时权益，讲解试驾预约方式，引导意向观众填写线索表单，抓紧直播专属优惠，推动用户留资。</p>
-    <p class="doc-p"><strong>结尾：</strong>总结直播核心内容，再次重申福利活动，告知后续品牌动态，感谢观众观看，完成直播收尾。</p>
-  </div>
-  `);
-}
-
-/* ===== 6. 本土化内容创意生成 ===== */
+/* ===== 5. 本土化内容创意生成 ===== */
 function genLocalCreative() {
   openGenPage('本土化内容创意生成 — 圣灵节营销', `
   <div class="gen-head">
@@ -2429,5 +2045,6 @@ Idioma / 语言：Português · 葡萄牙语
   });
 });
 </script>
+<a href="javascript:history.back()" aria-label="返回智能体" style="position:fixed;left:20px;top:20px;z-index:9999;padding:10px 14px;border-radius:10px;background:#ffffff;color:#07543e;text-decoration:none;font:700 14px Microsoft YaHei,sans-serif;box-shadow:0 6px 22px #0005">← 返回数字营销助手</a>
 </body>
 </html>
