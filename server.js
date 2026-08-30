@@ -56,7 +56,12 @@ app.get('/results/:file', (req, res, next) => {
   if (!agent) return next();
   try {
     const source = fs.readFileSync(path.join(__dirname, 'results', file), 'utf8');
-    const injected = source.replace('</body>', `<script src="/results/navigation.js" data-agent="${agent}"></script></body>`);
+    const sourceForDisplay = source.replace(/<a\b[^>]*href=["']javascript:history\.back\(\)["'][\s\S]*?<\/a>/gi, '');
+    const bodyEnd = sourceForDisplay.toLowerCase().lastIndexOf('</body>');
+    // 结果页的脚本中也可能含有 "</body>" 字符串；必须只在真正页面末尾插入导航脚本。
+    const injected = bodyEnd >= 0
+      ? `${sourceForDisplay.slice(0, bodyEnd)}<script src="/results/navigation.js" data-agent="${agent}"></script>${sourceForDisplay.slice(bodyEnd)}`
+      : `${sourceForDisplay}<script src="/results/navigation.js" data-agent="${agent}"></script>`;
     res.type('html').send(injected);
   } catch (error) { next(error); }
 });

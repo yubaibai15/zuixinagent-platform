@@ -202,8 +202,19 @@ window.openAgentChat=id=>{const list=[...(window.remoteAgents||[]),...demoAgents
   const oldPreview=window.thinkThenPreview;
   window.thinkThenPreview=(name,src)=>{
     if(!resultPages[name])return oldPreview?.(name,src);
-    const cover=document.createElement('div');cover.style.cssText='position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#f6faf7;color:#0b4f3d;font:600 20px Microsoft YaHei';cover.textContent='正在生成「'+name+'」成果…';document.body.appendChild(cover);
-    setTimeout(()=>location.href=resultPages[name],1300);
+    document.querySelector('.deliverable-loading')?.remove();
+    const cover=document.createElement('div');
+    cover.className='deliverable-loading';
+    cover.style.cssText='position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(246,250,247,.96);color:#0b4f3d;font:600 20px Microsoft YaHei';
+    cover.innerHTML='<div style="position:relative;width:min(420px,88vw);padding:38px 32px;border:1px solid #dbe8df;border-radius:22px;background:#fff;text-align:center;box-shadow:0 20px 55px rgba(9,67,48,.14)"><button type="button" aria-label="取消并返回" style="position:absolute;right:14px;top:10px;border:0;background:transparent;font-size:28px;color:#60776d;cursor:pointer">×</button><div style="font-size:15px;letter-spacing:.12em;color:#14805c;margin-bottom:14px">AGENT WORKING</div><div>正在生成「'+name+'」成果…</div><p style="margin:13px 0 0;font-size:13px;font-weight:400;color:#6f8379">即将打开成果页面</p></div>';
+    const cancel=()=>cover.remove();
+    cover.querySelector('button').onclick=cancel;
+    document.body.appendChild(cover);
+    window.setTimeout(()=>{
+      if(!cover.isConnected)return;
+      cover.remove();
+      window.location.assign(resultPages[name]);
+    },650);
   };
   const oldOpen=window.thinkThenOpen;
   window.thinkThenOpen=(name,url)=>{
