@@ -7,7 +7,8 @@
   };
   const roleFromPage = () => {
     const text = document.querySelector('#agent-chat .chat-brand')?.textContent || document.querySelector('#agent-chat .chat-profile')?.textContent || '';
-    if (/\u89c6\u89c9\u8bbe\u8ba1\u5e08/.test(text)) return 'visual';
+    // 旧页面使用“内容创意助手”，新页面使用“视觉设计师”：两者都是视觉岗位。
+    if (/\u89c6\u89c9\u8bbe\u8ba1\u5e08|\u5185\u5bb9\u521b\u610f\u52a9\u624b|\u5185\u5bb9\u521b\u610f/.test(text)) return 'visual';
     if (/\u6570\u5b57\u8425\u9500\u5e08/.test(text)) return 'marketing';
     if (/\u7535\u5546\u8fd0\u8425\u5e08/.test(text)) return 'ops';
     return 'data';
@@ -18,7 +19,8 @@
     const role = roleFromPage();
     if (picker.dataset.roleSkills === role) return;
     picker.dataset.roleSkills = role;
-    picker.querySelectorAll(':scope > button').forEach(button => button.remove());
+    // 不保留旧的统一技能包，直接重建成当前岗位的技能。
+    picker.querySelectorAll('button').forEach(button => button.remove());
     catalog[role].forEach((name, index) => {
       const button = document.createElement('button');
       button.type = 'button';
@@ -28,6 +30,9 @@
     });
   };
   new MutationObserver(install).observe(document.documentElement, { childList: true, subtree: true });
-  document.addEventListener('click', () => window.setTimeout(install, 0));
+  // 每次打开“技能包”都重新检查岗位，避免切换助手后保留上一个助手的技能。
+  document.addEventListener('click', event => {
+    if (event.target.closest('#agent-chat .skill-trigger, #agent-chat .skill-picker')) window.setTimeout(install, 0);
+  }, true);
   window.setTimeout(install, 0);
 })();

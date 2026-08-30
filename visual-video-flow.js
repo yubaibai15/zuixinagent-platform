@@ -7,7 +7,8 @@
     const input = document.getElementById('agentInput');
     const query = input?.value.trim() || '';
     const roleText = document.querySelector('#agent-chat .chat-brand')?.textContent || document.querySelector('#agent-chat .chat-profile')?.textContent || '';
-    const isVisualDesigner = /\u89c6\u89c9\u8bbe\u8ba1\u5e08/.test(roleText);
+    // 旧界面名称为“内容创意助手”，也必须视为视觉岗位。
+    const isVisualDesigner = /\u89c6\u89c9\u8bbe\u8ba1\u5e08|\u5185\u5bb9\u521b\u610f\u52a9\u624b|\u5185\u5bb9\u521b\u610f/.test(roleText);
     if (!isVisualDesigner || !query || !keywords.test(query)) return baseSend?.();
 
     const messages = document.getElementById('agentMessages');
