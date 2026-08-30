@@ -6,7 +6,8 @@
   window.sendAgentChat = async () => {
     const input = document.getElementById('agentInput');
     const query = input?.value.trim() || '';
-    const isVisualDesigner = chatAgent?.role === '\u89c6\u89c9\u8bbe\u8ba1\u5e08';
+    const roleText = document.querySelector('#agent-chat .chat-brand')?.textContent || document.querySelector('#agent-chat .chat-profile')?.textContent || '';
+    const isVisualDesigner = /\u89c6\u89c9\u8bbe\u8ba1\u5e08/.test(roleText);
     if (!isVisualDesigner || !query || !keywords.test(query)) return baseSend?.();
 
     const messages = document.getElementById('agentMessages');

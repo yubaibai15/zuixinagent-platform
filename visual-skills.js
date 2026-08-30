@@ -5,7 +5,7 @@
     '\u89c6\u9891\u751f\u6210'
   ];
 
-  const isVisualDesigner = () => chatAgent?.role === '\u89c6\u89c9\u8bbe\u8ba1\u5e08';
+  const isVisualDesigner = () => /\u89c6\u89c9\u8bbe\u8ba1\u5e08/.test(document.querySelector('#agent-chat .chat-brand')?.textContent || document.querySelector('#agent-chat .chat-profile')?.textContent || '');
   const installSkills = () => {
     if (!isVisualDesigner()) return;
     const picker = document.querySelector('#agent-chat .skill-picker');
