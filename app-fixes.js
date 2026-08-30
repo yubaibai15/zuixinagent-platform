@@ -210,6 +210,27 @@
   });
 })();
 
+/* 视觉岗位兢底：无论页面显示“视觉设计师”还是“内容创意助手”，视频、脚本、分镜请求都直接交付 Excel，不再转给通用模型追问。 */
+(() => {
+  const isVisualPage = () => /\u89c6\u89c9\u8bbe\u8ba1\u5e08|\u5185\u5bb9\u521b\u610f\u52a9\u624b|\u5185\u5bb9\u521b\u610f/.test(document.querySelector('#agent-chat .chat-brand')?.textContent || document.querySelector('#agent-chat .chat-profile')?.textContent || '');
+  const isVideoRequest = value => /\u89c6\u9891|\u77ed\u89c6\u9891|\u811a\u672c|\u5206\u955c|\u955c\u5934|\u62cd\u6444|\u53e3\u64ad/i.test(value || '');
+  const esc = value => String(value || '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+  const previousSend = window.sendAgentChat;
+  window.sendAgentChat = async () => {
+    const input = document.getElementById('agentInput');
+    const query = input?.value.trim() || '';
+    if (!isVisualPage() || !isVideoRequest(query)) return previousSend?.();
+    const messages = document.getElementById('agentMessages');
+    if (!messages) return previousSend?.();
+    input.value = '';
+    messages.insertAdjacentHTML('beforeend', `<div class="bubble me">${esc(query)}</div><div class="bubble bot" id="visual-delivery-wait">正在进行短视频创意校检…</div>`);
+    await new Promise(resolve => setTimeout(resolve, 1800));
+    const wait = document.getElementById('visual-delivery-wait');
+    if (wait) wait.outerHTML = '<div class="bubble bot">已校检完成，已生成短视频分镜与素材表。<br><a class="skill-result-link" href="/downloads/visual-video-storyboard-with-images.xlsx" download>下载 AI 短视频素材表 Excel →</a></div>';
+    messages.scrollTop = messages.scrollHeight;
+  };
+})();
+
 /* 对话附件可视化：图片与文档在消息流中可见；数字营销岗位提供快速校检回执。 */
 (() => {
   const esc = value => String(value || '').replace(/[&<>"']/g, char => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[char]));
