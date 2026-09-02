@@ -37,8 +37,7 @@ function loginGuard(req, res, next) { const key = req.ip || 'unknown'; const now
 // 仅公开浏览器所需的两个文件，不把服务端代码、部署说明或示例配置暴露为静态资源。
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/index.html', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/group-platform.html', (_, res) => res.sendFile(path.join(__dirname, 'group-platform.html')));
-for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'bridge-runtime.js', 'preview-theme.css', 'app-fixes.js']) {
+for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'preview-theme.css', 'app-fixes.js', 'agent-skill-catalog.js', 'chat-dispatcher.js', 'team-file-download.js']) {
   app.get(`/${file}`, (_, res) => res.sendFile(path.join(__dirname, file)));
 }
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
@@ -318,10 +317,24 @@ app.post('/api/files', auth, upload.single('file'), async (req, res, next) => {
   } catch (e) { next(e); }
 });
 app.get('/api/files', auth, async (req, res, next) => { try { const files = await list('files'); res.json(req.user.role === 'admin' ? files : files.filter(f => f.ownerId === req.user.sub || f.visibility === 'team')); } catch (e) { next(e); } });
+app.get('/api/files/:id/download', auth, async (req, res, next) => {
+  try {
+    const file = await one('files', { _id: req.params.id });
+    if (!file) return res.status(404).json({ error: '文件不存在。' });
+    const permitted = req.user.role === 'admin' || file.ownerId === req.user.sub || file.visibility === 'team';
+    if (!permitted) return res.status(403).json({ error: '你没有下载此文件的权限。' });
+    if (memoryMode || /^indexed-only:|^memory:/.test(String(file.fileID || ''))) return res.status(409).json({ error: '文件已被索引，但原始文件不在云存储中，暂时不能下载。' });
+    const result = await cloud.getTempFileURL({ fileList: [file.fileID] });
+    const item = result?.fileList?.[0];
+    if (!item?.tempFileURL) return res.status(502).json({ error: '云存储暂时无法生成下载链接。' });
+    await audit(req.user, 'file.download', 'file', file._id, { name: file.name });
+    res.json({ url: item.tempFileURL, name: file.name });
+  } catch (e) { next(e); }
+});
 
 async function deepseek(messages) {
   if (!process.env.DEEPSEEK_API_KEY) throw new Error('尚未配置 DEEPSEEK_API_KEY。请在 CloudBase 云托管环境变量中添加后重新部署。');
-  const response = await fetch(`${(process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com').replace(/\/$/, '')}/chat/completions`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}` }, body: JSON.stringify({ model: process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash', messages, temperature: 0.35, max_tokens: 1800 }) });
+const response = await fetch(`${(process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com').replace(/\/$/, '')}/chat/completions`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}` }, body: JSON.stringify({ model: process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash', messages, temperature: 0.3, max_tokens: 900 }) });
   const data = await response.json(); if (!response.ok) throw new Error(data?.error?.message || 'DeepSeek 调用失败。'); const answer = data.choices?.[0]?.message?.content || '模型未返回有效内容。'; traceLangSmith('deepseek_chat', { messages }, { answer }, { model: process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash' }); return answer;
 }
 app.post('/api/chat', auth, async (req, res, next) => {

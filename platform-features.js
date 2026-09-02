@@ -149,13 +149,13 @@ window.openAgentChat=id=>{const list=[...(window.remoteAgents||[]),...demoAgents
   window.runFeature=name=>{const btn=document.querySelector('#quick-feature .feature-form .primary');if(!btn)return;btn.disabled=true;btn.textContent='正在生成与校验…';setTimeout(()=>{btn.disabled=false;btn.textContent=name==='发布物料'?'分发任务已创建 ✓':'结果已生成并保存 ✓';document.querySelectorAll('#quick-feature .feature-steps>div').forEach(x=>x.classList.add('active'));document.querySelectorAll('#quick-feature .feature-steps em').forEach(x=>x.textContent='已完成');if(name==='数据看板'){const preview=document.querySelector('#quick-feature .feature-preview>div');if(preview){preview.className='inline-dashboard';preview.innerHTML=dashboardMarkup()}saveDashboardDeliverable();showDashboardResult();say('数据看板已生成，并保存到成果中心')}else say(name==='发布物料'?'物料已进入分发队列，可逐渠道确认发布':'结果已生成并同步到成果中心')},900)};
   const runFeatureDefault=window.runFeature;window.runFeature=name=>{if(name==='数据看板')return runFeatureDefault(name);const btn=document.querySelector('#quick-feature .feature-form .primary');if(!btn)return;btn.disabled=true;btn.textContent='正在生成与校验…';setTimeout(()=>{btn.disabled=false;btn.textContent='结果已生成并保存 ✓';document.querySelectorAll('#quick-feature .feature-steps>div').forEach(x=>x.classList.add('active'));document.querySelectorAll('#quick-feature .feature-steps em').forEach(x=>x.textContent='已完成');if(name==='直播数据导出'){window.downloadLiveDataExcel?.();say('直播数据 Excel 已生成并下载');return}saveStructuredDeliverable(name);if(deliverableLinks[name]){location.href=deliverableLinks[name];return}showStructuredResult(name);say(`${name}已生成并同步到成果中心`)},850)};
   const resultUrls={
-    '直播脚本':'https://live-marketing-results-302728-7-1474898132.sh.run.tcloudbase.com/results/live-assistant-v2.html',
+ '直播脚本':'/downloads/A企业、竞品直播数据.xlsx',
  '全年日历':'/results/marketing-calendar.html',
  '营销日历':'/results/marketing-calendar.html',
-    '投流复盘':'https://live-marketing-results-302728-7-1474898132.sh.run.tcloudbase.com/results/timeline-full.html',
-    '发布平台':'https://live-marketing-results-302728-7-1474898132.sh.run.tcloudbase.com/results/publish-platform.html',
-    '发布物料':'https://live-marketing-results-302728-7-1474898132.sh.run.tcloudbase.com/results/publish-platform.html',
-    '知识图谱':'https://live-marketing-results-302728-7-1474898132.sh.run.tcloudbase.com/results/brazil-culture-knowledge-graph.html'
+ '投流复盘':'/results/data-dashboards.html',
+ '发布平台':'/results/publish-platform.html',
+ '发布物料':'/results/publish-platform.html',
+ '知识图谱':'/results/knowledge-graph.html'
   };
   window.thinkThenOpen=(name,url)=>{const overlay=document.createElement('div');overlay.className='thinking-overlay';overlay.innerHTML=`<div><img src="/assets/agent-ip.png" alt="智能助手"><span>WORKFLOW RUNNING</span><h2>正在调用「${e(name)}」技能</h2><p id="thinkingStatus">正在读取项目上下文与知识库…</p><div><i></i></div></div>`;document.body.appendChild(overlay);const states=['正在匹配技能包与固定流程…','正在生成并校验结果…','结果已完成，即将打开成果页面…'];states.forEach((x,i)=>setTimeout(()=>{const el=document.getElementById('thinkingStatus');if(el)el.textContent=x},220*(i+1)));setTimeout(()=>{overlay.remove();if(window.openInternalSkill)return window.openInternalSkill(name);openQuickFeature(name)},780)};
   document.addEventListener('click',ev=>{const btn=ev.target.closest('.workflow-grid button');if(!btn)return;ev.preventDefault();ev.stopImmediatePropagation();const name=btn.querySelector('b')?.textContent.trim()||btn.textContent.trim();if(resultUrls[name])thinkThenOpen(name,resultUrls[name]);else if(originalResultImages[name]&&name!=='数据看板')thinkThenPreview(name,originalResultImages[name]);else openQuickFeature(name)},true);
@@ -214,7 +214,7 @@ window.openAgentChat=id=>{const list=[...(window.remoteAgents||[]),...demoAgents
       if(!cover.isConnected)return;
       cover.remove();
       window.location.assign(resultPages[name]);
-    },650);
+    },300);
   };
   const oldOpen=window.thinkThenOpen;
   window.thinkThenOpen=(name,url)=>{

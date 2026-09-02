@@ -13,7 +13,7 @@
     input.value = '';
     messages.insertAdjacentHTML('beforeend', `<div class="bubble me">${esc(query)}</div><div class="bubble bot" id="calendar-delivery-wait">正在整理全年营销节奏与节点排期…</div>`);
     messages.scrollTop = messages.scrollHeight;
-    await new Promise(resolve => setTimeout(resolve, 1300));
+    await new Promise(resolve => setTimeout(resolve, 500));
     const wait = document.getElementById('calendar-delivery-wait');
     if (wait) wait.outerHTML = '<div class="bubble bot">已完成「全年营销日历」生成，包含年度节点、活动排期与内容推进节奏。<br><a class="skill-result-link" href="/results/marketing-calendar.html">打开全年营销日历 →</a></div>';
     messages.scrollTop = messages.scrollHeight;

@@ -13,7 +13,7 @@
     input.value = '';
     messages.insertAdjacentHTML('beforeend', `<div class="bubble me">${esc(query)}</div><div class="bubble bot" id="dashboard-delivery-wait">正在整理经营数据、用户画像与渠道趋势…</div>`);
     messages.scrollTop = messages.scrollHeight;
-    await new Promise(resolve => setTimeout(resolve, 1300));
+    await new Promise(resolve => setTimeout(resolve, 500));
     const wait = document.getElementById('dashboard-delivery-wait');
     if (wait) wait.outerHTML = '<div class="bubble bot">已完成「数据分析看板」生成，可查看经营概览、用户画像与渠道表现。<br><a class="skill-result-link" href="/results/data-dashboards.html">打开数据分析看板 →</a></div>';
     messages.scrollTop = messages.scrollHeight;

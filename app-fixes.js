@@ -180,7 +180,7 @@
       const wait = document.getElementById('keywordSkillWait');
       if (wait) wait.outerHTML = `<div class="bubble bot">${escapeHtml(skill.text)}<br><a class="skill-result-link" href="${skill.href}"${skill.download ? ' download' : ''}>${escapeHtml(skill.link)} →</a></div>`;
       messages.scrollTop = messages.scrollHeight;
-    }, 1900);
+    }, 700);
   }
   const originalSendAgentChat = window.sendAgentChat;
   window.sendAgentChat = async () => {
@@ -224,9 +224,9 @@
     if (!messages) return previousSend?.();
     input.value = '';
     messages.insertAdjacentHTML('beforeend', `<div class="bubble me">${esc(query)}</div><div class="bubble bot" id="visual-delivery-wait">正在进行短视频创意校检…</div>`);
-    await new Promise(resolve => setTimeout(resolve, 1800));
+    await new Promise(resolve => setTimeout(resolve, 700));
     const wait = document.getElementById('visual-delivery-wait');
-    if (wait) wait.outerHTML = '<div class="bubble bot">已校检完成，已生成短视频分镜与素材表。<br><a class="skill-result-link" href="/downloads/visual-video-storyboard-with-images.xlsx" download>下载 AI 短视频素材表 Excel →</a></div>';
+    if (wait) wait.outerHTML = '<div class="bubble bot">已校检完成，已生成短视频分镜与素材表。<br><a class="skill-result-link" href="/downloads/visual-video-storyboard-with-images.xlsm" download>下载 AI 短视频素材表 Excel →</a></div>';
     messages.scrollTop = messages.scrollHeight;
   };
 })();
