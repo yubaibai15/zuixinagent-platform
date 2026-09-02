@@ -150,8 +150,8 @@ window.openAgentChat=id=>{const list=[...(window.remoteAgents||[]),...demoAgents
   const runFeatureDefault=window.runFeature;window.runFeature=name=>{if(name==='数据看板')return runFeatureDefault(name);const btn=document.querySelector('#quick-feature .feature-form .primary');if(!btn)return;btn.disabled=true;btn.textContent='正在生成与校验…';setTimeout(()=>{btn.disabled=false;btn.textContent='结果已生成并保存 ✓';document.querySelectorAll('#quick-feature .feature-steps>div').forEach(x=>x.classList.add('active'));document.querySelectorAll('#quick-feature .feature-steps em').forEach(x=>x.textContent='已完成');if(name==='直播数据导出'){window.downloadLiveDataExcel?.();say('直播数据 Excel 已生成并下载');return}saveStructuredDeliverable(name);if(deliverableLinks[name]){location.href=deliverableLinks[name];return}showStructuredResult(name);say(`${name}已生成并同步到成果中心`)},850)};
   const resultUrls={
     '直播脚本':'https://live-marketing-results-302728-7-1474898132.sh.run.tcloudbase.com/results/live-assistant-v2.html',
-    '全年日历':'https://live-marketing-results-302728-7-1474898132.sh.run.tcloudbase.com/results/calendar-full.html',
-    '营销日历':'https://live-marketing-results-302728-7-1474898132.sh.run.tcloudbase.com/results/calendar-full.html',
+ '全年日历':'/results/marketing-calendar.html',
+ '营销日历':'/results/marketing-calendar.html',
     '投流复盘':'https://live-marketing-results-302728-7-1474898132.sh.run.tcloudbase.com/results/timeline-full.html',
     '发布平台':'https://live-marketing-results-302728-7-1474898132.sh.run.tcloudbase.com/results/publish-platform.html',
     '发布物料':'https://live-marketing-results-302728-7-1474898132.sh.run.tcloudbase.com/results/publish-platform.html',

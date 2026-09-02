@@ -43,6 +43,7 @@ for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'bridge-runt
 }
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 const resultAgentMap = {
+  'data-dashboards.html': 'demo-data',
   'customer-profile-dashboard.html': 'demo-data',
   'independent-site-dashboard.html': 'demo-data',
   'social-dashboard.html': 'demo-data',
