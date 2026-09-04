@@ -111,15 +111,15 @@ window.openAgentChat=id=>{const list=[...(window.remoteAgents||[]),...demoAgents
   function renderDeliverables(){let page=document.getElementById('deliverables');if(!page){page=document.createElement('section');page.id='deliverables';page.className='page';document.querySelector('.content').appendChild(page)}const rows=savedDeliverables();page.innerHTML=`<div class="deliverable-page"><div class="heading"><div><span class="eyebrow">TEAM OUTPUT</span><h1>成果中心</h1><p>智能体生成的看板、报告和方案都会自动归档在这里。</p></div><span class="badge">${rows.length} 项成果</span></div><div class="deliverable-grid">${rows.map(x=>`<article class="card deliverable-card" onclick="showDashboardResult()"><div class="deliverable-thumb">${dashboardMarkup()}</div><div><span class="status">● 已完成</span><h3>${e(x.title)}</h3><p>${e(x.type)} · ${e(x.agent)}</p><small>${e(x.created)}</small><button class="primary">查看成果 →</button></div></article>`).join('')||`<div class="card empty-deliverable"><img src="/assets/agent-ip.png" alt="智能助手 IP"><h2>还没有生成成果</h2><p>从数据洞察助手打开“数据看板”，生成后会自动出现在这里。</p><button class="primary" onclick="openAgentChat('demo-data')">进入数据洞察助手</button></div>`}</div></div>`}
   window.showDashboardResult=()=>{document.querySelector('.result-overlay')?.remove();const overlay=document.createElement('div');overlay.className='result-overlay';overlay.innerHTML=`<div class="result-modal"><header><div><span>GENERATED RESULT</span><h2>数据看板已生成</h2></div><button onclick="this.closest('.result-overlay').remove()">×</button></header>${dashboardMarkup()}<footer><span>✓ 已自动保存到成果中心</span><button class="secondary" onclick="this.closest('.result-overlay').remove();showPage('deliverables')">前往成果中心</button></footer></div>`;document.body.appendChild(overlay)};
   const originalResultImages={
-    '数据看板':'/assets/results/customer-portrait-dashboard.png',
-    '用户画像':'/assets/results/customer-portrait-dashboard.png',
-    '客户画像':'/assets/results/customer-portrait-dashboard.png',
-    '独立站看板':'/assets/results/website-operations-dashboard.png',
-    '社媒看板':'/assets/results/social-marketing-dashboard.png',
-    '店铺诊断':'/assets/results/website-operations-dashboard.png',
-    '店铺运营诊断':'/assets/results/website-operations-dashboard.png',
-    '社媒数据看板':'/assets/results/social-marketing-dashboard.png',
-    '广告投流复盘':'/assets/results/social-marketing-dashboard.png'
+ '数据看板':'/assets/results/customer-profile-dashboard.png',
+ '用户画像':'/assets/results/customer-profile-dashboard.png',
+ '客户画像':'/assets/results/customer-profile-dashboard.png',
+ '独立站看板':'/assets/results/independent-site-dashboard.png',
+ '社媒看板':'/assets/results/social-dashboard.png',
+ '店铺诊断':'/assets/results/independent-site-dashboard.png',
+ '店铺运营诊断':'/assets/results/independent-site-dashboard.png',
+ '社媒数据看板':'/assets/results/social-dashboard.png',
+ '广告投流复盘':'/assets/results/social-dashboard.png'
   };
   const resultCatalog={
     '趋势分析':['行业趋势分析报告','市场增速 18.6%','政策窗口期 9–12个月',['中高端纯电 SUV 保持高增长','德国与荷兰渠道成熟度领先','建议优先完成法规与售后网络本地化']],

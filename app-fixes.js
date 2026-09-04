@@ -226,7 +226,7 @@
     messages.insertAdjacentHTML('beforeend', `<div class="bubble me">${esc(query)}</div><div class="bubble bot" id="visual-delivery-wait">正在进行短视频创意校检…</div>`);
     await new Promise(resolve => setTimeout(resolve, 700));
     const wait = document.getElementById('visual-delivery-wait');
-    if (wait) wait.outerHTML = '<div class="bubble bot">已校检完成，已生成短视频分镜与素材表。<br><a class="skill-result-link" href="/downloads/visual-video-storyboard-with-images.xlsm" download>下载 AI 短视频素材表 Excel →</a></div>';
+    if (wait) wait.outerHTML = '<div class="bubble bot">已校检完成，已生成短视频分镜脚本。<br><a class="skill-result-link" href="/downloads/圣灵节专场营销-短视频分镜脚本.xlsx" download>下载短视频分镜脚本 Excel →</a></div>';
     messages.scrollTop = messages.scrollHeight;
   };
 })();
