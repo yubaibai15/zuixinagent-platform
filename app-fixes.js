@@ -138,10 +138,13 @@
   };
 
   const localResultPaths = {
+    '数据看板':'/results/data-dashboards.html',
     '独立站看板':'/results/independent-site-dashboard.html',
     '社媒看板':'/results/social-dashboard.html',
     '客户画像':'/results/customer-profile-dashboard.html',
     '用户画像':'/results/customer-profile-dashboard.html',
+    '直播脚本':'/downloads/圣灵节专场营销-短视频分镜脚本.xlsx',
+    '直播数据导出':'/downloads/A企业、竞品直播数据.xlsx',
     '知识图谱':'/results/knowledge-graph.html',
     '全年日历':'/results/marketing-calendar.html',
     '营销日历':'/results/marketing-calendar.html',
@@ -150,8 +153,7 @@
   };
   window.openInternalSkill = name => {
     if (localResultPaths[name]) { window.location.href = localResultPaths[name]; return; }
-    if (name === '数据看板') return window.openQuickFeature('数据看板');
-    if (name === '直播数据导出') return window.downloadLiveDataExcel();
+    if (window.showStructuredResult) return window.showStructuredResult(name);
     return window.openQuickFeature(name);
   };
 
@@ -382,12 +384,11 @@
     return result;
   };
 
-  const downloadSkill = name => /直播数据导出/.test(name || '');
   const previousInternalSkill = window.openInternalSkill;
   window.openInternalSkill = name => {
-    if (downloadSkill(name)) return window.downloadLiveDataExcel?.();
-    if (typeof window.openQuickFeature === 'function') return window.openQuickFeature(name);
-    return previousInternalSkill?.(name);
+    if (typeof previousInternalSkill === 'function') return previousInternalSkill(name);
+    if (typeof window.showStructuredResult === 'function') return window.showStructuredResult(name);
+    return window.openQuickFeature?.(name);
   };
 
   const resultNameByPath = {
