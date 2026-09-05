@@ -8,7 +8,8 @@
     marketing: [{ test: /\u5168\u5e74.{0,4}(?:\u8425\u9500)?\u65e5\u5386|\u8425\u9500\u65e5\u5386|\u65e5\u5386.{0,6}\u8425\u9500/, label: '全年营销日历', href: '/results/marketing-calendar.html', link: '打开全年营销日历', delay: 300 }],
     data: [
       { test: /(?:\u91c7\u96c6|\u722c\u53d6|\u5bfc\u51fa|\u4e0b\u8f7d).{0,8}\u76f4\u64ad|\u76f4\u64ad.{0,8}(?:\u6570\u636e|excel|\u8868\u683c|\u91c7\u96c6|\u722c\u53d6|\u5bfc\u51fa|\u4e0b\u8f7d)/i, label: '直播数据 Excel', href: '/downloads/A企业、竞品直播数据.xlsx', link: '下载直播数据 Excel', delay: 450, download: true },
-      { test: /\u6570\u636e\u770b\u677f|\u6570\u636e\u5206\u6790|\u7ecf\u8425\u6570\u636e|\u770b\u770b\u677f|\u7528\u6237\u753b\u50cf/, label: '数据分析看板', href: '/results/data-dashboards.html', link: '打开数据分析看板', delay: 300 }
+      { test: /\u5ba2\u6237\u753b\u50cf|\u7528\u6237\u753b\u50cf|\u753b\u50cf.{0,6}\u770b\u677f/, label: '客户画像看板', href: '/results/customer-profile-dashboard.html', link: '全屏打开客户画像看板', delay: 180 },
+      { test: /\u6570\u636e\u770b\u677f|\u6570\u636e\u5206\u6790|\u7ecf\u8425\u6570\u636e|\u770b\u770b\u677f/, label: '数据分析看板', href: '/results/data-dashboards.html', link: '打开数据分析看板', delay: 300 }
     ]
   };
   // 在用户点击入口前预加载固定分镜表，后续下载优先使用浏览器缓存。
