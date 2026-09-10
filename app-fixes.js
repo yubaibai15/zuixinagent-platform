@@ -171,18 +171,23 @@
     const input = document.getElementById('agentInput');
     const messages = document.getElementById('agentMessages');
     if (!input || !messages) return;
+    const steps = ['正在识别需求与关键词…','正在匹配技能包和项目资料…','正在校验成果内容与访问路径…','已完成校验，正在输出结果…'];
+    const waitId = `keywordSkillWait-${Date.now()}`;
     input.value = '';
-    messages.insertAdjacentHTML('beforeend', `<div class="bubble me">${escapeHtml(query)}</div><div class="bubble bot" id="keywordSkillWait">正在分析需求并匹配技能包…</div>`);
+    messages.insertAdjacentHTML('beforeend', `<div class="bubble me">${escapeHtml(query)}</div><div class="bubble bot" id="${waitId}">思考中（1/4）${steps[0]}</div>`);
     const overlay = document.createElement('div');
     overlay.className = 'thinking-overlay';
     overlay.innerHTML = `<div><img src="/assets/agent-ip.png" alt="智能助手 IP"><span>AGENT THINKING</span><h2>正在调用「${escapeHtml(skill.label)}」</h2><p>正在检索项目资料、整理结果并生成本地访问链接…</p><div><i></i></div></div>`;
     document.body.appendChild(overlay);
+    const started = Date.now();
+    const progress = setInterval(() => { const wait = document.getElementById(waitId); const index = Math.min(3, Math.floor((Date.now() - started) / 750)); if (wait) wait.textContent = `思考中（${index + 1}/4）${steps[index]}`; }, 180);
     setTimeout(() => {
+      clearInterval(progress);
       overlay.remove();
-      const wait = document.getElementById('keywordSkillWait');
+      const wait = document.getElementById(waitId);
       if (wait) wait.outerHTML = `<div class="bubble bot">${escapeHtml(skill.text)}<br><a class="skill-result-link" href="${skill.href}"${skill.download ? ' download' : ''}>${escapeHtml(skill.link)} →</a></div>`;
       messages.scrollTop = messages.scrollHeight;
-    }, 700);
+    }, 3000);
   }
   const originalSendAgentChat = window.sendAgentChat;
   window.sendAgentChat = async () => {
@@ -224,10 +229,15 @@
     if (!isVisualPage() || !isVideoRequest(query)) return previousSend?.();
     const messages = document.getElementById('agentMessages');
     if (!messages) return previousSend?.();
+    const steps = ['正在识别视频脚本需求…','正在匹配分镜模板与素材规范…','正在校检镜头、节奏和交付格式…','已完成校检，正在整理下载文件…'];
+    const waitId = `visual-delivery-wait-${Date.now()}`;
     input.value = '';
-    messages.insertAdjacentHTML('beforeend', `<div class="bubble me">${esc(query)}</div><div class="bubble bot" id="visual-delivery-wait">正在进行短视频创意校检…</div>`);
-    await new Promise(resolve => setTimeout(resolve, 700));
-    const wait = document.getElementById('visual-delivery-wait');
+    messages.insertAdjacentHTML('beforeend', `<div class="bubble me">${esc(query)}</div><div class="bubble bot" id="${waitId}">思考中（1/4）${steps[0]}</div>`);
+    const started = Date.now();
+    const progress = setInterval(() => { const wait = document.getElementById(waitId); const index = Math.min(3, Math.floor((Date.now() - started) / 750)); if (wait) wait.textContent = `思考中（${index + 1}/4）${steps[index]}`; }, 180);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    clearInterval(progress);
+    const wait = document.getElementById(waitId);
     if (wait) wait.outerHTML = '<div class="bubble bot">已校检完成，已生成短视频分镜脚本。<br><a class="skill-result-link" href="/downloads/圣灵节专场营销-短视频分镜脚本.xlsx" download>下载短视频分镜脚本 Excel →</a></div>';
     messages.scrollTop = messages.scrollHeight;
   };
