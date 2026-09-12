@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据采集任务分工看板</title>
+<style>
+  :root{
+    --ink:#1c2733;
+    --ink-2:#3b4a5a;
+    --ink-3:#6b7a89;
+    --line:#dde2e9;
+    --bg:#f5f6f8;
+    --card:#ffffff;
+    --navy:#1e3a5f;
+    --navy-2:#2c5282;
+    --gold:#b9902f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    padding:18px 26px;
+    height:100vh;
+    overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .wrap{
+    flex:1;max-width:1760px;width:100%;margin:0 auto;
+    display:flex;flex-direction:column;gap:14px;min-height:0;
+  }
+
+  /* ===== 头部 ===== */
+  .header{
+    flex:0 0 auto;
+    background:linear-gradient(120deg,#16283f 0%,#1e3a5f 70%,#274a75 100%);
+    border-radius:12px;
+    border-bottom:3px solid var(--gold);
+    padding:16px 34px;
+    color:#fff;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    box-shadow:0 5px 16px rgba(22,40,63,.25);
+    text-align:center;
+  }
+  .header h1{font-size:clamp(22px,2.1vw,30px);letter-spacing:4px;font-weight:700;}
+  .header .sub{margin-top:5px;font-size:clamp(10.5px,0.85vw,12.5px);opacity:.72;letter-spacing:2px;}
+
+  /* ===== 表格 ===== */
+  .board{
+    flex:1;min-height:0;
+    background:var(--card);
+    border-radius:12px;
+    box-shadow:0 3px 14px rgba(22,40,63,.08);
+    overflow:hidden;
+    display:flex;
+    border:1px solid var(--line);
+  }
+  table{width:100%;height:100%;border-collapse:collapse;table-layout:fixed;}
+  th,td{border:1px solid var(--line);vertical-align:middle;}
+
+  /* 表头：角色 —— 统一深藏青，底部以色条区分 */
+  thead th{
+    padding:13px 10px;
+    background:var(--navy);
+    color:#fff;
+    font-size:clamp(15px,1.4vw,21px);
+    font-weight:700;
+    letter-spacing:4px;
+    text-align:center;
+    border-bottom:4px solid var(--c,#1e3a5f);
+  }
+  thead th .th-en{
+    display:block;font-size:clamp(8.5px,0.62vw,10.5px);font-weight:400;
+    opacity:.6;letter-spacing:1.5px;margin-top:4px;
+  }
+  .th-item{background:#131f2e;border-bottom-color:#131f2e;width:106px;}
+  .th-op{--c:#33608c;}
+  .th-ds{--c:#2e7d6b;}
+  .th-dm{--c:#9c5333;}
+  .th-da{--c:#6b5b95;}
+
+  /* 首列：项目项 */
+  tbody th{
+    background:#f3f5f8;
+    padding:8px;
+    font-size:clamp(13.5px,1.2vw,18px);
+    font-weight:700;
+    color:var(--ink-2);
+    text-align:center;
+    letter-spacing:4px;
+    width:106px;
+  }
+  .th-icon{
+    display:block;width:26px;height:2px;background:var(--gold);
+    margin:0 auto 8px;
+  }
+
+  td{padding:10px 14px;background:#fff;}
+
+  /* 采集渠道单元格 */
+  .channel{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+    padding:2px 0;height:100%;
+  }
+  .ch-code{
+    font-size:clamp(9px,0.68vw,11px);font-weight:700;letter-spacing:2px;
+    color:#fff;background:var(--c);
+    border-radius:4px;padding:3px 10px;
+  }
+  .ch-name{font-size:clamp(17px,1.6vw,24px);font-weight:800;letter-spacing:2px;color:var(--ink);}
+  .ch-en{font-size:clamp(8.5px,0.68vw,11px);color:var(--ink-3);letter-spacing:1px;text-transform:uppercase;}
+
+  /* 岗位职责单元格 */
+  .duty{
+    font-size:clamp(13.5px,1.15vw,17.5px);line-height:1.65;color:var(--ink-2);
+    background:#f8f9fb;border-radius:8px;padding:12px 15px;
+    border:1px solid #e3e7ed;
+  }
+  .duty b{color:var(--ink);font-weight:700;}
+
+  /* 核心采集字段单元格 */
+  .fields{
+    display:flex;flex-wrap:wrap;gap:7px;align-content:center;justify-content:center;
+  }
+  .field{
+    font-size:clamp(12.5px,1vw,15.5px);color:var(--ink-2);
+    background:#f4f5f7;border:1px solid #d9dee5;
+    border-radius:4px;padding:5px 12px;cursor:default;transition:all .15s;
+    white-space:nowrap;
+  }
+  .field:hover{background:var(--c);border-color:var(--c);color:#fff;}
+  .field-note{
+    font-size:clamp(13.5px,1.15vw,18px);font-weight:700;color:var(--ink);
+    background:var(--c-bg);border-radius:8px;padding:12px 15px;
+    border:1px solid #e3e7ed;line-height:1.65;text-align:center;
+    margin-bottom:9px;
+  }
+
+  /* 每列配色（低饱和商务色） */
+  td.c1{--c:#33608c;--c-bg:rgba(51,96,140,.06);}
+  td.c2{--c:#2e7d6b;--c-bg:rgba(46,125,107,.06);}
+  td.c3{--c:#9c5333;--c-bg:rgba(156,83,51,.06);}
+  td.c4{--c:#6b5b95;--c-bg:rgba(107,91,149,.06);}
+
+  .footer{
+    flex:0 0 auto;text-align:center;
+    font-size:clamp(10.5px,0.78vw,12px);color:var(--ink-3);
+    padding:2px 0 2px;letter-spacing:2.5px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 头部 -->
+  <div class="header">
+    <h1>数据采集任务分工看板</h1>
+    <div class="sub">DATA COLLECTION TASK ALLOCATION DASHBOARD · 采集渠道 / 岗位职责 / 核心采集字段</div>
+  </div>
+
+  <!-- 看板表格 -->
+  <div class="board">
+    <table>
+      <thead>
+        <tr>
+          <th class="th-item">岗位</th>
+          <th class="th-op">电商运营师<span class="th-en">E-COMMERCE OPS</span></th>
+          <th class="th-ds">视觉设计师<span class="th-en">VISUAL DESIGNER</span></th>
+          <th class="th-dm">数字营销师<span class="th-en">DIGITAL MARKETING</span></th>
+          <th class="th-da">数据分析师<span class="th-en">DATA ANALYTICS</span></th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- 采集渠道 -->
+        <tr>
+          <th><span class="th-icon"></span>采集渠道</th>
+          <td class="c1">
+            <div class="channel">
+              <div class="ch-code">SITE</div>
+              <div class="ch-name">独立站</div>
+              <div class="ch-en">Independent Site</div>
+            </div>
+          </td>
+          <td class="c2">
+            <div class="channel">
+              <div class="ch-code">SOCIAL</div>
+              <div class="ch-name">社媒 &amp; 论坛</div>
+              <div class="ch-en">Social &amp; Forums</div>
+            </div>
+          </td>
+          <td class="c3">
+            <div class="channel">
+              <div class="ch-code">LIVE</div>
+              <div class="ch-name">直播平台</div>
+              <div class="ch-en">Live Streaming</div>
+            </div>
+          </td>
+          <td class="c4">
+            <div class="channel">
+              <div class="ch-code">OMNI</div>
+              <div class="ch-name">全渠道汇总</div>
+              <div class="ch-en">Omni-Channel</div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- 岗位职责 -->
+        <tr>
+          <th><span class="th-icon"></span>岗位职责</th>
+          <td class="c1">
+            <div class="duty"><b>独立站渠道</b>原始业务数据采集上报</div>
+          </td>
+          <td class="c2">
+            <div class="duty"><b>社媒、论坛平台</b>公开内容与互动数据采集上报</div>
+          </td>
+          <td class="c3">
+            <div class="duty"><b>海外直播平台</b>公开直播行为数据采集上报</div>
+          </td>
+          <td class="c4">
+            <div class="duty">全渠道数据<b>归集、校验、清洗、入库</b>，支撑<b>客户画像建模</b></div>
+          </td>
+        </tr>
+
+        <!-- 核心采集字段 -->
+        <tr>
+          <th><span class="th-icon"></span>核心采集字段</th>
+          <td class="c1">
+            <div class="fields">
+              <span class="field">访客来源</span>
+              <span class="field">页面访问路径</span>
+              <span class="field">商品浏览记录</span>
+              <span class="field">加购行为</span>
+              <span class="field">下单转化</span>
+              <span class="field">停留时长</span>
+              <span class="field">设备类型</span>
+              <span class="field">页面点击事件</span>
+              <span class="field">访问时间戳</span>
+              <span class="field">国家/地区</span>
+              <span class="field">浏览器/操作系统</span>
+              <span class="field">搜索关键词</span>
+              <span class="field">订单金额</span>
+              <span class="field">优惠券使用</span>
+              <span class="field">购物车放弃行为</span>
+            </div>
+          </td>
+          <td class="c2">
+            <div class="fields">
+              <span class="field">帖子曝光</span>
+              <span class="field">互动（点赞/评论/转发）</span>
+              <span class="field">内容标签</span>
+              <span class="field">用户评论文本</span>
+              <span class="field">话题热度</span>
+              <span class="field">素材点击数据</span>
+              <span class="field">平台名称</span>
+              <span class="field">账号昵称</span>
+              <span class="field">粉丝数</span>
+              <span class="field">发布时间</span>
+              <span class="field">收藏数</span>
+              <span class="field">视频播放量</span>
+            </div>
+          </td>
+          <td class="c3">
+            <div class="fields">
+              <span class="field">直播间观看时长</span>
+              <span class="field">进入/退出时间</span>
+              <span class="field">评论内容</span>
+              <span class="field">商品点击</span>
+              <span class="field">直播互动</span>
+              <span class="field">直播曝光数据</span>
+              <span class="field">直播间ID</span>
+              <span class="field">主播ID</span>
+              <span class="field">关注/订阅行为</span>
+              <span class="field">礼物打赏</span>
+              <span class="field">分享直播</span>
+            </div>
+          </td>
+          <td class="c4">
+            <div class="field-note">对齐统一数据字典<br>标准字段</div>
+            <div class="fields">
+              <span class="field">渠道标识</span>
+              <span class="field">标准字段对齐</span>
+              <span class="field">时间戳标准化</span>
+              <span class="field">客户画像标签</span>
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">电商运营师 · 视觉设计师 · 数字营销师 · 数据分析师 ｜ 采集渠道 → 岗位职责 → 核心采集字段</div>
+</div>
+</body>
+</html>

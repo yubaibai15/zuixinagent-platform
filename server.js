@@ -37,7 +37,7 @@ function loginGuard(req, res, next) { const key = req.ip || 'unknown'; const now
 // 仅公开浏览器所需的两个文件，不把服务端代码、部署说明或示例配置暴露为静态资源。
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/index.html', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
-for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'preview-theme.css', 'app-fixes.js', 'agent-skill-catalog.js', 'chat-dispatcher.js', 'team-file-download.js']) {
+for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'preview-theme.css', 'app-fixes.js', 'agent-skill-catalog.js', 'chat-dispatcher.js', 'team-file-download.js', 'team-tasks.js', 'skill-invocation-feedback.js']) {
   app.get(`/${file}`, (_, res) => res.sendFile(path.join(__dirname, file)));
 }
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
@@ -47,6 +47,7 @@ const resultAgentMap = {
   'independent-site-dashboard.html': 'demo-data',
   'social-dashboard.html': 'demo-data',
   'knowledge-graph.html': 'demo-ops',
+  'all-channel-data-collection-dashboard.html': 'demo-data',
   'marketing-calendar.html': 'demo-marketing',
   'publish-platform.html': 'demo-marketing'
 };
@@ -72,6 +73,15 @@ app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
 const now = () => new Date().toISOString();
 const id = () => crypto.randomUUID();
 const clean = (value, limit = 4000) => String(value || '').trim().slice(0, limit);
+// Restore UTF-8 Chinese file names when a browser passed them through latin1 to multer.
+const normalizeFilename = value => {
+  const source = String(value || '');
+  if (!/[ÃÂÅÆÇÐåæçð]/.test(source)) return source;
+  try {
+    const recovered = Buffer.from(source, 'latin1').toString('utf8');
+    return /[\u4e00-\u9fff]/.test(recovered) && !recovered.includes('\uFFFD') ? recovered : source;
+  } catch (_) { return source; }
+};
 
 const columns = { _id: 'id', passwordHash: 'password_hash', jobRole: 'job_role', avatarKey: 'avatar_key', fixedAnswers: 'fixed_answers', systemPrompt: 'system_prompt', createdBy: 'created_by', updatedBy: 'updated_by', publishedAt: 'published_at', ownerId: 'owner_id', ownerEmail: 'owner_email', mimeType: 'mime_type', fileID: 'file_id', extractedText: 'extracted_text', parseStatus: 'parse_status', parseMessage: 'parse_message', visibility: 'visibility', userId: 'user_id', agentId: 'agent_id', modelId: 'model_id', baseUrl: 'base_url', versionNo: 'version_no', publishedBy: 'published_by', actorEmail: 'actor_email', targetType: 'target_type', targetId: 'target_id', projectId: 'project_id', taskId: 'task_id', assigneeEmail: 'assignee_email', dueDate: 'due_date', reviewerEmail: 'reviewer_email', deliverableId: 'deliverable_id', agentKey: 'agent_key', createdAt: 'created_at', updatedAt: 'updated_at' };
 const reverseColumns = Object.fromEntries(Object.entries(columns).map(([key, value]) => [value, key]));
@@ -291,6 +301,7 @@ function traceLangSmith(name, inputs, outputs, metadata = {}) {
   fetch(`${(process.env.LANGSMITH_ENDPOINT || 'https://api.smith.langchain.com').replace(/\/$/, '')}/runs`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.LANGSMITH_API_KEY }, body: JSON.stringify(payload) }).catch(error => console.warn('LangSmith trace skipped:', error.message));
 }
 app.post('/api/files', auth, upload.single('file'), async (req, res, next) => {
+  if (req.file) req.file.originalname = normalizeFilename(req.file.originalname);
   try { if (!req.file) return res.status(400).json({ error: '请选择需要上传的文件。' }); const safeName = req.file.originalname.replace(/[^\w.\-\u4e00-\u9fa5]/g, '_'); const cloudPath = `uploads/${req.user.sub}/${Date.now()}-${safeName}`; let fileID = `memory://${cloudPath}`; let storageWarning = '';
     if (!memoryMode) {
       try { const uploaded = await cloud.uploadFile({ cloudPath, fileContent: req.file.buffer }); fileID = uploaded.fileID; }
@@ -316,7 +327,7 @@ app.post('/api/files', auth, upload.single('file'), async (req, res, next) => {
     await audit(req.user, 'file.upload', 'file', record._id, { name: record.name, size: record.size, parseStatus, visibility }); res.status(201).json({ _id: record._id, name: record.name, size: record.size, fileID: record.fileID, indexed: Boolean(extractedText), parseStatus, parseMessage, visibility, storageWarning });
   } catch (e) { next(e); }
 });
-app.get('/api/files', auth, async (req, res, next) => { try { const files = await list('files'); res.json(req.user.role === 'admin' ? files : files.filter(f => f.ownerId === req.user.sub || f.visibility === 'team')); } catch (e) { next(e); } });
+app.get('/api/files', auth, async (req, res, next) => { try { const files = await list('files'); const permitted = req.user.role === 'admin' ? files : files.filter(f => f.ownerId === req.user.sub || f.visibility === 'team'); res.json(permitted.map(file => ({ ...file, name: normalizeFilename(file.name) }))); } catch (e) { next(e); } });
 app.get('/api/files/:id/download', auth, async (req, res, next) => {
   try {
     const file = await one('files', { _id: req.params.id });
@@ -328,7 +339,7 @@ app.get('/api/files/:id/download', auth, async (req, res, next) => {
     const item = result?.fileList?.[0];
     if (!item?.tempFileURL) return res.status(502).json({ error: '云存储暂时无法生成下载链接。' });
     await audit(req.user, 'file.download', 'file', file._id, { name: file.name });
-    res.json({ url: item.tempFileURL, name: file.name });
+    res.json({ url: item.tempFileURL, name: normalizeFilename(file.name) });
   } catch (e) { next(e); }
 });
 

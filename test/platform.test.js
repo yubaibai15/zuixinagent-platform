@@ -33,5 +33,23 @@ test('index loads the final dispatcher and removes superseded role flows', () =>
 });
 test('server serves every browser script loaded by index', () => {
   const source = read('server.js');
-  ['cloudbase-runtime.js', 'platform-features.js', 'app-fixes.js', 'agent-skill-catalog.js', 'chat-dispatcher.js', 'team-file-download.js'].forEach(file => assert.match(source, new RegExp(file.replace('.', '\\.'))));
+  ['cloudbase-runtime.js', 'platform-features.js', 'app-fixes.js', 'agent-skill-catalog.js', 'chat-dispatcher.js', 'team-file-download.js', 'team-tasks.js', 'skill-invocation-feedback.js'].forEach(file => assert.match(source, new RegExp(file.replace('.', '\\.'))));
+});
+test('team task page and collection dashboard are available', () => {
+  assert.equal(fs.existsSync(path.join(root, 'team-tasks.js')), true);
+  assert.equal(fs.existsSync(path.join(root, 'results/all-channel-data-collection-dashboard.html')), true);
+  assert.match(read('team-tasks.js'), /openTeamCollectionBoard/);
+  assert.match(read('server.js'), /all-channel-data-collection-dashboard\.html/);
+});
+test('team file names are normalized before storage and display', () => {
+  const source = read('server.js');
+  assert.match(source, /normalizeFilename/);
+  assert.match(source, /req\.file\.originalname = normalizeFilename/);
+  assert.match(read('team-tasks.js'), /restoreFilename/);
+});
+test('every assistant receives direct skill invocation feedback', () => {
+  const source = read('skill-invocation-feedback.js');
+  ['demo-data', 'demo-ops', 'demo-marketing', 'demo-visual'].forEach(id => assert.match(source, new RegExp(id)));
+  assert.match(source, /技能调用成功/);
+  assert.match(source, /runComposerSkill/);
 });

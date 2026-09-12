@@ -1,7 +1,10 @@
 (() => {
   const script = document.currentScript;
-  const agent = script?.dataset.agent || 'demo-data';
-  const returnToAgent = () => window.location.replace(`/?agent=${encodeURIComponent(agent)}`);
+  const agent = new URLSearchParams(window.location.search).get('agent') || script?.dataset.agent || 'demo-data';
+  const returnToAgent = () => {
+    if (new URLSearchParams(window.location.search).get('from') === 'team-task' && window.history.length > 1) return window.history.back();
+    window.location.replace(`/?agent=${encodeURIComponent(agent)}`);
+  };
 
   const install = () => {
     document.querySelectorAll('a[aria-label], header a').forEach(link => {
