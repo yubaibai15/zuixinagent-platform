@@ -175,15 +175,10 @@
     const waitId = `keywordSkillWait-${Date.now()}`;
     input.value = '';
     messages.insertAdjacentHTML('beforeend', `<div class="bubble me">${escapeHtml(query)}</div><div class="bubble bot" id="${waitId}">思考中（1/4）${steps[0]}</div>`);
-    const overlay = document.createElement('div');
-    overlay.className = 'thinking-overlay';
-    overlay.innerHTML = `<div><img src="/assets/agent-ip.png" alt="智能助手 IP"><span>AGENT THINKING</span><h2>正在调用「${escapeHtml(skill.label)}」</h2><p>正在检索项目资料、整理结果并生成本地访问链接…</p><div><i></i></div></div>`;
-    document.body.appendChild(overlay);
     const started = Date.now();
     const progress = setInterval(() => { const wait = document.getElementById(waitId); const index = Math.min(3, Math.floor((Date.now() - started) / 750)); if (wait) wait.textContent = `思考中（${index + 1}/4）${steps[index]}`; }, 180);
     setTimeout(() => {
       clearInterval(progress);
-      overlay.remove();
       const wait = document.getElementById(waitId);
       if (wait) wait.outerHTML = `<div class="bubble bot">${escapeHtml(skill.text)}<br><a class="skill-result-link" href="${skill.href}"${skill.download ? ' download' : ''}>${escapeHtml(skill.link)} →</a></div>`;
       messages.scrollTop = messages.scrollHeight;
