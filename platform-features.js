@@ -205,15 +205,20 @@ window.openAgentChat=id=>{const list=[...(window.remoteAgents||[]),...demoAgents
     const cover=document.createElement('div');
     cover.className='deliverable-loading';
     cover.style.cssText='position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(246,250,247,.96);color:#0b4f3d;font:600 20px Microsoft YaHei';
-    cover.innerHTML='<div style="position:relative;width:min(420px,88vw);padding:38px 32px;border:1px solid #dbe8df;border-radius:22px;background:#fff;text-align:center;box-shadow:0 20px 55px rgba(9,67,48,.14)"><button type="button" aria-label="取消并返回" style="position:absolute;right:14px;top:10px;border:0;background:transparent;font-size:28px;color:#60776d;cursor:pointer">×</button><div style="font-size:15px;letter-spacing:.12em;color:#14805c;margin-bottom:14px">AGENT WORKING</div><div>正在生成「'+name+'」成果…</div><p style="margin:13px 0 0;font-size:13px;font-weight:400;color:#6f8379">即将打开成果页面</p></div>';
+    const progressId='result-thinking-'+Date.now();
+    cover.innerHTML='<div style="position:relative;width:min(420px,88vw);padding:38px 32px;border:1px solid #dbe8df;border-radius:22px;background:#fff;text-align:center;box-shadow:0 20px 55px rgba(9,67,48,.14)"><button type="button" aria-label="取消并返回" style="position:absolute;right:14px;top:10px;border:0;background:transparent;font-size:28px;color:#60776d;cursor:pointer">×</button><div style="font-size:15px;letter-spacing:.12em;color:#14805c;margin-bottom:14px">AGENT THINKING</div><div>正在准备「'+name+'」成果…</div><p id="'+progressId+'" style="margin:13px 0 0;font-size:13px;font-weight:400;color:#6f8379">思考中（1/4）正在识别当前需求…</p></div>';
     const cancel=()=>cover.remove();
     cover.querySelector('button').onclick=cancel;
     document.body.appendChild(cover);
+    const stages=['正在识别当前需求…','正在匹配知识库与固定资料…','正在校验成果内容和打开路径…','已完成校验，正在打开成果页…'];
+    const started=Date.now();
+    const progress=setInterval(()=>{const el=document.getElementById(progressId);const index=Math.min(3,Math.floor((Date.now()-started)/750));if(el)el.textContent=`思考中（${index+1}/4）${stages[index]}`},180);
     window.setTimeout(()=>{
+      clearInterval(progress);
       if(!cover.isConnected)return;
       cover.remove();
       window.location.assign(resultPages[name]);
-    },300);
+    },3000);
   };
   const oldOpen=window.thinkThenOpen;
   window.thinkThenOpen=(name,url)=>{
@@ -226,8 +231,10 @@ window.openAgentChat=id=>{const list=[...(window.remoteAgents||[]),...demoAgents
     const skill=findSkill(q);if(!skill||!history)return oldSend?.();
     input.value='';
     const mine=document.createElement('div');mine.className='bubble me';mine.textContent=q;history.appendChild(mine);
-    const waiting=document.createElement('div');waiting.className='bubble bot';waiting.textContent='正在调用「'+skill.name+'」技能，整理成果中…';history.appendChild(waiting);history.scrollTop=history.scrollHeight;
-    setTimeout(()=>{waiting.innerHTML='已完成「'+escapeText(skill.name)+'」技能调用。<br><a href="'+skill.href+'" style="display:inline-block;margin-top:10px;padding:10px 14px;border-radius:9px;background:#087e58;color:#fff;text-decoration:none;font-weight:700">'+skill.label+' →</a>';history.scrollTop=history.scrollHeight},1600);
+    const stages=['正在识别你的需求与关键词…','正在匹配技能包与项目资料…','正在校验成果内容与打开路径…','已完成校验，正在整理最终结果…'];
+    const waiting=document.createElement('div');waiting.className='bubble bot';waiting.textContent='思考中（1/4）'+stages[0];history.appendChild(waiting);history.scrollTop=history.scrollHeight;
+    const started=Date.now();const progress=setInterval(()=>{const index=Math.min(3,Math.floor((Date.now()-started)/750));waiting.textContent='思考中（'+(index+1)+'/4）'+stages[index];},180);
+    setTimeout(()=>{clearInterval(progress);waiting.innerHTML='已完成「'+escapeText(skill.name)+'」技能调用。<br><a href="'+skill.href+'" style="display:inline-block;margin-top:10px;padding:10px 14px;border-radius:9px;background:#087e58;color:#fff;text-decoration:none;font-weight:700">'+skill.label+' →</a>';history.scrollTop=history.scrollHeight},3000);
   };
 })();
 
