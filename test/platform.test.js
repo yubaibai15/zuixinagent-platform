@@ -47,9 +47,10 @@ test('team file names are normalized before storage and display', () => {
   assert.match(source, /req\.file\.originalname = normalizeFilename/);
   assert.match(read('team-tasks.js'), /restoreFilename/);
 });
-test('every assistant receives direct skill invocation feedback', () => {
+test('every assistant receives the shared composer skill-tag interaction', () => {
   const source = read('skill-invocation-feedback.js');
-  ['demo-data', 'demo-ops', 'demo-marketing', 'demo-visual'].forEach(id => assert.match(source, new RegExp(id)));
-  assert.match(source, /技能调用成功/);
+  assert.match(source, /selected-skill-token/);
   assert.match(source, /runComposerSkill/);
+  assert.match(source, /originalSendAgentChat/);
+  assert.match(source, /removeSelectedSkill/);
 });
