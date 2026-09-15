@@ -13,6 +13,8 @@ test('marketing calendar opens from the marketing chat', () => {
   const source = read('chat-dispatcher.js');
   assert.match(source, /全年营销日历/);
   assert.match(source, /\/results\/marketing-calendar\.html/);
+  assert.match(read('app-fixes.js'), /'全年营销日历':'\/results\/marketing-calendar\.html'/);
+  assert.match(read('platform-features.js'), /'全年营销日历':'\/results\/marketing-calendar\.html'/);
 });
 test('no browser route points to a missing legacy file', () => {
   const source = read('server.js');

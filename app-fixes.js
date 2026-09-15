@@ -147,6 +147,7 @@
     '直播数据导出':'/downloads/A企业、竞品直播数据.xlsx',
     '知识图谱':'/results/knowledge-graph.html',
     '全年日历':'/results/marketing-calendar.html',
+    '全年营销日历':'/results/marketing-calendar.html',
     '营销日历':'/results/marketing-calendar.html',
     '发布平台':'/results/publish-platform.html',
     '发布物料':'/results/publish-platform.html'
