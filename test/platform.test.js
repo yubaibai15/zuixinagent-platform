@@ -32,6 +32,14 @@ test('every active result page is registered for a clickable assistant return bu
   assert.match(read('results/navigation.js'), /z-index:2147483647!important/);
   assert.match(read('results/navigation.js'), /window\.location\.replace/);
 });
+
+test('active result pages do not retain browser-history return links', () => {
+  ['data-dashboards.html', 'customer-profile-dashboard.html', 'independent-site-dashboard.html', 'social-dashboard.html', 'knowledge-graph.html', 'all-channel-data-collection-dashboard.html', 'data-analysis-skills-mindmap.html', 'marketing-calendar.html', 'publish-platform.html'].forEach(file => {
+    const page = read(`results/${file}`);
+    assert.match(page, /\/results\/navigation\.js/);
+    assert.doesNotMatch(page, /javascript:history\.back\(\)/);
+  });
+});
 test('no browser route points to a missing legacy file', () => {
   const source = read('server.js');
   assert.doesNotMatch(source, /group-platform\.html|bridge-runtime\.js/);
@@ -51,7 +59,7 @@ test('index loads the final dispatcher and removes superseded role flows', () =>
 });
 test('server serves every browser script loaded by index', () => {
   const source = read('server.js');
-  ['cloudbase-runtime.js', 'platform-features.js', 'app-fixes.js', 'agent-skill-catalog.js', 'chat-dispatcher.js', 'team-file-download.js', 'team-tasks.js', 'skill-invocation-feedback.js'].forEach(file => assert.match(source, new RegExp(file.replace('.', '\\.'))));
+  ['cloudbase-runtime.js', 'platform-features.js', 'app-fixes.js', 'agent-skill-catalog.js', 'chat-dispatcher.js', 'team-file-download.js', 'team-tasks.js', 'skill-invocation-feedback.js', 'agent-workspace-navigation.js'].forEach(file => assert.match(source, new RegExp(file.replace('.', '\\.'))));
 });
 test('team task page and collection dashboard are available', () => {
   assert.equal(fs.existsSync(path.join(root, 'team-tasks.js')), true);
@@ -71,4 +79,13 @@ test('every assistant receives the shared composer skill-tag interaction', () =>
   assert.match(source, /runComposerSkill/);
   assert.match(source, /originalSendAgentChat/);
   assert.match(source, /removeSelectedSkill/);
+});
+
+test('assistant sidebar pages remember the current assistant and provide a return path', () => {
+  const source = read('agent-workspace-navigation.js');
+  ['我的项目', '任务协作', '成果中心', '知识库', '团队空间'].forEach(label => assert.match(source, new RegExp(label)));
+  assert.match(source, /openAgentWorkspacePage/);
+  assert.match(source, /返回智能体对话/);
+  assert.match(read('team-tasks.js'), /团队任务/);
+  assert.match(read('team-tasks.js'), /openAgentChat/);
 });

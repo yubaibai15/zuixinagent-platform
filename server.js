@@ -37,7 +37,7 @@ function loginGuard(req, res, next) { const key = req.ip || 'unknown'; const now
 // 仅公开浏览器所需的两个文件，不把服务端代码、部署说明或示例配置暴露为静态资源。
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/index.html', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
-for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'preview-theme.css', 'app-fixes.js', 'agent-skill-catalog.js', 'chat-dispatcher.js', 'team-file-download.js', 'team-tasks.js', 'skill-invocation-feedback.js']) {
+for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'preview-theme.css', 'app-fixes.js', 'agent-skill-catalog.js', 'chat-dispatcher.js', 'team-file-download.js', 'team-tasks.js', 'skill-invocation-feedback.js', 'agent-workspace-navigation.js']) {
   app.get(`/${file}`, (_, res) => res.sendFile(path.join(__dirname, file)));
 }
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
@@ -61,9 +61,10 @@ app.get('/results/:file', (req, res, next) => {
     const sourceForDisplay = source.replace(/<a\b[^>]*href=["']javascript:history\.back\(\)["'][\s\S]*?<\/a>/gi, '');
     const bodyEnd = sourceForDisplay.toLowerCase().lastIndexOf('</body>');
     // 结果页的脚本中也可能含有 "</body>" 字符串；必须只在真正页面末尾插入导航脚本。
+    const navigation = /\/results\/navigation\.js/.test(sourceForDisplay) ? '' : `<script src="/results/navigation.js" data-agent="${agent}"></script>`;
     const injected = bodyEnd >= 0
-      ? `${sourceForDisplay.slice(0, bodyEnd)}<script src="/results/navigation.js" data-agent="${agent}"></script>${sourceForDisplay.slice(bodyEnd)}`
-      : `${sourceForDisplay}<script src="/results/navigation.js" data-agent="${agent}"></script>`;
+      ? `${sourceForDisplay.slice(0, bodyEnd)}${navigation}${sourceForDisplay.slice(bodyEnd)}`
+      : `${sourceForDisplay}${navigation}`;
     res.type('html').send(injected);
   } catch (error) { next(error); }
 });
