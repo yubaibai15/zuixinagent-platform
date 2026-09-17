@@ -16,6 +16,22 @@ test('marketing calendar opens from the marketing chat', () => {
   assert.match(read('app-fixes.js'), /'全年营销日历':'\/results\/marketing-calendar\.html'/);
   assert.match(read('platform-features.js'), /'全年营销日历':'\/results\/marketing-calendar\.html'/);
 });
+
+test('knowledge graph uses the current Brazil culture graph and returns to operations', () => {
+  const graph = read('results/knowledge-graph.html');
+  assert.match(graph, /巴西新能源汽车出海知识图谱/);
+  assert.match(graph, /data-agent="demo-ops" src="\/results\/navigation\.js"/);
+  assert.match(read('app-fixes.js'), /'知识图谱':'\/results\/knowledge-graph\.html'/);
+});
+
+test('every active result page is registered for a clickable assistant return button', () => {
+  const source = read('server.js');
+  ['data-dashboards.html', 'customer-profile-dashboard.html', 'independent-site-dashboard.html', 'social-dashboard.html', 'knowledge-graph.html', 'all-channel-data-collection-dashboard.html', 'data-analysis-skills-mindmap.html', 'marketing-calendar.html', 'publish-platform.html'].forEach(file => {
+    assert.match(source, new RegExp(`'${file.replace('.', '\\.')}': 'demo-`));
+  });
+  assert.match(read('results/navigation.js'), /z-index:2147483647!important/);
+  assert.match(read('results/navigation.js'), /window\.location\.replace/);
+});
 test('no browser route points to a missing legacy file', () => {
   const source = read('server.js');
   assert.doesNotMatch(source, /group-platform\.html|bridge-runtime\.js/);

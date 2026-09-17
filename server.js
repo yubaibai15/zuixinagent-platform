@@ -48,6 +48,7 @@ const resultAgentMap = {
   'social-dashboard.html': 'demo-data',
   'knowledge-graph.html': 'demo-ops',
   'all-channel-data-collection-dashboard.html': 'demo-data',
+  'data-analysis-skills-mindmap.html': 'demo-data',
   'marketing-calendar.html': 'demo-marketing',
   'publish-platform.html': 'demo-marketing'
 };

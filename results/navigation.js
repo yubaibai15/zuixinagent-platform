@@ -23,7 +23,7 @@
   };
 
   const style = document.createElement('style');
-  style.textContent = '.result-close{position:fixed;z-index:10000;top:14px;left:16px;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:transparent;color:rgba(255,255,255,.9);font:300 38px/34px Arial,sans-serif;cursor:pointer;text-shadow:0 1px 5px rgba(0,0,0,.72);opacity:.78;transition:opacity .15s,transform .15s}.result-close:hover,.result-close:focus-visible{opacity:1;transform:scale(1.12);outline:2px solid rgba(255,255,255,.5);outline-offset:2px}@media(max-width:600px){.result-close{top:8px;left:8px}}';
+  style.textContent = '.result-close{position:fixed!important;z-index:2147483647!important;top:14px;left:16px;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:transparent;color:rgba(255,255,255,.9);font:300 38px/34px Arial,sans-serif;cursor:pointer!important;pointer-events:auto!important;text-shadow:0 1px 5px rgba(0,0,0,.72);opacity:.78;transition:opacity .15s,transform .15s}.result-close:hover,.result-close:focus-visible{opacity:1;transform:scale(1.12);outline:2px solid rgba(255,255,255,.5);outline-offset:2px}@media(max-width:600px){.result-close{top:8px;left:8px}}';
   document.head.appendChild(style);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true }); else install();
 })();
