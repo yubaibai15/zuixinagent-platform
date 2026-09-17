@@ -1,10 +1,7 @@
 (() => {
   const script = document.currentScript;
   const agent = new URLSearchParams(window.location.search).get('agent') || script?.dataset.agent || 'demo-data';
-  const returnToAgent = () => {
-    if (new URLSearchParams(window.location.search).get('from') === 'team-task' && window.history.length > 1) return window.history.back();
-    window.location.replace(`/?agent=${encodeURIComponent(agent)}`);
-  };
+  const returnToAgent = () => window.location.replace(`/?agent=${encodeURIComponent(agent)}`);
 
   const install = () => {
     document.querySelectorAll('a[aria-label], header a').forEach(link => {
@@ -18,6 +15,7 @@
     close.setAttribute('aria-label', '\u5173\u95ed\u6210\u679c\u5e76\u8fd4\u56de\u5c97\u4f4d\u52a9\u624b');
     close.title = '\u8fd4\u56de\u5c97\u4f4d\u52a9\u624b';
     close.textContent = '\u00d7';
+    close.onclick = returnToAgent;
     close.addEventListener('click', returnToAgent);
     document.body.appendChild(close);
   };

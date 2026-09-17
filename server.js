@@ -61,7 +61,7 @@ app.get('/results/:file', (req, res, next) => {
     const sourceForDisplay = source.replace(/<a\b[^>]*href=["']javascript:history\.back\(\)["'][\s\S]*?<\/a>/gi, '');
     const bodyEnd = sourceForDisplay.toLowerCase().lastIndexOf('</body>');
     // 结果页的脚本中也可能含有 "</body>" 字符串；必须只在真正页面末尾插入导航脚本。
-    const navigation = /\/results\/navigation\.js/.test(sourceForDisplay) ? '' : `<script src="/results/navigation.js" data-agent="${agent}"></script>`;
+    const navigation = /\/results\/navigation\.js/.test(sourceForDisplay) ? '' : `<script src="/results/navigation.js?v=20260917-return2" data-agent="${agent}"></script>`;
     const injected = bodyEnd >= 0
       ? `${sourceForDisplay.slice(0, bodyEnd)}${navigation}${sourceForDisplay.slice(bodyEnd)}`
       : `${sourceForDisplay}${navigation}`;

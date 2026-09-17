@@ -20,7 +20,7 @@ test('marketing calendar opens from the marketing chat', () => {
 test('knowledge graph uses the current Brazil culture graph and returns to operations', () => {
   const graph = read('results/knowledge-graph.html');
   assert.match(graph, /巴西新能源汽车出海知识图谱/);
-  assert.match(graph, /data-agent="demo-ops" src="\/results\/navigation\.js"/);
+  assert.match(graph, /data-agent="demo-ops" src="\/results\/navigation\.js\?v=20260917-return2"/);
   assert.match(read('app-fixes.js'), /'知识图谱':'\/results\/knowledge-graph\.html'/);
 });
 
@@ -31,12 +31,13 @@ test('every active result page is registered for a clickable assistant return bu
   });
   assert.match(read('results/navigation.js'), /z-index:2147483647!important/);
   assert.match(read('results/navigation.js'), /window\.location\.replace/);
+  assert.doesNotMatch(read('results/navigation.js'), /history\.back/);
 });
 
 test('active result pages do not retain browser-history return links', () => {
   ['data-dashboards.html', 'customer-profile-dashboard.html', 'independent-site-dashboard.html', 'social-dashboard.html', 'knowledge-graph.html', 'all-channel-data-collection-dashboard.html', 'data-analysis-skills-mindmap.html', 'marketing-calendar.html', 'publish-platform.html'].forEach(file => {
     const page = read(`results/${file}`);
-    assert.match(page, /\/results\/navigation\.js/);
+    assert.match(page, /\/results\/navigation\.js\?v=20260917-return2/);
     assert.doesNotMatch(page, /javascript:history\.back\(\)/);
   });
 });
