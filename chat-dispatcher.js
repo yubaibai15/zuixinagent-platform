@@ -4,7 +4,7 @@
   const roleText = () => document.querySelector('#agent-chat .chat-brand')?.textContent || document.querySelector('#agent-chat .chat-profile')?.textContent || '';
   const kind = () => { const text = roleText(); if (/\u5185\u5bb9\u521b\u610f|\u89c6\u89c9\u8bbe\u8ba1/.test(text)) return 'visual'; if (/\u6570\u5b57\u8425\u9500/.test(text)) return 'marketing'; if (/\u6570\u636e\u6d1e\u5bdf|\u6570\u636e\u5206\u6790/.test(text)) return 'data'; return 'other'; };
   const rules = {
-    visual: [{ test: /\u89c6\u9891|\u77ed\u89c6\u9891|\u811a\u672c|\u5206\u955c|\u955c\u5934|\u62cd\u6444|\u53e3\u64ad/i, label: '圣灵节短视频分镜脚本', href: '/downloads/圣灵节专场营销-短视频分镜脚本.xlsx', link: '下载已完成的短视频分镜脚本 Excel', delay: 3000, download: true }],
+    visual: [{ test: /\u89c6\u9891|\u77ed\u89c6\u9891|\u811a\u672c|\u5206\u955c|\u955c\u5934|\u62cd\u6444|\u53e3\u64ad/i, label: '圣灵节短视频分镜脚本', href: '/downloads/圣灵节专场营销-短视频分镜脚本.xlsm', link: '下载已完成的短视频分镜脚本 Excel', delay: 3000, download: true }],
     marketing: [{ test: /\u5168\u5e74.{0,4}(?:\u8425\u9500)?\u65e5\u5386|\u8425\u9500\u65e5\u5386|\u65e5\u5386.{0,6}\u8425\u9500/, label: '全年营销日历', href: '/results/marketing-calendar.html', link: '打开全年营销日历', delay: 3000 }],
     data: [
       { test: /(?:\u91c7\u96c6|\u722c\u53d6|\u5bfc\u51fa|\u4e0b\u8f7d).{0,8}\u76f4\u64ad|\u76f4\u64ad.{0,8}(?:\u6570\u636e|excel|\u8868\u683c|\u91c7\u96c6|\u722c\u53d6|\u5bfc\u51fa|\u4e0b\u8f7d)/i, label: '直播数据 Excel', href: '/downloads/A企业、竞品直播数据.xlsx', link: '下载直播数据 Excel', delay: 3000, download: true },
@@ -13,7 +13,7 @@
     ]
   };
   // 在用户点击入口前预加载固定分镜表，后续下载优先使用浏览器缓存。
-  const storyboardUrl = '/downloads/圣灵节专场营销-短视频分镜脚本.xlsx';
+  const storyboardUrl = '/downloads/圣灵节专场营销-短视频分镜脚本.xlsm';
   let storyboardBlobUrl = '';
   const warmStoryboardDownload = () => {
     if (storyboardBlobUrl || !window.fetch) return;

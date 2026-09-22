@@ -5,10 +5,26 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 
-test('core scripts and local result pages exist', () => {
-  ['index.html', 'server.js', 'chat-dispatcher.js', 'team-file-download.js', 'results/data-dashboards.html', 'results/marketing-calendar.html', 'downloads/A企业、竞品直播数据.xlsx', 'downloads/圣灵节专场营销-短视频分镜脚本.xlsx'].forEach(file => assert.equal(fs.existsSync(path.join(root, file)), true, file));
+test('each assistant welcome area uses its assigned IP illustration', () => {
+  const source = read('platform-features.js');
+  const welcomeAssets = {
+    'demo-ops': 'assets/welcome-ip/ecommerce-operations.png',
+    'demo-visual': 'assets/welcome-ip/visual-design.png',
+    'demo-marketing': 'assets/welcome-ip/digital-marketing.png',
+    'demo-data': 'assets/welcome-ip/data-analysis.png'
+  };
+  Object.entries(welcomeAssets).forEach(([agent, asset]) => {
+    assert.match(source, new RegExp(`'${agent}':'/${asset}'`));
+    assert.equal(fs.existsSync(path.join(root, asset)), true, asset);
+  });
+  assert.match(source, /querySelectorAll\('\.chat-brand img'\)/);
+  assert.match(source, /querySelector\('\.chat-welcome img'\)/);
 });
-test('visual Excel link matches the user-provided storyboard workbook', () => assert.match(read('chat-dispatcher.js'), /圣灵节专场营销-短视频分镜脚本\.xlsx/));
+
+test('core scripts and local result pages exist', () => {
+  ['index.html', 'server.js', 'chat-dispatcher.js', 'team-file-download.js', 'results/data-dashboards.html', 'results/marketing-calendar.html', 'downloads/A企业、竞品直播数据.xlsx', 'downloads/圣灵节专场营销-短视频分镜脚本.xlsm'].forEach(file => assert.equal(fs.existsSync(path.join(root, file)), true, file));
+});
+test('visual Excel link matches the user-provided storyboard workbook', () => assert.match(read('chat-dispatcher.js'), /圣灵节专场营销-短视频分镜脚本\.xlsm/));
 test('marketing calendar opens from the marketing chat', () => {
   const source = read('chat-dispatcher.js');
   assert.match(source, /全年营销日历/);

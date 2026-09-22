@@ -143,7 +143,7 @@
     '社媒看板':'/results/social-dashboard.html',
     '客户画像':'/results/customer-profile-dashboard.html',
     '用户画像':'/results/customer-profile-dashboard.html',
-    '直播脚本':'/downloads/圣灵节专场营销-短视频分镜脚本.xlsx',
+    '直播脚本':'/downloads/圣灵节专场营销-短视频分镜脚本.xlsm',
     '直播数据导出':'/downloads/A企业、竞品直播数据.xlsx',
     '知识图谱':'/results/knowledge-graph.html',
     '全年日历':'/results/marketing-calendar.html',
@@ -234,7 +234,7 @@
     await new Promise(resolve => setTimeout(resolve, 3000));
     clearInterval(progress);
     const wait = document.getElementById(waitId);
-    if (wait) wait.outerHTML = '<div class="bubble bot">已校检完成，已生成短视频分镜脚本。<br><a class="skill-result-link" href="/downloads/圣灵节专场营销-短视频分镜脚本.xlsx" download>下载短视频分镜脚本 Excel →</a></div>';
+    if (wait) wait.outerHTML = '<div class="bubble bot">已校检完成，已生成短视频分镜脚本。<br><a class="skill-result-link" href="/downloads/圣灵节专场营销-短视频分镜脚本.xlsm" download>下载短视频分镜脚本 Excel →</a></div>';
     messages.scrollTop = messages.scrollHeight;
   };
 })();
