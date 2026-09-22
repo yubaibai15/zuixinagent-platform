@@ -37,7 +37,7 @@ function loginGuard(req, res, next) { const key = req.ip || 'unknown'; const now
 // 仅公开浏览器所需的两个文件，不把服务端代码、部署说明或示例配置暴露为静态资源。
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/index.html', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
-for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'preview-theme.css', 'app-fixes.js', 'agent-skill-catalog.js', 'chat-dispatcher.js', 'team-file-download.js', 'team-tasks.js', 'skill-invocation-feedback.js', 'agent-workspace-navigation.js']) {
+ for (const file of ['cloudbase-runtime.js', 'platform-features.js', 'preview-theme.css', 'app-fixes.js', 'agent-skill-catalog.js', 'chat-dispatcher.js', 'team-file-download.js', 'team-tasks.js', 'skill-invocation-feedback.js', 'agent-workspace-navigation.js', 'assistant-entry-fix.js']) {
   app.get(`/${file}`, (_, res) => res.sendFile(path.join(__dirname, file)));
 }
 app.use('/assets', express.static(path.join(__dirname, 'assets')));

@@ -21,6 +21,16 @@ test('each assistant welcome area uses its assigned IP illustration', () => {
   assert.match(source, /querySelector\('\.chat-welcome img'\)/);
 });
 
+test('homepage roles and legacy assistant names open the matching chat directly', () => {
+  const source = read('assistant-entry-fix.js');
+  ['demo-data', 'demo-ops', 'demo-marketing', 'demo-visual'].forEach(agent => assert.match(source, new RegExp(`'${agent}'`)));
+  ['海外市场洞察助手', '跨境店铺运营助手', '海外社媒文案助手', '海外广告视觉策划助手'].forEach(name => assert.match(source, new RegExp(name)));
+  assert.match(source, /card\.onclick = \(\) => window\.openAgentChat\(agent\)/);
+  assert.match(source, /window\.openAgent = window\.openAgentChat/);
+  assert.match(read('index.html'), /assistant-entry-fix\.js/);
+  assert.match(read('server.js'), /assistant-entry-fix\.js/);
+});
+
 test('core scripts and local result pages exist', () => {
   ['index.html', 'server.js', 'chat-dispatcher.js', 'team-file-download.js', 'results/data-dashboards.html', 'results/marketing-calendar.html', 'downloads/A企业、竞品直播数据.xlsx', 'downloads/圣灵节专场营销-短视频分镜脚本.xlsm'].forEach(file => assert.equal(fs.existsSync(path.join(root, file)), true, file));
 });
