@@ -82,10 +82,10 @@
       'demo-data':'/assets/welcome-ip/data-analysis.png'
     };
     const welcomeIp=welcomeIpByAgent[a._id]||'/assets/agent-ip.png';
-    page.querySelectorAll('.chat-brand img').forEach(img=>{img.src=roleAvatar;img.alt=`${a.role}岗位头像`});
+    page.querySelectorAll('.chat-brand img').forEach(img=>{img.src=welcomeIp;img.alt=`${a.name} IP`});
     const welcomeImage=page.querySelector('.chat-welcome img');
     if(welcomeImage){welcomeImage.src=welcomeIp;welcomeImage.alt=`${a.name} IP`;welcomeImage.classList.add('role-welcome-ip')}
-    const titleAvatar=page.querySelector('.agent-symbol');if(titleAvatar)titleAvatar.innerHTML=`<img src="${e(roleAvatar)}" alt="${e(a.role)}岗位头像">`;
+    const titleAvatar=page.querySelector('.agent-symbol');if(titleAvatar)titleAvatar.innerHTML=`<img src="${e(welcomeIp)}" alt="${e(a.name)} IP">`;
     const skillMap={数据分析师:[['表格智能分析','读取 Excel/CSV，自动识别指标与异常'],['用户画像生成','按基础属性、行为路径和需求偏好生成画像'],['数据看板生成','选择看板风格并输出可视化结果'],['行业报告撰写','将分析结论整理为结构化报告']],电商运营师:[['跨境选品评估','评估市场、价格带、竞品与利润空间'],['店铺运营诊断','诊断流量、转化、商品与售后问题'],['合规清单生成','按目标市场生成法规与平台合规清单'],['售后话术生成','生成多语言客服与售后处理方案']],数字营销师:[['直播营销策划','生成直播脚本、节奏与互动机制'],['全年营销日历','规划年度节点、活动与内容排期'],['社媒内容分发','生成并发布多平台营销物料'],['广告投流复盘','分析曝光、点击、转化与成本']],视觉设计师:[['广告视觉简报','生成海外广告视觉方向与执行规范'],['产品图策划','生成产品图场景、镜头与拍摄清单'],['品牌规范校验','检查颜色、字体、Logo 与版式一致性'],['设计文案生成','生成适配视觉版式的多语言文案']]};
     const skills=skillMap[a.role]||skillMap.数字营销师;page.querySelector('.chat-assist').insertAdjacentHTML('beforeend',`<section class="skill-pack"><small>SKILLS</small><h2>技能包</h2><p>选择技能后由当前助手调用标准化工作流。</p>${skills.map((s,i)=>`<button onclick="invokeSkill('${e(s[0])}','${e(s[1])}')"><i>SK${i+1}</i><span><b>${e(s[0])}</b><em>${e(s[1])}</em></span><strong>调用</strong></button>`).join('')}</section>`);
     if(location.protocol!=='http:'||(location.port!=='4173'&&!['127.0.0.1','localhost'].includes(location.hostname)))loadChatHistory();

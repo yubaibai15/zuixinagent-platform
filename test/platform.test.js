@@ -19,6 +19,8 @@ test('each assistant welcome area uses its assigned IP illustration', () => {
   });
   assert.match(source, /querySelectorAll\('\.chat-brand img'\)/);
   assert.match(source, /querySelector\('\.chat-welcome img'\)/);
+  assert.match(source, /chat-brand img'\)\.forEach\(img=>\{img\.src=welcomeIp/);
+  assert.match(source, /agent-symbol'\);if\(titleAvatar\)titleAvatar\.innerHTML=.*welcomeIp/);
 });
 
 test('homepage roles and legacy assistant names open the matching chat directly', () => {
