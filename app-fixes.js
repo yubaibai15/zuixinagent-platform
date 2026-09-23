@@ -2,9 +2,9 @@
 (() => {
   const escapeHtml = value => String(value || '').replace(/[&<>"']/g, char => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[char]));
   const roster = {
-    'demo-data': ['数据洞察助手', ['数据看板','客户画像','独立站看板','社媒看板','直播数据导出']],
+    'demo-data': ['数据洞察助手', ['数据看板','客户画像','独立站看板','社媒看板','趋势分析']],
     'demo-ops': ['电商运营助手', ['店铺诊断','选品分析','知识图谱','售后话术']],
-    'demo-marketing': ['数字营销助手', ['直播脚本','全年日历','投流复盘','发布平台']],
+    'demo-marketing': ['数字营销助手', ['直播数据导出','直播脚本','全年日历','投流复盘','发布平台']],
     'demo-visual': ['内容创意助手', ['视觉简报','产品图','品牌规范','设计文案']]
   };
 
@@ -143,7 +143,7 @@
     '社媒看板':'/results/social-dashboard.html',
     '客户画像':'/results/customer-profile-dashboard.html',
     '用户画像':'/results/customer-profile-dashboard.html',
-    '直播脚本':'/downloads/圣灵节专场营销-短视频分镜脚本.xlsm',
+    '直播脚本':'/downloads/圣灵节专场营销-短视频分镜脚本.xlsx',
     '直播数据导出':'/downloads/A企业、竞品直播数据.xlsx',
     '知识图谱':'/results/knowledge-graph.html',
     '全年日历':'/results/marketing-calendar.html',
@@ -159,7 +159,7 @@
   };
 
   const keywordSkills = [
-    { test: /(?:采集|爬取|导出|下载).{0,8}直播|直播.{0,8}(?:数据|excel|表格|采集|爬取|导出|下载)/i, label:'直播数据采集', text:'已完成直播与竞品数据整理，下面可直接下载 Excel 原始数据表。', href:'/downloads/A企业、竞品直播数据.xlsx', link:'下载直播数据 Excel', download:true },
+    { role:'marketing', test: /(?:采集|爬取|导出|下载).{0,8}直播|直播.{0,8}(?:数据|excel|表格|采集|爬取|导出|下载)/i, label:'直播数据采集', text:'已完成直播与竞品数据整理，下面可直接下载 Excel 原始数据表。', href:'/downloads/A企业、竞品直播数据.xlsx', link:'下载直播数据 Excel', download:true },
     { test: /知识图谱|运营图谱|店铺关系/i, label:'电商运营知识图谱', text:'已生成电商运营知识图谱，商品、流量、用户与售后关系已整理完成。', href:'/results/knowledge-graph.html', link:'打开知识图谱' },
     { test: /发布平台|内容分发|渠道发布/i, label:'内容发布平台', text:'已准备内容发布平台，可在平台内检查物料、选择渠道并发起分发。', href:'/results/publish-platform.html', link:'打开发布平台' },
     { test: /全年.{0,4}(?:营销)?日历|营销日历|日历.{0,6}营销/i, label:'全年营销日历', text:'已生成全年营销节奏入口，可查看 2026 年节点、活动和内容排期。', href:'/results/marketing-calendar.html', link:'打开全年营销日历' },
@@ -188,7 +188,9 @@
   const originalSendAgentChat = window.sendAgentChat;
   window.sendAgentChat = async () => {
     const query = document.getElementById('agentInput')?.value.trim() || '';
-    const skill = keywordSkills.find(item => item.test.test(query));
+    const roleText = document.querySelector('#agent-chat .chat-brand')?.textContent || document.querySelector('#agent-chat .chat-profile')?.textContent || '';
+    const isMarketing = /数字营销/.test(roleText);
+    const skill = keywordSkills.find(item => item.test.test(query) && (!item.role || (item.role === 'marketing' && isMarketing)));
     if (skill) return showKeywordSkill(skill, query);
     return originalSendAgentChat();
   };
@@ -234,7 +236,7 @@
     await new Promise(resolve => setTimeout(resolve, 3000));
     clearInterval(progress);
     const wait = document.getElementById(waitId);
-    if (wait) wait.outerHTML = '<div class="bubble bot">已校检完成，已生成短视频分镜脚本。<br><a class="skill-result-link" href="/downloads/圣灵节专场营销-短视频分镜脚本.xlsm" download>下载短视频分镜脚本 Excel →</a></div>';
+    if (wait) wait.outerHTML = '<div class="bubble bot">已校检完成，已生成短视频分镜脚本。<br><a class="skill-result-link" href="/downloads/圣灵节专场营销-短视频分镜脚本.xlsx?v=20260923" download="圣灵节专场营销-短视频分镜脚本.xlsx">下载短视频分镜脚本 Excel →</a></div>';
     messages.scrollTop = messages.scrollHeight;
   };
 })();

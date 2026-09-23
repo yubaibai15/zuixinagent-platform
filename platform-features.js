@@ -47,9 +47,9 @@
   async function cfg(){const d=await api('/api/settings'),a=document.getElementById('sp');if(a){a.value=d.platformName||'';document.getElementById('sw').value=d.workspaceName||'';document.getElementById('sr').value=d.retentionDays||365}}window.saveCfg=async()=>{await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({platformName:document.getElementById('sp').value,workspaceName:document.getElementById('sw').value,retentionDays:+document.getElementById('sr').value})});say('系统设置已保存')};
   let chatAgent, chatFiles=[];
   const demoAgents=[
-    {_id:'demo-data',name:'数据洞察助手',role:'数据分析师',avatar:'/assets/role-avatars/data-analyst.png',scope:'team',description:'行业趋势、经营数据、用户画像与可视化报告',greeting:'你好，我是你的数据洞察搭档',questions:['分析数据并给出建议','生成用户画像看板','梳理核心指标口径'],actions:['数据看板','客户画像','独立站看板','社媒看板','趋势分析','报告生成','直播数据导出']},
+    {_id:'demo-data',name:'数据洞察助手',role:'数据分析师',avatar:'/assets/role-avatars/data-analyst.png',scope:'team',description:'行业趋势、经营数据、用户画像与可视化报告',greeting:'你好，我是你的数据洞察搭档',questions:['分析数据并给出建议','生成用户画像看板','梳理核心指标口径'],actions:['数据看板','客户画像','独立站看板','社媒看板','趋势分析','报告生成']},
     {_id:'demo-ops',name:'电商运营助手',role:'电商运营师',avatar:'/assets/role-avatars/ecommerce-operator.png',scope:'team',description:'跨境店铺运营、选品、知识图谱、合规与售后策略',greeting:'你好，我是你的运营搭档',questions:['制定店铺周运营计划','分析选品机会','打开业务知识图谱'],actions:['店铺诊断','选品分析','知识图谱','售后话术']},
-    {_id:'demo-marketing',name:'数字营销助手',role:'数字营销师',avatar:'/assets/role-avatars/digital-marketer.png',scope:'team',description:'品牌战略、直播策划、内容合规、发布平台与全年营销日历',greeting:'你好，我是你的营销搭档',questions:['生成直播整场脚本','制定全年营销节奏','分析数据并给出建议'],actions:['直播脚本','全年日历','投流复盘','发布平台']},
+    {_id:'demo-marketing',name:'数字营销助手',role:'数字营销师',avatar:'/assets/role-avatars/digital-marketer.png',scope:'team',description:'品牌战略、直播策划、内容合规、发布平台与全年营销日历',greeting:'你好，我是你的营销搭档',questions:['生成直播整场脚本','制定全年营销节奏','分析数据并给出建议'],actions:['直播数据导出','直播脚本','全年日历','投流复盘','发布平台']},
     {_id:'demo-visual',name:'内容创意助手',role:'视觉设计师',avatar:'/assets/role-avatars/visual-designer.jpg',scope:'team',description:'海外广告视觉、产品图、品牌规范与设计文案',greeting:'你好，我是你的内容创意搭档',questions:['策划海外广告主视觉','生成产品图拍摄清单','校验品牌视觉规范'],actions:['视觉简报','产品图','品牌规范','设计文案']}
   ];
   const roleAvatars={
@@ -157,7 +157,7 @@ window.openAgentChat=id=>{const list=[...(window.remoteAgents||[]),...demoAgents
   window.runFeature=name=>{const btn=document.querySelector('#quick-feature .feature-form .primary');if(!btn)return;btn.disabled=true;btn.textContent='正在生成与校验…';setTimeout(()=>{btn.disabled=false;btn.textContent=name==='发布物料'?'分发任务已创建 ✓':'结果已生成并保存 ✓';document.querySelectorAll('#quick-feature .feature-steps>div').forEach(x=>x.classList.add('active'));document.querySelectorAll('#quick-feature .feature-steps em').forEach(x=>x.textContent='已完成');if(name==='数据看板'){const preview=document.querySelector('#quick-feature .feature-preview>div');if(preview){preview.className='inline-dashboard';preview.innerHTML=dashboardMarkup()}saveDashboardDeliverable();showDashboardResult();say('数据看板已生成，并保存到成果中心')}else say(name==='发布物料'?'物料已进入分发队列，可逐渠道确认发布':'结果已生成并同步到成果中心')},900)};
   const runFeatureDefault=window.runFeature;window.runFeature=name=>{if(name==='数据看板')return runFeatureDefault(name);const btn=document.querySelector('#quick-feature .feature-form .primary');if(!btn)return;btn.disabled=true;btn.textContent='正在生成与校验…';setTimeout(()=>{btn.disabled=false;btn.textContent='结果已生成并保存 ✓';document.querySelectorAll('#quick-feature .feature-steps>div').forEach(x=>x.classList.add('active'));document.querySelectorAll('#quick-feature .feature-steps em').forEach(x=>x.textContent='已完成');if(name==='直播数据导出'){window.downloadLiveDataExcel?.();say('直播数据 Excel 已生成并下载');return}saveStructuredDeliverable(name);if(deliverableLinks[name]){location.href=deliverableLinks[name];return}showStructuredResult(name);say(`${name}已生成并同步到成果中心`)},850)};
   const resultUrls={
- '直播脚本':'/downloads/圣灵节专场营销-短视频分镜脚本.xlsm',
+ '直播脚本':'/downloads/圣灵节专场营销-短视频分镜脚本.xlsx',
  '全年日历':'/results/marketing-calendar.html',
  '营销日历':'/results/marketing-calendar.html',
  '投流复盘':'/results/data-dashboards.html',
@@ -198,7 +198,7 @@ window.openAgentChat=id=>{const list=[...(window.remoteAgents||[]),...demoAgents
   const escapeText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const findSkill=q=>{
     q=String(q||'');
-    if(/爬取|采集|直播数据|直播.*数据|数据.*直播/.test(q))return {name:'直播数据采集',href:'/downloads/A企业、竞品直播数据.xlsx',label:'下载 Excel 数据'};
+    if(/数字营销/.test(document.querySelector('#agent-chat .chat-brand')?.textContent || '') && /爬取|采集|直播数据|直播.*数据|数据.*直播/.test(q))return {name:'直播数据采集',href:'/downloads/A企业、竞品直播数据.xlsx',label:'下载 Excel 数据'};
     if(/知识图谱|图谱/.test(q))return {name:'知识图谱',href:resultPages['知识图谱'],label:'打开知识图谱'};
     if(/全年.*日历|营销日历|日历/.test(q))return {name:'全年营销日历',href:resultPages['全年日历'],label:'打开全年营销日历'};
     if(/发布平台|发布渠道|分发平台/.test(q))return {name:'内容分发平台',href:resultPages['发布平台'],label:'打开发布平台'};
