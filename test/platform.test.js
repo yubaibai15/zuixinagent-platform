@@ -36,6 +36,12 @@ test('homepage roles and legacy assistant names open the matching chat directly'
 test('core scripts and local result pages exist', () => {
   ['index.html', 'server.js', 'chat-dispatcher.js', 'team-file-download.js', 'results/data-dashboards.html', 'results/marketing-calendar.html', 'downloads/A企业、竞品直播数据.xlsx', 'downloads/圣灵节专场营销-短视频分镜脚本.xlsm'].forEach(file => assert.equal(fs.existsSync(path.join(root, file)), true, file));
 });
+test('container build excludes local and Office temporary files', () => {
+  const ignore = read('.dockerignore');
+  assert.match(ignore, /downloads\/~\$\*/);
+  assert.match(ignore, /node_modules/);
+  assert.match(ignore, /\.env/);
+});
 test('visual Excel link matches the user-provided storyboard workbook', () => assert.match(read('chat-dispatcher.js'), /圣灵节专场营销-短视频分镜脚本\.xlsm/));
 test('marketing calendar opens from the marketing chat', () => {
   const source = read('chat-dispatcher.js');
