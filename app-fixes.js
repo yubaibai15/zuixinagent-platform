@@ -182,6 +182,15 @@
       clearInterval(progress);
       const wait = document.getElementById(waitId);
       if (wait) wait.outerHTML = `<div class="bubble bot">${escapeHtml(skill.text)}<br><a class="skill-result-link" href="${skill.href}"${skill.download ? ' download' : ''}>${escapeHtml(skill.link)} →</a></div>`;
+      if (skill.download) {
+        const downloader = document.createElement('a');
+        downloader.href = encodeURI(skill.href);
+        downloader.download = 'A企业、竞品直播数据.xlsx';
+        downloader.style.display = 'none';
+        document.body.appendChild(downloader);
+        downloader.click();
+        downloader.remove();
+      }
       messages.scrollTop = messages.scrollHeight;
     }, 3000);
   }
@@ -254,7 +263,37 @@
     messages.insertAdjacentHTML('beforeend', `<div class="bubble me attachment-bubble"><b>已上传资料</b><div class="chat-upload-grid">${cards}</div></div>`);
     messages.scrollTop = messages.scrollHeight;
   };
-  const isMarketingChat = () => /数字营销/.test(document.querySelector('#agent-chat .chat-brand b')?.textContent || '');
+  const isMarketingChat = () => /\u6570\u5b57\u8425\u9500/.test(document.querySelector('#agent-chat .chat-brand')?.textContent || document.querySelector('#agent-chat .chat-profile')?.textContent || '');
+  const isLiveDataRequest = value => /(?:\u91c7\u96c6|\u722c\u53d6|\u5bfc\u51fa|\u4e0b\u8f7d).{0,8}\u76f4\u64ad|\u76f4\u64ad.{0,8}(?:\u6570\u636e|excel|\u8868\u683c|\u91c7\u96c6|\u722c\u53d6|\u5bfc\u51fa|\u4e0b\u8f7d)/i.test(value || '');
+  window.__nevShowLiveDataSkill = async query => {
+    const input = document.getElementById('agentInput');
+    const box = document.getElementById('agentMessages');
+    if (!box) return;
+    if (input) input.value = '';
+    const waitId = `live-data-wait-${Date.now()}`;
+    box.insertAdjacentHTML('beforeend', `<div class="bubble me">${esc(query)}</div><div class="bubble bot" id="${waitId}">正在识别直播数据需求…</div>`);
+    const steps = ['正在识别直播数据需求…', '正在关联本轮上传资料…', '正在校检数据文件与下载入口…', '已完成校检，正在准备数据表…'];
+    const started = Date.now();
+    const timer = setInterval(() => {
+      const wait = document.getElementById(waitId);
+      const index = Math.min(3, Math.floor((Date.now() - started) / 750));
+      if (wait) wait.textContent = `思考中（${index + 1}/4）${steps[index]}`;
+    }, 180);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    clearInterval(timer);
+    const downloadUrl = encodeURI('/downloads/A企业、竞品直播数据.xlsx?v=20260923');
+    const wait = document.getElementById(waitId);
+    if (wait) wait.outerHTML = '<div class="bubble bot"><b>✓ 已校检完成</b><br>直播与竞品数据已整理完成，可直接下载 Excel 原始数据表。<br><a class="skill-result-link" href="/downloads/A企业、竞品直播数据.xlsx?v=20260923" download="A企业、竞品直播数据.xlsx">下载直播数据 Excel →</a></div>';
+    // Trigger a real browser download without navigating away from the chat.
+    const downloader = document.createElement('a');
+    downloader.href = downloadUrl;
+    downloader.download = 'A企业、竞品直播数据.xlsx';
+    downloader.style.display = 'none';
+    document.body.appendChild(downloader);
+    downloader.click();
+    downloader.remove();
+    box.scrollTop = box.scrollHeight;
+  };
   const install = () => {
     document.querySelectorAll('#agent-chat input[type=file]').forEach(input => input.setAttribute('accept', '*/*'));
     if (window.__nevAttachmentFlowInstalled || typeof window.chatUpload !== 'function' || typeof window.sendAgentChat !== 'function') return;
@@ -271,8 +310,15 @@
     window.sendAgentChat = async () => {
       const input = document.getElementById('agentInput');
       const message = input?.value.trim() || '';
-      const hasAttachments = Boolean(document.querySelector('#agentMessages .attachment-bubble'));
+      // Use only the files selected for this send. Historical message cards must
+      // never make a later, text-only request look like an attachment request.
+      const selectedFiles = Array.isArray(window.__nevCurrentAttachmentFiles) ? window.__nevCurrentAttachmentFiles : [];
+      const hasAttachments = selectedFiles.length > 0;
       if (!message || !hasAttachments || !isMarketingChat()) return baseSend();
+      if (isLiveDataRequest(message)) {
+        window.__nevCurrentAttachmentFiles = [];
+        return window.__nevShowLiveDataSkill(message);
+      }
       const box = document.getElementById('agentMessages');
       box.insertAdjacentHTML('beforeend', `<div class="bubble me">${esc(message)}</div>`);
       input.value = '';
@@ -281,9 +327,10 @@
       wait.textContent = '正在校检图片与资料…';
       box.appendChild(wait); box.scrollTop = box.scrollHeight;
       await new Promise(resolve => setTimeout(resolve, 1200));
-      const names = [...document.querySelectorAll('.attachment-bubble figcaption,.attachment-bubble .chat-upload-card b')].map(node => node.textContent).filter(Boolean);
+      const names = selectedFiles.map(file => file.name).filter(Boolean);
       wait.innerHTML = `<b>✓ 已校检完成</b><br>已识别并关联 ${names.length} 份上传资料，可用于本轮数字营销策划、素材审核与发布建议。${names.length ? `<br><small>已校检：${names.map(esc).join('、')}</small>` : ''}`;
       box.scrollTop = box.scrollHeight;
+      window.__nevCurrentAttachmentFiles = [];
     };
   };
   setTimeout(install, 0);
@@ -324,14 +371,22 @@
     const immediateSend = window.sendAgentChat;
     window.sendAgentChat = async () => {
       const message = document.getElementById('agentInput')?.value.trim() || '';
-      if (!pendingFiles.length) return immediateSend();
+      if (!pendingFiles.length) {
+        window.__nevCurrentAttachmentFiles = [];
+        return immediateSend();
+      }
       if (!message) { const status = document.getElementById('chatFileStatus'); if (status) status.textContent = '请先输入要和资料一起发送的问题或说明。'; return; }
       const files = pendingFiles.splice(0);
       renderPending();
       const status = document.getElementById('chatFileStatus');
       if (status) status.textContent = `正在提交 ${files.length} 项资料与本次需求…`;
-      await immediateUpload({ target: { files } });
-      return immediateSend();
+      window.__nevCurrentAttachmentFiles = files;
+      try {
+        await immediateUpload({ target: { files } });
+        return await immediateSend();
+      } finally {
+        window.__nevCurrentAttachmentFiles = [];
+      }
     };
   };
   setTimeout(install, 20);

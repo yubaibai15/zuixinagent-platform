@@ -70,7 +70,15 @@ app.get('/results/:file', (req, res, next) => {
 });
 // 技能成果和下载资料与前端同域发布，部署后使用 /results 与 /downloads 相对链接即可访问。
 app.use('/results', express.static(path.join(__dirname, 'results')));
-app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
+app.use('/downloads', express.static(path.join(__dirname, 'downloads'), {
+  setHeaders(res, filePath) {
+    // Keep downloadable workbooks out of the browser viewer. This also makes
+    // programmatic downloads from the chat behave consistently across browsers.
+    if (/\.(xlsx|xls|csv)$/i.test(filePath)) {
+      res.setHeader('Content-Disposition', 'attachment');
+    }
+  }
+}));
 
 const now = () => new Date().toISOString();
 const id = () => crypto.randomUUID();
